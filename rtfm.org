@@ -41,6 +41,7 @@
     - [[suppress some ad-handle-definition warnings]]
     - [[more garbage collection related settings]]
   - [[some constants and settings that need to be configured initially]]
+    - [[compat]]
     - [[constants]]
     - [[custom-file settings]]
     - [[gnutls and security]]
@@ -102,7 +103,7 @@
 - [[set custom variables]]
 #+END_TOC
 
-
+  
 * starting headers
 
 #+begin_src emacs-lisp
@@ -111,9 +112,9 @@
 ;;; Code:
 #+end_src
 
-
+  
 * vanilla emacs settings
-
+  
 ** mostly related to initialization process
 
 *** earlyinits
@@ -201,6 +202,53 @@ continue with regular garbage collection.
 
 
 ** some constants and settings that need to be configured initially
+
+*** compat
+    
+    #+begin_src emacs-lisp
+
+  (when (version< emacs-version "25")
+    (progn
+      (defun seq-do (function sequence)
+        "Apply FUNCTION to each element of SEQUENCE for side effects.
+    FUNCTION must be a one-argument function, and SEQUENCE may be a list, vector, or string."
+        (cond
+         ((listp sequence)
+          (mapc function sequence))
+         ((vectorp sequence)
+          (mapc function (append sequence nil)))
+         ((stringp sequence)
+          (mapc function (string-to-list sequence)))
+         (t
+          (error "Unsupported sequence type: %s" (type-of sequence)))))
+      (defun seq-map (function sequence)
+        "Apply FUNCTION to each element of SEQUENCE and return a sequence of the same type.
+    SEQUENCE may be a list, vector, or string."
+        (cond
+         ((listp sequence)
+          (mapcar function sequence))
+         ((vectorp sequence)
+          (apply 'vector (mapcar function (append sequence nil))))
+         ((stringp sequence)
+          (concat (mapcar function (string-to-list sequence))))
+         (t
+          (error "Unsupported sequence type: %s" (type-of sequence)))))
+      (defun seq-concatenate (type &rest sequences)
+        "Concatenate SEQUENCES into a single sequence of TYPE.
+  TYPE can be 'list, 'vector, or 'string."
+        (cond
+         ((eq type 'list)
+          (apply #'append sequences))
+         ((eq type 'vector)
+          (apply #'vconcat sequences))
+         ((eq type 'string)
+          (mapconcat #'identity sequences ""))
+         (t
+          (error "Unsupported type: %s" type))))))
+
+
+    #+end_src
+    
 *** constants
 
 Dynamically generate version-specific constants for Emacs versions 24
@@ -608,7 +656,7 @@ RIGHT, aligned respectively."
                                                          (window-hscroll)))))
 #+end_src
 
-
+    
 ** require some libraries
 
 #+begin_src emacs-lisp
@@ -620,7 +668,7 @@ RIGHT, aligned respectively."
 
 #+end_src
 
-
+   
 ** basic emacs editor preferences
 *** set load path
 
@@ -964,7 +1012,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+end_src
 
-
+    
 ** theming
 
 #+begin_src emacs-lisp
@@ -997,7 +1045,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+end_src
 
-
+   
 ** completion
 
 #+begin_src emacs-lisp
@@ -1024,7 +1072,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+end_src
 
-
+   
 ** scratch_buffer_creator
 
 #+begin_src emacs-lisp
@@ -1051,7 +1099,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+end_src
 
-
+   
 ** emacs built in packages
 
 *** imenu
@@ -2350,7 +2398,7 @@ within stops
 
 #+end_src
 
-
+    
 ** COMMENT copy path from shell old
 
 #+begin_src emacs-lisp
@@ -2405,7 +2453,7 @@ Returns the imported value."
 
 #+end_src
 
-
+   
 ** copy path from shell newer
 
 #+begin_src emacs-lisp
@@ -2454,14 +2502,14 @@ Returns nil if the variable is unset or if there's an error."
 
 #+end_src
 
-
+   
 ** COMMENT copy path from shell newer async
 
 #+begin_src emacs-lisp
 
 #+end_src
 
-
+   
 * create launchers for some tui apps if they exist
 
 #+begin_src emacs-lisp
@@ -2486,7 +2534,7 @@ Returns nil if the variable is unset or if there's an error."
 
 #+end_src
 
-
+  
 * COMMENT start server
 
 #+begin_src emacs-lisp
@@ -2502,7 +2550,7 @@ Returns nil if the variable is unset or if there's an error."
 
 #+end_src
 
-
+  
 * simple dashboard
 
 #+begin_src emacs-lisp
@@ -2641,7 +2689,7 @@ repeated NUM times, including empty lines."
 
 #+end_src
 
-
+  
 * load-theme
 
 #+begin_src emacs-lisp
@@ -2682,7 +2730,7 @@ repeated NUM times, including empty lines."
 
 #+end_src
 
-
+  
 * COMMENT initial scratch-buffer settings
 
 #+begin_src emacs-lisp
@@ -2693,7 +2741,7 @@ repeated NUM times, including empty lines."
 
 #+end_src
 
-
+  
 * load custom faces
 
 #+begin_src emacs-lisp
@@ -2711,7 +2759,7 @@ repeated NUM times, including empty lines."
 
 #+end_src
 
-
+  
 * set custom variables
 
 #+begin_src emacs-lisp
