@@ -118,3 +118,4 @@ straight/
 var/
 eln-cache/
 .cache/
+compiled/
