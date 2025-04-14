@@ -1,0 +1,44 @@
+#+TITLE: Init File
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+OPTIONS: toc:3          (only include two levels in TOC)
+# #+HTML_HEAD:  <link rel="stylesheet" type="text/css" href="http://a-dma.github.io/gruvbox-css/gruvbox-dark-medium.min.css" />
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://classless.de/classless.css">
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+STARTUP: overview
+#+COMMENTED_TOC: 1
+
+* table of contents                                                :noexport:
+#+BEGIN_TOC
+- [[table of contents]]
+- [[starting headers]]
+- [[start server]]
+#+END_TOC
+
+
+* starting headers
+#+begin_src emacs-lisp
+;;; package --- Summary
+;;; Commentary:
+;;; Code:
+#+end_src
+
+
+* start server
+
+#+begin_src emacs-lisp
+
+(run-with-idle-timer 0.6 nil (lambda () (require 'server)
+                               (unless (server-running-p)
+                                 (server-start))))
+
+
+;; (require 'server)
+;; (unless (server-running-p)
+;;   (server-start))
+
+#+end_src
+

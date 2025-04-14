@@ -1,0 +1,2732 @@
+#+TITLE: Init File
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+OPTIONS: toc:3          (only include two levels in TOC)
+
+# #+HTML_HEAD: <link rel="stylesheet" href="https://classless.de/classless.css">
+# #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://a-dma.github.io/gruvbox-css/gruvbox-dark-medium.min.
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/npm/@exampledev/new.css/new.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/missing.css/dist/missing.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/boltcss/bolt.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.lite.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/neobrutalismcss@latest" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eobrain/classless-tufte-css@v1.0.1/tufte.min.css"/>
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/latex.css/style.min.css" />
+# #+HTML_HEAD: <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></scrip
+
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+STARTUP: overview
+#+COMMENTED_TOC: 1
+
+* table of contents                                                :noexport:
+#+BEGIN_TOC
+- [[table of contents]]
+- [[starting headers]]
+- [[vanilla emacs settings]]
+  - [[mostly related to initialization process]]
+    - [[earlyinits]]
+    - [[deferred compilation]]
+    - [[other init settings for speed]]
+    - [[suppress some ad-handle-definition warnings]]
+    - [[more garbage collection related settings]]
+  - [[some constants and settings that need to be configured initially]]
+    - [[constants]]
+    - [[custom-file settings]]
+    - [[gnutls and security]]
+    - [[encryption related additional]]
+    - [[lexical binding]]
+  - [[window(frame) look and feel setting]]
+    - [[general frame and window settings]]
+    - [[minor-modes-menu-based-on-minions]]
+    - [[mode-line-modify]]
+    - [[headerline]]
+  - [[require some libraries]]
+  - [[basic emacs editor preferences]]
+    - [[set load path]]
+    - [[set utf-8 as default coding system]]
+    - [[autorevert]]
+    - [[backup and auto-save-list]]
+    - [[clipboard]]
+    - [[yes,no]]
+    - [[enable some disabled commands]]
+    - [[input method]]
+    - [[indentation stuff]]
+    - [[Sentences end with a single space]]
+    - [[line-spacing]]
+    - [[line-number]]
+    - [[show-parens]]
+    - [[scrolling]]
+    - [[marking]]
+    - [[isearch]]
+    - [[explicitly set shell]]
+    - [[better support for long lines]]
+    - [[rectangle mode]]
+  - [[theming]]
+  - [[completion]]
+  - [[scratch_buffer_creator]]
+  - [[emacs built in packages]]
+    - [[imenu]]
+    - [[ibuffer]]
+    - [[comint-mode]]
+    - [[shell-mode]]
+    - [[eshell]]
+    - [[term-mode]]
+    - [[eww & shr]]
+    - [[flymake]]
+    - [[ediff]]
+    - [[tramp]]
+    - [[dired]]
+    - [[org]]
+    - [[outline]]
+    - [[tab-bar & tabline]]
+    - [[recentf]]
+    - [[hippie_expand]]
+    - [[abbrev]]
+    - [[tempo]]
+  - [[copy path from shell newer]]
+- [[create launchers for some tui apps if they exist]]
+- [[simple dashboard]]
+- [[load-theme]]
+- [[load custom faces]]
+- [[set custom variables]]
+#+END_TOC
+
+
+* starting headers
+
+#+begin_src emacs-lisp
+;;; package --- Summary
+;;; Commentary:
+;;; Code:
+#+end_src
+
+
+* vanilla emacs settings
+
+** mostly related to initialization process
+
+*** earlyinits
+
+ This snippet ensures that users running versions of Emacs prior to
+ 27.0 can utilize custom configurations defined in early-init.el,
+ thereby enhancing their Emacs experience without disrupting
+ compatibility with newer versions.
+
+#+begin_src emacs-lisp
+
+(when (version< emacs-version "27.0")
+  (let ((dafile
+         (expand-file-name "early-init.el" user-emacs-directory)))
+    (when (file-exists-p dafile)
+      (load-file dafile))))
+
+#+end_src
+
+*** deferred compilation
+
+First, it checks if your version of Emacs supports native compilation
+(a feature that speeds up the execution of Emacs Lisp code). If it
+does, the code enables deferred compilation. Next, it customizes the
+warning settings to suppress certain types of messages. Specifically,
+it silences warnings from Flycheck (a popular syntax checker) and from
+the native compilation process.
+
+#+begin_src emacs-lisp
+
+(when (not (version< emacs-version "27.0"))
+  (progn
+    (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+    (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
+
+#+end_src
+
+*** other init settings for speed
+
+Inhibit the default setting and kill scratch buffer to speedup
+initialization time and I don't like having an elisp interaction mode
+as the default scratch buffer.
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'inhibit-default-init t)
+;; (setq initial-major-mode 'fundamental-mode)
+(kill-buffer "*scratch*")
+
+#+end_src
+
+*** suppress some ad-handle-definition warnings
+
+Accept ad-redefinitions during advice redefintions. I want it to
+accept it to avoid warnings related to them. Original value was
+‘warn’.
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'ad-redefinition-action 'accept)
+
+#+end_src
+
+*** more garbage collection related settings
+
+Define functions to change gc-cons-threshold to the maximum fixnum so
+that garbage collection could be left untila after init. After init
+continue with regular garbage collection.
+
+#+begin_src emacs-lisp
+
+(defun yae-defer-garbage-collection-h ()
+  (setq gc-cons-threshold most-positive-fixnum))
+
+(defun yae-restore-garbage-collection-h ()
+  ;; Defer it so that commands launched immediately after will enjoy the
+  ;; benefits.
+  (run-at-time
+   1 nil (lambda () (setq gc-cons-threshold yae-gc-cons-threshold))))
+
+(add-hook 'minibuffer-setup-hook #'yae-defer-garbage-collection-h)
+(add-hook 'minibuffer-exit-hook #'yae-restore-garbage-collection-h)
+
+#+end_src
+
+
+** some constants and settings that need to be configured initially
+*** constants
+
+Dynamically generate version-specific constants for Emacs versions 24
+through 35 and defines constants to identify the operating system
+type. This allows for easy conditional checks based on both Emacs
+version and the underlying system, facilitating cross-platform
+compatibility in configurations.
+
+#+begin_src emacs-lisp
+
+;; define  variables by using a macro that generates and evaluates as below
+;; (defconst EMACS24+   (> emacs-major-version 23)) using macros
+(defmacro yae-gen-ver-consts (var)
+  "Define a macro to create constants to check Emacs version greater than VAR."
+  (list 'defconst
+        (intern (concat "EMACS" (int-to-string var) "+"))
+        (> emacs-major-version (- var 1))))
+
+;;evaluate the macro for the number range we want
+(seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+
+;; (map #(eval (list 'yae-gen-ver-consts %)) (range 24 36))
+
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+
+#+end_src
+
+*** custom-file settings
+
+Direct Emacs to save custom settings in a specific file (custom.el),
+which helps in organizing user configurations and maintaining them
+separately from the main configuration file.
+
+#+begin_src emacs-lisp
+
+(customize-set-variable
+ 'custom-file
+ (expand-file-name "custom.el" user-emacs-directory))
+
+;; (add-hook 'kill-emacs-query-functions
+;;           'custom-prompt-customize-unsaved-options)
+
+#+end_src
+
+*** gnutls and security
+
+#+begin_src emacs-lisp
+
+;;; Security
+
+;; Emacs is essentially one huge security vulnerability, what with all the
+;; dependencies it pulls in from all corners of the globe. Let's try to be at
+;; least a little more discerning.
+(setq gnutls-verify-error (not (getenv-internal "INSECURE"))
+      gnutls-algorithm-priority
+      (when (boundp 'libgnutls-version)
+        (concat "SECURE128:+SECURE192:-VERS-ALL"
+                (if (and (not IS-WINDOWS)
+                         (not (version< emacs-version "26.3"))
+                         (>= libgnutls-version 30605))
+                    ":+VERS-TLS1.3")
+                ":+VERS-TLS1.2"))
+      ;; `gnutls-min-prime-bits' is set based on recommendations from
+      ;; https://www.keylength.com/en/4/
+      gnutls-min-prime-bits 3072
+      tls-checktrust gnutls-verify-error
+      ;; Emacs is built with `gnutls' by default, so `tls-program' would not be
+      ;; used in that case. Otherwise, people have reasons to not go with
+      ;; `gnutls', we use `openssl' instead. For more details, see
+      ;; https://redd.it/8sykl1
+      tls-program '("openssl s_client -connect %h:%p -CAfile %t -nbio -no_ssl3 -no_tls1 -no_tls1_1 -ign_eof"
+                    "gnutls-cli -p %p --dh-bits=3072 --ocsp --x509cafile=%t \
+--strict-tofu --priority='SECURE192:+SECURE128:-VERS-ALL:+VERS-TLS1.2:+VERS-TLS1.3' %h"
+                    ;; compatibility fallbacks
+                    "gnutls-cli -p %p %h"))
+
+;; Emacs stores `authinfo' in $HOME and in plain-text. Let's not do that, mkay?
+;; This file stores usernames, passwords, and other such treasures for the
+;; aspiring malicious third party.
+(setq auth-sources (list (expand-file-name "authinfo.gpg"  user-emacs-directory)
+                         "~/.authinfo.gpg"))
+
+;;gnutls
+(add-hook 'after-init-time-hook (setq gnutls-min-prime-bits 4096))
+
+#+end_src
+
+*** encryption related additional
+
+Select gpg2 for the gpg version to use and specify authinfo.gpg for
+credentials.
+
+#+begin_src emacs-lisp
+
+;; (customize-set-variable 'epg-gpg-program "gpg2")
+(customize-set-variable 'auth-sources '("~/.authinfo.gpg"))
+
+#+end_src
+
+*** lexical binding
+
+Lexical binding is a feature in Emacs Lisp (Elisp) that allows
+variables to be bound within the scope where they are defined, rather
+than dynamically through the call stack. This mechanism significantly
+influences how variables behave and are accessed in Elisp, leading to
+more predictable and intuitive programming.
+
+#+begin_src emacs-lisp
+
+(setq-default lexical-binding t)
+
+#+end_src
+
+
+
+** window(frame) look and feel setting
+*** general frame and window settings
+#+begin_src emacs-lisp
+
+;; Most of what follows is stolen from emcs 29 because my functions to do global scaling
+;; depend on how I define fonts. This is the more flexable way to do it
+;; any modification to this code that deals with global-text-scaling will therefore
+;; follow the license that emacs enforces so read the emacs license
+(when (not EMACS29+)
+  (progn
+    (require 'face-remap)
+
+    (defcustom global-text-scale-adjust-resizes-frames nil
+      "Whether `global-text-scale-adjust' resizes the frames."
+      :type '(choice (const :tag "Off" nil)
+                     (const :tag "On" t))
+      :group 'display
+      :version "29.1")
+
+    (defcustom global-text-scale-adjust-limits '(10 . 500)
+      "Min/max values for `global-text-scale-adjust'.
+This is a cons cell where the `car' has the minimum font size and
+the `cdr' has the maximum font size, in units of 1/10 pt."
+      :version "29.1"
+      :group 'display
+      :type '(cons (integer :tag "Min")
+                   (integer :tag "Max")))
+
+    (defvar global-text-scale-adjust--default-height nil)
+
+    (defvar global-text-scale-adjust--increment-factor 5)
+
+
+    (defun global-text-scale-adjust (increment)
+      "Change (a.k.a. \"adjust\") the font size of all faces by INCREMENT.
+
+Interactively, INCREMENT is the prefix numeric argument, and defaults
+to 1.  Positive values of INCREMENT increase the font size, negative
+values decrease it.
+
+When you invoke this command, it performs the initial change of the
+font size, and after that allows further changes by typing one of the
+following keys immediately after invoking the command:
+
+   \\`+', \\`='   Globally increase the height of the default face
+   \\`-'      Globally decrease the height of the default face
+   \\`0'      Globally reset the height of the default face
+
+(The change of the font size produced by these keys depends on the
+final component of the key sequence, with all modifiers removed.)
+
+Buffer-local face adjustments have higher priority than global
+face adjustments.
+
+The variable `global-text-scale-adjust-resizes-frames' controls
+whether the frames are resized to keep the same number of lines
+and characters per line when the font size is adjusted.
+
+See also the related command `text-scale-adjust'.  Unlike that
+command, which scales the font size with a factor,
+`global-text-scale-adjust' scales the font size with an
+increment."
+      (interactive "p")
+      (when (display-graphic-p)
+        (unless global-text-scale-adjust--default-height
+          (setq global-text-scale-adjust--default-height
+                (face-attribute 'default :height)))
+        (let* ((key (event-basic-type last-command-event))
+               (echo-keystrokes nil)
+               (cur (face-attribute 'default :height))
+               (inc
+                (pcase key
+                  (?- (* (- increment)
+                         global-text-scale-adjust--increment-factor))
+                  (?0 (- global-text-scale-adjust--default-height cur))
+                  (_ (* increment
+                        global-text-scale-adjust--increment-factor))))
+               (new (+ cur inc)))
+          (when (< (car global-text-scale-adjust-limits)
+                   new
+                   (cdr global-text-scale-adjust-limits))
+            (let ((frame-inhibit-implied-resize
+                   (not global-text-scale-adjust-resizes-frames)))
+              (set-face-attribute 'default nil :height new)
+              (redisplay 'force)
+              (when (and (not (and (characterp key) (= key ?0)))
+                         (= cur (face-attribute 'default :height)))
+                (setq global-text-scale-adjust--increment-factor
+                      (1+ global-text-scale-adjust--increment-factor))
+                (global-text-scale-adjust increment))))
+          (when (characterp key)
+            (set-transient-map
+             (let ((map (make-sparse-keymap)))
+               (dolist (mod '(() (control meta)))
+                 (dolist (key '(?+ ?= ?- ?0))
+                   (define-key map (vector (append mod (list key)))
+                     'global-text-scale-adjust)))
+               map)
+             nil
+             (message "Use +, - or 0 for further adjustment"))))))
+
+    (define-key ctl-x-map [(control meta ?+)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?=)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?-)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?0)] 'global-text-scale-adjust)
+
+
+  ;;    (defvar my-default-font-height (face-attribute 'default :height))
+  ;;    (defun my-set-to-default-font-height ()
+  ;;      (interactive)
+  ;;      ;; (set-face-attribute 'default nil :height my-default-font-height)
+  ;;      (set-face-font 'default my-default-font)
+  ;;      (message (number-to-string (face-attribute 'default :height))))
+
+
+  ;;    (defun my-increase-default-font-height ()
+  ;;      (interactive)
+  ;;      (let* ((default-face-height (face-attribute 'default :height)))
+  ;;        (set-face-attribute 'default nil :height (+ default-face-height 5))
+  ;;        (message (number-to-string (face-attribute 'default :height)))
+  ;;        ))
+
+
+  ;;    (defun my-decrease-default-font-height ()
+  ;;      (interactive)
+  ;;      (let* ((default-face-height (face-attribute 'default :height)))
+  ;;        (set-face-attribute 'default nil :height (- default-face-height 5))
+  ;;        (message (number-to-string (face-attribute 'default :height)))
+  ;;        ))
+
+  ;;    (global-set-key (kbd "C-M-=") 'my-increase-default-font-height)
+  ;;    (global-set-key (kbd "C-M--") 'my-decrease-default-font-height)
+  ;;    (global-set-key (kbd "C-M-0") 'my-set-to-default-font-height)
+
+
+;; (defadvice text-scale-increase (around all-buffers (arg) activate)
+;;   (dolist (buffer (buffer-list))
+;;     (with-current-buffer buffer
+;;       ad-do-it)))
+
+;; (defadvice text-scale-decrease (around all-buffers (arg) activate)
+;;   (dolist (buffer (buffer-list))
+;;     (with-current-buffer buffer
+;;       ad-do-it)))
+
+ ))
+
+#+end_src
+
+*** minor-modes-menu-based-on-minions
+
+#+begin_src emacs-lisp
+
+(defun yae-minions--modes ()
+  (let (local global)
+    (dolist (mode (cl-mapcan (pcase-lambda (`(,mode ,_))
+                                          (and (boundp mode)
+                                               (symbol-value mode)
+                                               (list mode)))
+                                        minor-mode-alist))
+      (when (local-variable-if-set-p mode)
+        (push mode local)
+        (push mode global)))
+    (list (sort local  #'string<)
+          (sort global #'string<))))
+
+(defun yae-minions-minor-modes-menu ()
+  (interactive)
+  (pcase-let ((map (make-sparse-keymap))
+              (`(,local ,global) (yae-minions--modes)
+               ))
+    (define-key-after map [--local] (list 'menu-item "Local Modes"))
+    (dolist (mode local)
+      (if-let (menu (and (symbol-value mode)
+                         (yae-minions--mode-menu mode)
+                         ))
+          (define-key-after map (vector mode) menu)
+        (yae-minions--define-toggle map mode)
+        ))
+    (define-key-after map [--line2]  (list 'menu-item "--double-line"))
+    (define-key-after map [--global] (list 'menu-item "Global Modes"))
+    (dolist (mode global)
+      (if-let (menu (and (symbol-value mode)
+                         (yae-minions--mode-menu mode)
+                         ))
+          (define-key-after map (vector mode) menu)
+        (yae-minions--define-toggle map mode)))
+    (define-key-after map [--line1] (list 'menu-item "--double-line"))
+    (define-key-after map [describe-mode]
+      (list 'menu-item "Describe modes" 'describe-mode))
+    (condition-case nil
+        (popup-menu map)
+      (quit nil))))
+
+(defun yae-minions--mode-menu (mode)
+  (let* ((map  (or (cdr (assq mode minor-mode-map-alist))
+                   (cdr (assq mode minor-mode-overriding-map-alist))))
+         (menu (and (keymapp map)
+                    (lookup-key map [menu-bar])))
+         (menu (and menu
+                    (mouse-menu-non-singleton menu))))
+    (and menu
+         (let ((wrap (make-sparse-keymap)))
+           (set-keymap-parent wrap menu)
+           (yae-minions--define-toggle wrap mode)
+           (define-key-after wrap [yae-minions] (list 'menu-item "--double-line"))
+           (list 'menu-item (symbol-name mode) wrap)))))
+
+(defun yae-minions--define-toggle (map mode)
+  (let ((fn (or (get mode :minor-mode-function) mode)))
+    (when (functionp fn)
+      (define-key-after map (vector mode)
+        (list 'menu-item (symbol-name mode) fn
+              :button (cons :toggle mode))))))
+
+#+end_src
+
+*** mode-line-modify
+
+#+begin_src emacs-lisp
+
+(defun mode-line-split--format (left right)
+  "Return a string of `window-width' length containing LEFT and
+RIGHT, aligned respectively."
+  (let ((reserve (length right)))
+    (concat left
+        " "
+        (propertize " "
+            'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
+        right)))
+
+;; Set the new mode-line-format
+(if (display-graphic-p)
+  (setq-default mode-line-format
+        '((:eval
+           (mode-line-split--format
+            ;; Left
+            (format-mode-line
+             '("%e" mode-line-front-space
+           (:propertize
+            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+            display
+            (min-width
+             (5.0)))
+           mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+            ;; Right
+            (format-mode-line
+             '((vc-mode vc-mode)
+           "   "
+           mode-name " ";; "%m"
+           (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'yae-minions-minor-modes-menu)))
+           "   "
+           (:eval (propertize "[≡]" 'local-map (make-mode-line-mouse-map 'mouse-1 'menu-bar-open)))
+           " "
+           "  " mode-line-misc-info mode-line-end-spaces
+           )
+             )))))
+    (setq-default mode-line-format
+        '((:eval
+           (mode-line-split--format
+            ;; Left
+            (format-mode-line
+             '("%e" mode-line-front-space
+           (:propertize
+            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+            display
+            (min-width
+             (5.0)))
+           mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+            ;; Right
+            (format-mode-line
+             '((vc-mode vc-mode)
+           "   "
+           mode-name " ";; "%m"
+           "  " mode-line-misc-info mode-line-end-spaces
+           )
+             ))))))
+
+#+end_src
+
+*** headerline
+
+#+begin_src emacs-lisp
+
+(setq-default header-line-format '(:eval (substring ""
+                                                    (min (length " ")
+                                                         (window-hscroll)))))
+#+end_src
+
+
+** require some libraries
+
+#+begin_src emacs-lisp
+
+(if EMACS26+ (require 'cl-lib)
+  (require 'cl))
+
+(require 'color)
+
+#+end_src
+
+
+** basic emacs editor preferences
+*** set load path
+
+#+begin_src emacs-lisp
+
+;; (let ((default-directory  (expand-file-name "lisp" user-emacs-directory)))
+;;   (progn
+;;     (unless (file-directory-p default-directory)
+;;       (make-directory default-directory))
+;;     (normal-top-level-add-subdirs-to-load-path)))
+
+;; for me site lisp is kind of where i try things out, dump random lisp files
+;; and add some of my own packages as git modules
+(let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
+  ;; Ensure lisp directory exists
+  (unless (file-directory-p lisp-dir)
+    (make-directory lisp-dir))
+  ;; Add lisp directory to load-path if not already present
+  (unless (member lisp-dir load-path)
+    (add-to-list 'load-path lisp-dir))
+  ;; Function to add all subdirectories to load-path if not already present
+  (defun add-subdirs-to-load-path (dir)
+    "Add all directories under DIR to `load-path' if not already present."
+    (dolist (subdir (directory-files dir t "^[^.]"))
+      (when (file-directory-p subdir)
+        (unless (member subdir load-path)
+          (add-to-list 'load-path subdir))
+        (add-subdirs-to-load-path subdir))))
+  ;; Add all subdirectories of lisp-dir to load-path
+  (add-subdirs-to-load-path lisp-dir))
+
+#+end_src
+
+*** set utf-8 as default coding system
+
+#+begin_src emacs-lisp
+
+(set-language-environment "UTF-8")
+
+#+end_src
+
+*** autorevert
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-hook  #'global-auto-revert-mode)
+
+#+end_src
+
+*** backup and auto-save-list
+
+#+begin_src emacs-lisp
+
+;;backups
+
+(let ((thedir  (expand-file-name "auto-save-list" user-emacs-directory)))
+    (unless (file-directory-p thedir)
+      (make-directory thedir)))
+
+(let ((thedir  (expand-file-name "backups" user-emacs-directory)))
+    (unless (file-directory-p thedir)
+      (make-directory thedir)))
+
+(setq ;; backup-directory-alist '(((expand-file-name "backups" user-emacs-directory)))
+ backup-by-copying t    ; Don't delink hardlinks
+ version-control t      ; Use version numbers on backups
+ delete-old-versions t  ; Automatically delete excess backups
+ kept-new-versions 20   ; how many of the newest versions to keep
+ kept-old-versions 5    ; and how many of the old
+ ;;auto-save-file-name-transforms `((expand-file-name "backups" user-emacs-directory) t)
+ auto-save-file-name-transforms
+ `((".*" ,(expand-file-name  "auto-save-list" user-emacs-directory) t))
+ backup-directory-alist
+ `((".*" . ,(expand-file-name  "backups" user-emacs-directory)))
+ )
+
+#+end_src
+
+*** clipboard
+
+#+begin_src emacs-lisp
+
+;;clipboard
+
+(customize-set-variable 'select-enable-clipboard t)
+
+#+end_src
+
+*** yes,no
+
+#+begin_src emacs-lisp
+
+;;yes,no
+(fset 'yes-or-no-p 'y-or-n-p)
+
+#+end_src
+
+*** enable some disabled commands
+
+#+begin_src emacs-lisp
+
+;; enable narrowing commands
+(put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-defun 'disabled nil)
+
+;; enabled change region case commands
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+#+end_src
+
+*** input method
+
+#+begin_src emacs-lisp
+
+;;input-method
+
+(defun myinput-settings ()
+  "Settings based on input method."
+  (cond ((string= current-input-method "ethiopic")
+         (progn (setq ethio-primary-language 'amharic)
+                (ethio-select-a-translation)))
+        (t nil)))
+
+(add-hook 'input-method-activate-hook #'myinput-settings)
+
+#+end_src
+
+*** indentation stuff
+
+#+begin_src emacs-lisp
+
+;; ;; to setup tabs
+;; (setq c-basic-indent 2)
+;; (setq tab-width 4)
+;; (setq indent-tabs-mode nil)
+
+(defvaralias 'c-basic-offset 'tab-width)
+(defvaralias 'c-basic-indent 'tab-width)
+(defvaralias 'cperl-indent-level 'tab-width)
+(customize-set-variable 'indent-tabs-mode nil)
+(setq-default tab-width 4)
+
+;; make tab key do indent first then completion.
+(setq-default tab-always-indent 'complete)
+
+#+end_src
+
+*** Sentences end with a single space
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'sentence-end-double-space nil)
+
+#+end_src
+
+*** line-spacing
+
+#+begin_src emacs-lisp
+
+(setq-default line-spacing 0.1)
+(add-hook 'minibuffer-setup-hook (lambda () (setq line-spacing nil)))
+
+#+end_src
+
+*** line-number
+
+#+begin_src emacs-lisp
+
+;;line-numbers
+
+(when EMACS26+
+  (setq-default display-line-numbers-type 'relative
+                display-line-numbers-grow-only t
+                display-line-numbers-width-start t
+                display-line-numbers-width 4 )
+
+  (global-display-line-numbers-mode t))
+
+#+end_src
+
+*** show-parens
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'show-paren-mode t)
+
+#+end_src
+
+*** scrolling
+**** horizontal scrolling
+
+#+begin_src emacs-lisp
+
+(add-hook 'prog-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'html-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'web-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'dired-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'org-mode (lambda () (setq truncate-lines nil)))
+;; (add-hook 'eww-after-render-hook (lambda () (setq truncate-lines t)))
+
+(customize-set-variable 'hscroll-margin 0)
+
+(global-set-key (kbd "<mouse-7>") #'(lambda ()
+                                      (interactive)
+                                      (scroll-left 4)))
+
+(global-set-key (kbd "<mouse-6>") #'(lambda ()
+                                      (interactive)
+                                      (scroll-right 4)))
+
+#+end_src
+
+**** smooth-scrolling
+
+#+begin_src emacs-lisp
+  ;; Make scrolling less stuttered
+  (when EMACS29+
+    (pixel-scroll-precision-mode t)
+    (setq-default pixel-scroll-precision-large-scroll-height 40.0
+                  pixel-scroll-precision-interpolation-factor 30))
+
+  (customize-set-variable 'auto-window-vscroll nil)
+  (customize-set-variable 'fast-but-imprecise-scrolling t)
+  (customize-set-variable 'scroll-conservatively 101)
+  (customize-set-variable 'scroll-margin 0)
+  (customize-set-variable 'scroll-preserve-screen-position t)
+  ;; (customize-set-variable 'mouse-wheel-progressive-speed t)
+
+#+end_src
+
+*** marking
+
+#+begin_src emacs-lisp
+
+(transient-mark-mode 1)
+
+(delete-selection-mode 1)
+
+(defun push-mark-no-activate ()
+  "Pushes `point' to `mark-ring' and does not activate the region
+ Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
+  (interactive)
+  (push-mark (point) t nil)
+  (message "Pushed mark to ring"))
+
+(defun jump-to-mark ()
+  "Jumps to the local mark, respecting the `mark-ring' order.
+This is the same as using \\[set-mark-command] with the prefix argument."
+  (interactive)
+  (set-mark-command 1))
+
+(defun exchange-point-and-mark-no-activate ()
+  "Identical to \\[exchange-point-and-mark] but will not activate the region."
+  (interactive)
+  (exchange-point-and-mark)
+  (deactivate-mark nil))
+
+#+end_src
+
+*** isearch
+
+#+begin_src emacs-lisp
+
+(setq-default
+ ;; Match count next to the minibuffer prompt
+ isearch-lazy-count t
+ ;; Don't be stingy with history; default is to keep just 16 entries
+ search-ring-max 200
+ regexp-search-ring-max 200)
+
+;; swiper like fuzzy search
+;; (setq-default
+;;  isearch-regexp-lax-whitespace t
+;;  search-whitespace-regexp ".*?")
+
+;; (defun move-end-of-line-maybe-ending-isearch (arg)
+;; "End search and move to end of line, but only if already at the end of the minibuffer."
+;;   (interactive "p")
+;;   (if (eobp)
+;;       (isearch-mb--after-exit
+;;        (lambda ()
+;;          (move-end-of-line arg)
+;;          (isearch-done)))
+;;     (move-end-of-line arg)))
+
+;; (define-key isearch-mb-minibuffer-map (kbd "C-e") 'move-end-of-line-maybe-ending-isearch)
+
+#+end_src
+
+*** explicitly set shell
+
+#+begin_src emacs-lisp
+
+;; (customize-set-variable 'explicit-shell-file-name "/bin/bash")
+
+(if (executable-find "bash")
+    (customize-set-variable 'explicit-shell-file-name "/bin/bash")
+  (customize-set-variable 'explicit-shell-file-name "/bin/sh"))
+
+#+end_src
+
+*** better support for long lines
+
+#+begin_src emacs-lisp
+
+;; Better support for files with long lines
+(setq-default bidi-paragraph-direction 'left-to-right)
+(setq-default bidi-inhibit-bpa t)
+(when EMACS27+
+  (global-so-long-mode 1))
+
+#+end_src
+
+*** rectangle mode
+
+#+begin_src emacs-lisp
+
+(require 'rect)
+(with-eval-after-load 'rect
+  ;; (define-key rectangle-mark-mode-map (kbd "f") #'rectangle-right-char)
+  ;; (define-key rectangle-mark-mode-map (kbd "b") #'rectangle-left-char)
+  (define-key rectangle-mark-mode-map (kbd "n") #'rectangle-next-line)
+  (define-key rectangle-mark-mode-map (kbd "p") #'rectangle-previous-line)
+  (define-key rectangle-mark-mode-map (kbd "f") #'rectangle-forward-char)
+  (define-key rectangle-mark-mode-map (kbd "b") #'rectangle-backward-char)
+  (define-key rectangle-mark-mode-map (kbd "i") #'string-rectangle)
+  (define-key rectangle-mark-mode-map (kbd "e") #'rectangle-exchange-point-and-mark)
+  (define-key rectangle-mark-mode-map (kbd "#") #'rectangle-number-lines)
+  (define-key rectangle-mark-mode-map (kbd "w") #'copy-rectangle-as-kill) ; C-x r M-w
+  (define-key rectangle-mark-mode-map (kbd "y") #'yank-rectangle)         ; C-x r y
+  (define-key rectangle-mark-mode-map (kbd "t") #'string-rectangle)     ; C-x r t
+  (define-key rectangle-mark-mode-map (kbd "d") #'kill-rectangle)         ; C-x r d
+  (define-key rectangle-mark-mode-map (kbd "c") #'clear-rectangle)       ; C-x r c
+  (define-key rectangle-mark-mode-map (kbd "o") #'open-rectangle)        ; C-x r o
+  (define-key rectangle-mark-mode-map (kbd "N") #'rectangle-number-lines)        ; C-x r N
+  (define-key rectangle-mark-mode-map (kbd "e") #'rectangle-exchange-point-and-mark) ; C-x C-x
+  (define-key rectangle-mark-mode-map (kbd "u") #'undo)
+  )
+
+#+end_src
+
+
+** theming
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-time-hook
+          (progn
+            (defadvice load-theme (after custom-faces-after-load-theme())
+              "Insert an empty line when moving up from the top line."
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile))
+                ;; (save-excursion
+                ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                ))
+
+
+            (ad-activate 'load-theme)
+
+            (defadvice disable-theme (after custom-faces-after-disable-theme())
+              "Insert an empty line when moving up from the top line."
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile))
+                ;; (save-excursion
+                ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                ))
+            (ad-activate 'disable-theme)))
+
+(add-hook 'after-init-time-hook
+          (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+            (when (file-exists-p dafile) (load-file dafile))))
+
+#+end_src
+
+
+** completion
+
+#+begin_src emacs-lisp
+
+(setq enable-recursive-minibuffers t)
+(setq completion-cycle-threshold 1)
+(setq tab-always-indent 'complete)
+(setq completion-styles '(basic initials substring))
+(setq completion-auto-help 'always)
+(when EMACS28+ (setopt completions-detailed t))
+(setq completion-auto-help 'lazy)                  ; Open completion `always'; `lazy' another option
+(when EMACS28+ (setopt completions-format 'one-column))
+(when EMACS28+ (setopt completions-group t))
+(when EMACS29+ (setopt completion-auto-select 'second-tab))
+(when EMACS29+ (setopt completions-max-height 20))
+
+;; (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete)
+(define-key minibuffer-local-map (kbd "TAB") 'minibuffer-complete)
+
+(when (not EMACS26+) (ido-mode))
+(when EMACS26+ (icomplete-mode))
+(when EMACS27+ (fido-mode))
+(when EMACS28+ (fido-vertical-mode))
+
+#+end_src
+
+
+** scratch_buffer_creator
+
+#+begin_src emacs-lisp
+
+(defun create-scratch-buffer (mode)
+  "Create a new scratch buffer with a specified major MODE."
+  (interactive
+   (list (intern (completing-read "Choose major mode: "
+                                   (mapcar 'symbol-name
+                                           (apropos-internal "-mode$"))))))
+  (let* ((buffer-name (generate-new-buffer-name "*scratch*"))
+         (comment-start (if (fboundp mode)
+                            (with-temp-buffer
+                              (funcall mode)
+                              (if (boundp 'comment-start)
+                                  comment-start
+                                ";; ")) ;; Fallback if no comment-start is defined
+                          ";; ")))  ;; Fallback for invalid modes
+    (generate-new-buffer buffer-name)
+    (switch-to-buffer buffer-name)
+    (funcall mode)  ;; Set the specified major mode
+    (insert comment-start "This is a new scratch buffer in " 
+            (symbol-name mode) " mode.\n\n")))
+
+#+end_src
+
+
+** emacs built in packages
+
+*** imenu
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'imenu (set-default 'imenu-auto-rescan t))
+
+#+end_src
+
+*** ibuffer
+
+#+begin_src emacs-lisp
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+#+end_src
+
+*** comint-mode
+
+#+begin_src emacs-lisp
+
+;;conmint-mode
+(with-eval-after-load 'comint
+  (customize-set-variable 'comint-scroll-show-maximum-output nil)
+  (customize-set-variable 'comint-scroll-to-bottom-on-input nil)
+  (customize-set-variable 'comint-scroll-to-bottom-on-output nil)
+  (add-hook 'comint-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1)))))
+
+#+end_src
+
+*** shell-mode
+
+#+begin_src emacs-lisp
+
+;;shell-mode
+
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "<tab>") 'completion-at-point)
+  (define-key shell-mode-map (kbd "<backtab>") 'completion-at-point)
+  (add-hook 'comint-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1)))))
+
+#+end_src
+
+*** eshell
+
+#+begin_src emacs-lisp
+
+(require 'eshell)
+(with-eval-after-load 'eshell
+
+  (customize-set-variable 'eshell-visual-commands
+                          '("vi" "screen" "top" "less" "more" "lynx"
+                            "ncftp" "pine" "tin" "trn" "elm" "vim" "kak"
+                            "nano" "tmux" "alpine" "mutt" "htop" "irb"
+                            "python" "python3" "python2" "csc" "sbcl"
+                            "guile" "guile2" "node" "joe" "jstar"
+                            "jmacs" "jpico" "ne" "micro" "nnn" "lf"
+                            "ranger" "mc" "gtypist" "toipe"))
+
+  (add-hook 'eshell-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+
+  (customize-set-variable 'eshell-scroll-show-maximum-output nil)
+
+  (when (executable-find "bash")
+    (progn
+      (defun eshell-load-bash-aliases ()
+        "Read Bash aliases and add them to the list of eshell aliases."
+        ;; Bash needs to be run - temporarily - interactively
+        ;; in order to get the list of aliases.
+        (with-temp-buffer
+          (call-process "bash" nil '(t nil) nil "-ci" "alias")
+          (goto-char (point-min))
+          (while (re-search-forward "alias \\(.+\\)='\\(.+\\)'$" nil t)
+            (eshell/alias (match-string 1) (match-string 2) "$*"))))
+      ;; We only want Bash aliases to be loaded when Eshell loads its own aliases,
+      ;; rather than every time `eshell-mode' is enabled.
+      (add-hook 'eshell-alias-load-hook 'eshell-load-bash-aliases)))
+  )
+
+#+end_src
+
+*** term-mode
+
+#+begin_src emacs-lisp
+
+(require 'term)
+(with-eval-after-load 'term
+  (define-key term-raw-map (kbd "C-c C-y") 'term-paste)
+  (add-hook 'term-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+  (add-hook 'term-mode-hook (lambda () (display-line-numbers-mode -1)))
+
+  (defun term-just-close-exec-hook ()
+	(let* ((buff (current-buffer))
+           (proc (get-buffer-process buff)))
+      (set-process-sentinel
+       proc
+       `(lambda (process event)
+          (if (string= event "finished\n")
+              (kill-buffer ,buff))))))
+
+  (add-hook 'term-exec-hook 'term-just-close-exec-hook))
+
+#+end_src
+
+*** eww & shr
+
+#+begin_src emacs-lisp
+
+(add-hook 'eww-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+
+#+end_src
+
+*** flymake
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'flymake
+  (customize-set-variable 'flymake-fringe-indicator-position 'right-fringe)
+  (customize-set-variable 'flymake-suppress-zero-counters t)
+  (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
+
+(add-hook 'prog-mode-hook 'flymake-mode t)
+
+;; (run-with-idle-timer 0.2 flymake-mode t)
+
+#+end_src
+
+*** COMMENT flyspell
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'flyspell
+  (cond
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")
+    (setq ispell-extra-args '("-d en_US")))
+   
+   ((executable-find "aspell")
+    (setq ispell-program-name "aspell")
+    (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")))))
+
+(when (or (executable-find "hunspell") (executable-find "aspell"))
+  (progn
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode t)
+  (add-hook 'text-mode-hook 'flyspell-mode t)))
+
+#+end_src
+
+*** ediff
+
+#+begin_src emacs-lisp
+
+(add-hook 'ediff-prepare-buffer-hook 'outline-show-all)
+(add-hook 'ediff-quit-hook 'winner-undo)
+
+(with-eval-after-load 'ediff
+  (customize-set-variable 'ediff-window-setup-function 'ediff-setup-windows-plain)
+  (customize-set-variable 'ediff-split-window-function 'split-window-horizontally)
+  (customize-set-variable 'ediff-merge-split-window-function 'split-window-horizontally))
+
+#+end_src
+
+*** tramp
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'tramp
+  (customize-set-variable 'remote-file-name-inhibit-cache nil)
+  (customize-set-variable 'vc-ignore-dir-regexp
+        (format "%s\\|%s"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp))
+  (setq tramp-verbose 1))
+
+#+end_src
+
+*** dired
+
+#+begin_src emacs-lisp
+
+(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
+
+(with-eval-after-load 'dired
+                      (require 'dired-aux)
+                      (require 'dired-x)
+                      ;; (require 'dired-narrow)
+                      ;; (require 'dired-subtree)
+                      (setq dired-listing-switches "--group-directories-first -lah")
+                      (put 'dired-find-alternate-file 'disabled nil)
+                      (define-key dired-mode-map (kbd "C-<return>") 'dired-find-file)
+                      (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+                      (define-key dired-mode-map (kbd "M-<return>") 'dired-find-file-other-window)
+                      ;; allow dired to delete or copy dir
+                      (setq dired-recursive-copies (quote always)) ; “always” means no asking
+                      (setq dired-recursive-deletes (quote top)) ; “top” means ask once
+                      (setq dired-dwim-target t)
+
+                      (defun dired-dotfiles-toggle ()
+                        "Show/hide dot-files"
+                        (interactive)
+                        (when (equal major-mode 'dired-mode)
+                          (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
+                              (progn
+                                (set (make-local-variable 'dired-dotfiles-show-p) nil)
+                                (message "h")
+                                (dired-mark-files-regexp "^\\\.")
+                                (dired-do-kill-lines))
+                            (progn (revert-buffer) ; otherwise just revert to re-show
+                                   (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+
+                      (define-key dired-mode-map (kbd "H-l")
+                                  (lambda () (interactive) (dired-dotfiles-toggle)))
+
+                      (define-key dired-mode-map (kbd "^")
+                                  (lambda () (interactive) (find-alternate-file "..")))
+
+                      (setq wdired-allow-to-change-permissions t)
+                      ;; (defadvice dired-subtree-toggle (after dired-icons-refreash ())
+                      ;;   "Insert an empty line when moving up from the top line."
+                      ;;   (revert-buffer))
+
+                      ;; (ad-activate 'dired-subtree-toggle)
+
+                      ;; (defadvice dired-subtree-cycle (after dired-icons-refreash ())
+                      ;;   "Insert an empty line when moving up from the top line."
+                      ;;   (revert-buffer))
+
+                      ;; (ad-activate 'dired-subtree-cycle)
+                      )
+
+
+
+#+end_src
+
+*** org
+
+#+begin_src emacs-lisp
+
+;; :mode (("\\.org\\'" . org-mode)
+;;        ("\\.org$" . org-mode))
+
+(with-eval-after-load 'org
+  (setq org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil
+        org-edit-src-content-indentation 0)
+  (require 'ox-md))
+
+(with-eval-after-load 'org
+  (require 'ox-latex)
+  (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
+  )
+
+(with-eval-after-load "org"
+  (progn
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)
+       (perl . t)
+       (ruby . t)
+       (emacs-lisp . t)))
+    
+    '(require 'ox-md nil t)))
+
+(if EMACS27+ (with-eval-after-load "org"
+               (progn
+                 (org-babel-do-load-languages
+                  'org-babel-load-languages
+                  '((shell . t))))))
+
+(with-eval-after-load "org"
+  (progn
+    (defun yae-org-generate-toc (toc-depth)
+      "Generate a table of contents for the current Org buffer
+respecting the toc depth."
+      (let ((toc ""))
+        (org-element-map (org-element-parse-buffer) 'headline
+          (lambda (headline)
+            (let ((level (org-element-property :level headline))
+                  (title (org-element-property :raw-value headline)))
+              (when (and (<= level toc-depth)
+                         (not (org-element-property :commentedp headline)))
+                (setq toc (concat toc (make-string (* 2 (- level 1)) ?\ )
+                                  "- [[" title "]]\n"))))))
+        toc))
+
+    (defun yae-org-generate-or-replace-toc ()
+      "Generate or replace a table of contents for the current Org
+buffer at the #+BEGIN_TOC block respecting the toc depth option."
+      (interactive)
+      (let ((toc-depth 3) ; Default TOC depth
+            (toc "")
+            (commented-toc nil))
+
+        ;; Determine the TOC depth from Org mode buffer options
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^#\\+OPTIONS:.*toc:\\([0-9]+\\)" nil t)
+            (setq toc-depth (string-to-number (match-string 1)))))
+
+        ;; (with-current-buffer (current-buffer)
+        ;;   (let ((keywords (org-collect-keywords '("COMMENTED_TOC"))))
+        ;;  (setq commented-toc (cdr (assoc "COMMENTED_TOC" keywords)))))
+
+        (with-current-buffer (current-buffer)
+          (let ((commented-toc nil))
+            (org-map-entries
+             (lambda ()
+               (let ((toc (org-entry-get nil "COMMENTED_TOC")))
+                 (when toc
+                   (setq commented-toc toc)))))
+            commented-toc))
+
+
+        ;; Generate the TOC using the custom function
+        (setq toc (yae-org-generate-toc toc-depth))
+
+        ;; Replace the custom block with the generated TOC
+        (save-excursion
+          (goto-char (point-min))
+          (while (or (re-search-forward "^#\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t)
+                     (re-search-forward "^# #\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t))
+            (let* ((depth (or (and (match-string 1) (string-to-number (match-string 1))) toc-depth))
+                   (start (match-beginning 0))
+                   (end (progn
+                          (or (re-search-forward "^#\\+END_TOC$" nil t)
+                              (re-search-forward "^# #\\+END_TOC$" nil t))
+                          (match-end 0))))
+              (let ((toc (yae-org-generate-toc depth)))
+                (delete-region start end)
+                (goto-char start)
+                (if commented-toc
+                    (insert "# #+BEGIN_TOC\n" toc "# #+END_TOC")
+                  (insert "#+BEGIN_TOC\n" toc "#+END_TOC"))))))))
+
+    (defun yae-org-mode-setup ()
+      "Custom configurations for Org mode."
+      (add-hook 'before-save-hook 'yae-org-generate-or-replace-toc nil 'local))
+
+    (add-hook 'org-mode-hook 'yae-org-mode-setup)
+
+    ))
+
+#+end_src
+
+*** COMMENT whitespace-mode
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'whitespace
+  ;; Make whitespace-mode with very basic background coloring for whitespaces.
+  ;; http://xahlee.info/emacs/emacs/whitespace-mode.html
+  (customize-set-variable 'whitespace-style (quote (face spaces tabs newline space-mark tab-mark newline-mark )))
+
+  ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+  (customize-set-variable 'whitespace-display-mappings
+        ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+        '(
+          (space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+          ;; (space-mark 32 [168] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+          (newline-mark 10 [182 10]) ; LINE FEED,
+          ;; (newline-mark 10 [36 10]) ; LINE FEED,
+          ;; (newline-mark 10 [172 10]) ; LINE FEED
+          (tab-mark 9 [9655 9] [92 9]) ; tab
+          ))
+
+;; Don't enable whitespace for.
+(setq-default whitespace-global-modes
+              '(not shell-mode
+                    eshell-mode
+                    term-mode
+                    comint-mode
+                    vterm-mode
+                    help-mode
+                    magit-mode
+                    magit-diff-mode
+                    ibuffer-mode
+                    dired-mode
+                    occur-mode
+                    org-mode
+                    pdf-view-mode
+                    nov-mode)))
+
+(add-hook 'after-init-hook (global-whitespace-mode t))
+(add-hook 'artist-mode-hook (lambda () (whitespace-mode -1)))
+
+#+end_src
+
+*** outline
+**** folding
+#+begin_src emacs-lisp
+
+(add-hook 'prog-mode-hook 'outline-minor-mode t)
+(add-hook 'makdown-mode-hook 'outline-minor-mode t)
+(add-hook 'Man-mode-hook 'outline-minor-mode t)
+(add-hook 'outline-minor-mode-hook
+          (lambda ()
+            (setq outline-minor-mode-use-buttons 'in-margins ;;you can use 'in-margins for buttons on margin
+                  outline-minor-mode-cycle 't
+                  outline-minor-mode-cycle-filter 'bolp)
+            (define-key outline-minor-mode-map (kbd "<f6>") 'outline-cycle)
+            (define-key outline-minor-mode-map (kbd "<S-f6>") 'outline-cycle-buffer)))
+
+(defun set-outline-minor-mode-regexp ()
+  ""
+  (outline-minor-mode 1)
+  (let ((regexp-list (append outline-minor-mode-list nil))
+        (find-regexp
+         (lambda (lst)
+           ""
+           (let ((innerList (car lst)))
+             (if innerList
+                 (if (string= (car innerList) major-mode)
+                     (car (cdr innerList))
+                   (progn (pop lst)
+                          (funcall #'find-regexp lst))))
+             ))))
+    (make-local-variable 'outline-regexp)
+    (setq outline-regexp (funcall #'find-regexp regexp-list)))
+  )
+
+(setq outline-minor-mode-list 
+      (list ;; '(emacs-lisp-mode "\\(?:;;; ?\\)\\|(defun\\|(defvar\\|(defcustom\\|(defconst\\|(defgroup\\|(defmacro")
+            '(shell-mode "^dove@zsh.*[#%\$] ")
+            '(sh-mode "^\\(?:###[ \t]*\\).*\n\\|function .*[{(]")
+            '(perl-mode "sub ")
+            '(eshell-mode "^[^#$\n]* [#$] ")
+            ;; '(ruby-mode "[ ]+def \\|cloud_pattern\\|[ ]+cloud_node")
+            ;; '(ruby-mode "class \\|[ ]+class \\|module \\|[ ]+module \\|def \\|[ ]+def \\|begin \\|[ ]+begin ")
+            ;; '(ruby-mode "class \\|[ ]+class \\|module \\|[ ]+module \\|def \\|[ ]+def \\|begin \\|[ ]+begin ")
+            ;; ([:space:]*)
+            '(ruby-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def ")
+            ;; '(crystal-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|([ \t]*\\)macro \\|([ \t]*\\)lib \\|([ \t]*\\)struct \\|([ \t]*\\)enum \\|([ \t]*\\)union \\|([ \t]*\\)annotation \\|^\\([ \t]*\\)def ")
+            ;; '(crystal-mode "\\(def\\|class\\|module\\|macro\\|lib\\|struct\\|enum\\|union\\|annotation\\)"
+			;; '(lua-mode "\\(function\\|if\\|for\\|while\\|repeat\\)")
+			;; '(lua-mode "^[[:space:]]*\\(function\\|if\\|for\\|while\\|repeat\\)")
+			;; '(lua-mode "^[[:space:]]*\\(function\\)"
+            ;;            "*end")
+            '(lua-mode "function \\|[ ]+function ")
+            '(Man-mode "^[A-Z]+")
+            '(woman-mode "^[A-Z]+")
+            ))
+
+(mapc (lambda (mode-name) 
+        (add-hook mode-name  'set-outline-minor-mode-regexp t))
+      '(shell-mode-hook
+        sh-mode-hook
+        ;; emacs-lisp-mode-hook
+        eshell-mode-hook
+        ruby-mode-hook
+        ;; crystal-mode-hook
+        lua-mode-hook
+        Man-mode-hook
+        woman-mode
+        ))
+
+;; ;; (setq outline-regexp "^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def \\|^\\([ \t]*\\)begin ")
+;; ;; (setq-local outline-heading-end-regexp "\\_<end\\_>")
+;; ;; (setq-local outline-level
+;; ;;             (lambda ()
+;; ;;               "`outline-level' function for Python mode."
+;; ;;               (1+ (/ (current-indentation) python-indent-offset))))
+
+;; ;; (setq outline-regexp ruby-indent-beg-re)
+;; ;; (setq outline-regexp "^[[:upper]]+")
+
+#+end_src
+
+*** COMMENT hideshow
+
+#+begin_src emacs-lisp
+
+(add-hook 'prog-mode-hook 'hs-minor-mode t)
+
+#+end_src
+
+*** tab-bar & tabline
+
+#+begin_src emacs-lisp
+
+(setq tab-line-tab-name-truncated-max 10)
+(setq tab-line-separator "│")
+;; (setq tab-line-separator "░")
+;; (setq tab-line-separator "║")
+;; (setq tab-line-separator "▄▀")
+;; (setq tab-line-separator "▀")
+
+(defun my/tab-line-tab-name-buffer (buffer &optional _buffers)
+  (format "      %s      " (buffer-name buffer)))
+  
+(setq tab-line-tab-name-function #'my/tab-line-tab-name-buffer)
+
+#+end_src
+
+*** recentf
+
+#+begin_src emacs-lisp
+
+;; Turn on recentf mode
+(add-hook 'after-init-hook #'recentf-mode)
+(customize-set-variable 'recentf-save-file
+                        (expand-file-name "recentf" user-emacs-directory))
+
+#+end_src
+
+*** hippie_expand
+
+#+begin_src emacs-lisp
+
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+
+#+end_src
+
+*** abbrev
+
+#+begin_src emacs-lisp
+
+(setq-default abbrev-file-name (expand-file-name "abbrev_defs"  user-emacs-directory))
+(if (file-exists-p abbrev-file-name)
+    (quietly-read-abbrev-file)
+  (setq save-abbrevs 'silently))
+
+(require 'abbrev)
+
+#+end_src
+
+*** tempo
+
+This file provides a simple way to define powerful templates, or
+macros, if you wish. It is mainly intended for, but not limited to,
+other programmers to be used for creating shortcuts for editing
+certain kind of documents. Most of what I learned about this package
+from the following the article on
+https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html by the
+Author(or I think it is the author)
+
+The settings in the "general settings" part are used to override
+"space" so that tempo completion could take place after writing a
+valid tag and define a keymap for the package. Movement keys are set
+to "C-c t f", and "C-c t b" for moving forward and moving backward
+respectively inside the stops in the snippet.
+
+**** general settings needed for snippets
+
+sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
+
+#+begin_src emacs-lisp
+
+(require 'tempo)
+
+(defun tempo-space ()
+  ""
+  (interactive)
+  (if (tempo-expand-if-complete)
+      nil
+    (insert " ")))
+
+(defun try-expand-tempo-tag (old)
+  "Try to expand a Tempo tag."
+  (unless old
+    (tempo-complete-tag)))
+
+(defun set-tempo ()
+  "Set up emacs-lisp mode to use tempo.el"
+  (define-prefix-command 'tempo-map)
+  (local-set-key (kbd "C-c t") 'tempo-map)
+  (define-key tempo-map (kbd "c") 'tempo-complete-tag)  ;; define keys for complete-tag and movement through stops
+  (define-key tempo-map (kbd "n") 'tempo-forward-mark)
+  (define-key tempo-map (kbd "p") 'tempo-backward-mark)
+
+  ;; (local-set-key " " 'tempo-space)
+  )
+
+(setq hippie-expand-try-functions-list
+      (cons 'try-expand-tempo-tag
+            (remove 'try-expand-tempo-tag hippie-expand-try-functions-list)))
+
+#+end_src
+
+**** c && c++ snippets using tempo
+
+sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
+
+#+begin_src emacs-lisp
+
+(require 'tempo)
+
+;; This is a way to hook tempo into cc-mode
+
+(defvar c-tempo-tags nil
+  "Tempo tags for C mode")
+
+(defvar c++-tempo-tags nil
+  "Tempo tags for C++ mode")
+
+;;; C-Mode Templates and C++-Mode Templates (uses C-Mode Templates also)
+(add-hook 'c-mode-hook
+          (lambda () (progn
+                      ;;; Preprocessor Templates (appended to c-tempo-tags)
+
+                       (tempo-define-template "c-include"
+                                              '("#include <" r ".h>" > n
+                                                )
+                                              "#include"
+                                              "Insert a #include <> statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-ifdef"
+                                              '("#ifdef " (p "ifdef-clause: " clause) > n> p n
+                                                "#else /* !(" (s clause) ") */" n> p n
+                                                "#endif /* " (s clause)" */" n>
+                                                )
+                                              "#ifdef"
+                                              "Insert a #ifdef #else #endif statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-ifndef"
+                                              '("#ifndef " (p "ifndef-clause: " clause) > n 
+                                                "#define " (s clause) n> p n
+                                                "#endif /* " (s clause)" */" n>
+                                                )
+                                              "#ifndef"
+                                              "Insert a #ifndef #define #endif statement"
+                                              'c-tempo-tags)
+
+                       ;;; C-Mode Templates
+
+                       (tempo-define-template "c-if"
+                                              '(> "if(" (p "if-clause: " clause) ")"  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ") */" > n> 
+                                                  )
+                                              "if"
+                                              "Insert a C if statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-else"
+                                              '(> "else" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of else */" > n>
+                                                  )
+                                              "else"
+                                              "Insert a C else statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-if-else"
+                                              '(> "if(" (p "if-clause: " clause) ")"  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ") */" > n>
+                                                  > "else" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ")else */" > n> 
+                                                  )
+                                              "ifelse"
+                                              "Insert a C if else statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-while"
+                                              '(> "while(" (p "while-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of while(" (s clause) ") */" > n>
+                                                  )
+                                              "while"
+                                              "Insert a C while statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for"
+                                              '(> "for(" (p "for-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s clause) ") */" > n>
+                                                  )
+                                              "for"
+                                              "Insert a C for statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for-i"
+                                              '(> "for(" (p "variable: " var) " = 0; " (s var)
+                                                  " < "(p "upper bound: " ub)"; " (s var) "++)" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s var) " = 0; "
+                                                  (s var) " < " (s ub) "; " (s var) "++) */" > n>
+                                                  )
+                                              "fori"
+                                              "Insert a C for loop: for(x = 0; x < ..; x++)"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for"
+                                              '(> "for(" (p "for-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s clause) ") */" > n>
+                                                  )
+                                              "for"
+                                              "Insert a C for statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-main"
+                                              '(> "main(int argc, char *argv[])" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of main() */" > n>
+                                                  )
+                                              "main"
+                                              "Insert a C main statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-if-malloc"
+                                              '(> "if((" (p "variable: " var) " = ("
+                                                  (p "type: " type) " *) malloc(sizeof(" (s type) 
+                                                  "))) == (" (s type) " *) NULL)" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if((" (s var) " = (" (s type) 
+                                                  " *) malloc...) == NULL) */" > n>
+                                                  )
+                                              "ifmalloc"
+                                              "Insert a C if(malloc...) statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-switch"
+                                              '(> "switch(" (p "switch-condition: " clause) ")" >  n> 
+                                                  "{" > n 
+                                                  "case " (p "first value: ") ":" > n> p n
+                                                  "break;" > n> p n
+                                                  "default:" > n> p n
+                                                  "break;" > n
+                                                  "} /* end of switch(" (s clause) ") */" > n>
+                                                  )
+                                              "switch"
+                                              "Insert a C switch statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-case"
+                                              '(n "case " (p "value: ") ":" > n> p n
+                                                  "break;" > n> p
+                                                  )
+                                              "case"
+                                              "Insert a C case statement"
+                                              'c-tempo-tags)
+
+                       (set-tempo)
+                       (tempo-use-tag-list 'c-tempo-tags))))
+
+
+;;;C++-Mode Templates
+
+(add-hook 'c++-mode-hook
+          (lambda () (progn 
+                       (tempo-define-template "c++-class"
+                                              '("class " (p "classname: " class) p n "{" n "public:" n>
+
+                                                (s class) "();" 
+                                                (indent-for-comment) "the default constructor" n>
+
+                                                (s class) 
+                                                "(const " (s class) "&rhs);"
+                                                (indent-for-comment) "the copy constructor" n>
+
+                                                (s class)
+                                                "& operator=(const " (s class) "&rhs);"
+                                                (indent-for-comment) "the assignment operator" n>
+
+                                                n> "// the default address-of operators" n>
+                                                "// "(s class)
+                                                "* operator&()             { return this; };" n>
+                                                "// const "(s class)
+                                                "* operator&() const { return this; };" n
+
+
+                                                n > "~" (s class) "();"
+                                                (indent-for-comment) "the destructor" n n>
+                                                p n
+                                                "protected:" n> p n
+                                                "private:" n> p n
+                                                "};\t// end of class " (s class) n>
+                                                )
+                                              "class"
+                                              "Insert a class skeleton"
+                                              'c++-tempo-tags)
+                       (set-tempo)
+                       (tempo-use-tag-list 'c-tempo-tags)
+                       (tempo-use-tag-list 'c++-tempo-tags))))
+
+#+end_src
+
+**** Emacs-lisp snippets using tempo
+
+#+begin_src emacs-lisp
+
+(defun define-my-elisp-tempo-tags ()
+  (defvar elisp-tempo-tags nil)
+
+  (tempo-define-template "defun"
+                         '("defun " p " (" p ")" n> "\"" p "\"" n> r ")")
+                         "defun"
+                         "Insert a defun expression"
+                         'elisp-tempo-tags)
+  (tempo-define-template "defvar"
+                         '("defvar " p  n> "\"" p "\")")
+                         "defvar"
+                         "Insert a defvar expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "lambda"
+                         '("lambda (" p ")" n> "\"" p "\"" n> r ")")
+                         "lambda"
+                         "Insert a lamb expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "if"
+                         '("if " p n> r ")")
+                         "if"
+                         "Insert an if expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "when"
+                         '("when " p n> r ")")
+                         "when"
+                         "Insert an when expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "unless"
+                         '("unless " p n> r ")")
+                         "unless"
+                         "Insert an unless expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "cond"
+                         '("cond ((" p ") " r "))")
+                         "cond"
+                         "Insert a cond expression"
+                         'elisp-tempo-tags))
+
+
+(add-hook 'emacs-lisp-mode-hook (lambda () (progn (define-my-elisp-tempo-tags)
+                                                  (set-tempo)
+                                                  (setq tempo-match-finder "(\\([^\b]+\\)\\=")
+                                                  (tempo-use-tag-list 'elisp-tempo-tags))))
+
+(add-hook 'lisp-interaction-mode-hook (lambda () (progn (define-my-elisp-tempo-tags)
+                                                        (set-tempo)
+                                                        (setq tempo-match-finder "(\\([^\b]+\\)\\=")
+                                                        (tempo-use-tag-list 'elisp-tempo-tags))))
+#+end_src
+
+**** org-mode snippets using tempo
+
+#+begin_src emacs-lisp
+
+(add-hook 'org-mode-hook (lambda () (progn 
+;;; org-mode templates
+                                      (defvar org-tempo-tags nil)
+
+                                      (tempo-define-template "title"
+                                                             '("TITLE: "> p)
+                                                             "ti"
+                                                             "Insert a document title"
+                                                             'org-tempo-tags)
+
+                                      (tempo-define-template "author"
+                                                             '("AUTHOR: "> p)
+                                                             "au"
+                                                             "Insert a author name"
+                                                             'org-tempo-tags)
+
+                                      (tempo-define-template "src_block"
+                                                             '("begin_src "> p n> p n> "#+end_src" n>)
+                                                             "src"
+                                                             "Insert a defun expression"
+                                                             'org-tempo-tags)
+
+
+                                      (set-tempo)
+                                      (defvar html-tempo-tags nil)
+                                      (tempo-use-tag-list 'org-tempo-tags)
+                                      (setq tempo-match-finder "\\#\\+\\([^\b]+\\)\\="))))
+
+#+end_src
+
+**** ruby snippets using tempo
+
+#+begin_src emacs-lisp
+
+;;; ruby-mode templates
+
+(add-hook 'ruby-mode-hook (lambda () (progn 
+                                       (defvar ruby-tempo-tags nil)
+
+                                       (tempo-define-template "ruby-class"
+                                                              '("class " > p n> p n "end" >)
+                                                              "cls"
+                                                              "Insert a class"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-module"
+                                                              '("module " > p n> p n "end" >)
+                                                              "mod"
+                                                              "Insert a class"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-def"
+                                                              '("def " > p "(" p ")" n> p n "end" >)
+                                                              "def"
+                                                              "Insert a module"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-intialize"
+                                                              '("def intialize(" p ")" > n> p n> "end" >)
+                                                              "init"
+                                                              "Insert a constructor"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-include"
+                                                              '("include " > p >)
+                                                              "incl"
+                                                              "include a module"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-require"
+                                                              '("require \"" > p "\"" >)
+                                                              "req"
+                                                              "require"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-if"
+                                                              '("if " > p n> p n> "end" >)
+                                                              "if"
+                                                              "Insert an if clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-ifelse"
+                                                              '("if " > p n >"else " n> p n> "end" >)
+                                                              "ifel"
+                                                              "Insert an if else clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-unless"
+                                                              '("unless "> p n> p n> "end" >)
+                                                              "unless"
+                                                              "Insert a unless clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-until"
+                                                              '("until " > p n> p n> "end" >)
+                                                              "until"
+                                                              "Insert an until loop"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-when"
+                                                              '(> "when "> p n> p n> "end" >)
+                                                              "when"
+                                                              "Insert a when clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-while"
+                                                              '("while "> p n> p n> "end" >)
+                                                              "while"
+                                                              "Insert a while loop"
+                                                              'ruby-tempo-tags)
+
+                                       (set-tempo)
+                                       (tempo-use-tag-list 'ruby-tempo-tags))))
+
+#+end_src
+
+**** python snippets using tempo
+
+#+begin_src emacs-lisp
+
+(add-hook 'python-mode-hook
+          (lambda () (progn
+
+;;; python-mode templates
+                       (defvar python-tempo-tags nil)
+
+                       (tempo-define-template "python-class"
+                                              '("class " > p ":"n>)
+                                              "cls"
+                                              "Insert a class"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-def"
+                                              '("def " > p "(" p "):" n> p n>)
+                                              "def"
+                                              "define a function"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "import"
+                                              '("import " p >)
+                                              "imp"
+                                              "python import"
+                                              'python-tempo-tags)
+
+
+                       (tempo-define-template "python-include"
+                                              '("from " > p " import " p>)
+                                              "from"
+                                              "from tag"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-if"
+                                              '("if " > p ":"n> p >)
+                                              "if"
+                                              "Insert an if clause"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-ifelse"
+                                              '("if " > p ":"n> p "else:" n> p >)
+                                              "ife"
+                                              "Insert an if else clause"
+                                              'python-tempo-tags)
+
+                       (set-tempo)
+                       (tempo-use-tag-list 'python-tempo-tags))))
+
+#+end_src
+
+**** html snippets using tempo
+
+#+begin_src emacs-lisp
+
+;;; html tempo templates
+(add-hook 'html-mode-hook (lambda () (progn 
+                                       (defvar html-tempo-tags nil)
+
+                                       (defmacro html-tempo-paired-tag-single-line (var)
+                                         (list 'tempo-define-template var
+                                               (list 'quote (list var "> " '> 'p (concat " </" var ">") '>))
+                                               var
+                                               (concat "insert html " var " tag")
+                                               (list 'quote 'html-tempo-tags)))
+
+                                       (seq-do (lambda (x)
+                                                 "expand macro"
+                                                 (eval (list 'html-tempo-paired-tag-single-line x)))
+                                               '("a" "b" "bdi" "bdo"
+                                                 "button" "caption" "cite" "data"
+                                                 "del" "dfn" "em" "figcaption"
+                                                 "h1" "h2" "h3" "h4"
+                                                 "h5" "h6" "i" "iframe"
+                                                 "kbd" "li" "label" "legend"
+                                                 "mark" "meter" "object" "option"
+                                                 "p" "progress" "q" "summary"
+                                                 "s" "samp" "small" "span"
+                                                 "strong" "sub" "summary" "sup"
+                                                 "th" "td" "title" "time"))
+
+                                       (defmacro html-tempo-paired-tag-multi-line (var)
+                                         (list 'tempo-define-template var
+                                               (list 'quote (list var ">" 'n> 'p 'n> (concat "</" var ">") '>))
+                                               var
+                                               (concat "insert html " var " tag")
+                                               (list 'quote 'html-tempo-tags)))
+
+                                       (seq-do (lambda (x)
+                                                 "expand macro"
+                                                 (eval (list 'html-tempo-paired-tag-multi-line x)))
+                                               '("address" "article" "aside" "audio"
+                                                 "body" "blockquote" "colgroup" "canvas"
+                                                 "code" "datalist" "dl" "details"
+                                                 "dialogue" "div" "fieldset" "figure"
+                                                 "footer" "form" "head" "header"
+                                                 "map" "main" "noscript" "nav"
+                                                 "ol" "optgroup" "pre" "script"
+                                                 "section" "select" "style" "svg"
+                                                 "table" "thead" "tbody" "tfoot"
+                                                 "tr" "template" "textarea" "ul"
+                                                 "video"))
+
+
+                                       (tempo-define-template "image-item"
+                                                              '("img src=\"" > p "\" alt=\"" p ">">)
+                                                              "img"
+                                                              "insert html image tag"
+                                                              'html-tempo-tags)
+
+                                       (tempo-define-template "abbr"
+                                                              '("abbr title=\"" > p "\">" p "</abbr>">)
+                                                              "abbr"
+                                                              "insert html abbr tag"
+                                                              'html-tempo-tags)
+
+                                       (tempo-define-template "html"
+                                                              '("!DOCTYPE html>" n> "<html>" n>"<head>" n>
+                                                                "<title> " > p " </title>" p n>
+                                                                "</head>" n>
+                                                                "<body>" n>  p
+                                                                "\n</body>" > n "</html>" n>)
+                                                              "html"
+                                                              "insert a html template"
+                                                              'html-tempo-tags)
+
+                                       (set-tempo)
+                                       (tempo-use-tag-list 'html-tempo-tags)
+                                       (setq tempo-match-finder "\\(?:<!?\\)\\([^\b]+\\)\\=")
+                                       )))
+
+#+end_src
+*** COMMENT expand
+
+Expand is a package that extends the functionality of abbrev to enable
+code templating functionality. It uses a similar definition to abbrevs
+with an added list to indicate stops inside the template. It has
+default keys "C-x a n" and "C-x a p" for moving forward and backward
+within stops
+
+**** general settings
+
+#+begin_src emacs-lisp
+
+(add-hook 'expand-expand-hook 'indent-according-to-mode)
+(add-hook 'expand-jump-hook 'indent-according-to-mode)
+
+(defun try-expand-abbrev (old)
+  "Try to expand abbrev if one exists at point."
+  (unless old
+    (expand-abbrev)))
+
+(setq hippie-expand-try-functions-list
+      (cons 'try-expand-abbrev
+            (remove 'try-expand-abbrev hippie-expand-try-functions-list)))
+
+#+end_src
+
+**** emacs-lisp snippets using expand
+
+#+begin_src emacs-lisp
+
+(defconst elisp-expand-list
+  '(("def" "(defun ()\n ) " (8 9 11 12))
+    )
+  "Expansions for org mode")
+
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (expand-add-abbrevs emacs-lisp-mode-abbrev-table elisp-expand-list)
+            (abbrev-mode 1)))
+
+(add-hook 'lisp-interaction-mode-hook
+          (lambda ()
+            (expand-add-abbrevs emacs-lisp-mode-abbrev-table elisp-expand-list)
+            (abbrev-mode 1)))
+
+#+end_src
+
+**** c snippets using expand
+
+#+begin_src emacs-lisp
+
+(defconst c-expand-list
+  '(("ifel" "if () {\n \n} else {\n \n}" (5 10 21))
+    ("if" "if () {}" (5 8))
+    ("uns" "unsigned ")
+    ("for" "for(; ; ) {\n\n}" (5 7 9 13))
+    ("switch" "switch () {\n\n}" (9 13))
+    ("case" "case :\n\nbreak;\n" (6 8 16))
+    ("do" "do {\n\n} while ();" (6 16))
+    ("while" "while () {\n\n}" (8 12))
+    ("default" "default:\n\nbreak;" 10)
+    ("main" "int\nmain(int argc, char * argv[])\n{\n\n}\n" 37))
+  "Expansions for C mode")
+
+(add-hook 'c-mode-hook
+          (lambda ()
+            (expand-add-abbrevs c-mode-abbrev-table c-expand-list)
+            (abbrev-mode 1)))
+
+#+end_src
+
+**** ruby snippets using expand
+#+begin_src emacs-lisp
+
+(defconst ruby-expand-list
+  '(("cls" "class \n \n end" (7 9 14))
+    ("mdl" "module \n \n end" (8 10 15))
+    ("if" "if \n \n end" (4 6 11))
+    ("def" "def \n \n end" (5 7 12))
+    ("init" "def initialize()\n \n end" (16 18 24))
+    ("ife" "if \n \n else \n \n end" (4 6 15 20))
+    ("req" "require \"\"" (10 12))
+    ("for" "for  in  do\n \n end" (5 9 14 20))
+    ("ech" ".each do ||\n \n end" (1 11 13 19))
+    ("dwn" ".downto() do ||\n \n end" (1 9 15 18 24))
+    )
+  "Expansions for Ruby mode")
+
+(add-hook 'ruby-mode-hook
+          (lambda ()
+            (expand-add-abbrevs ruby-mode-abbrev-table ruby-expand-list)
+            (abbrev-mode 1)))
+#+end_src
+
+**** python snippets using expand
+
+#+begin_src emacs-lisp
+
+(defconst python-expand-list
+  '(("cls" "class :\n " (7 10))
+    ("mdl" "module \n \n end" (8 10 15))
+    ("if" "if :\n " (4 7))
+    ("ife" "if :\n \nelse:\n " (4 7 14))
+    ("def" "def ():\n " (6 10))
+    )
+  "Expansions for Python mode")
+
+(add-hook 'python-mode-hook
+          (lambda ()
+            (expand-add-abbrevs python-mode-abbrev-table python-expand-list)
+            (abbrev-mode 1)))
+
+#+end_src
+
+**** org-mode snippets using expand
+
+#+begin_src emacs-lisp
+
+(defconst org-expand-list
+  '(("oau" "#+AUTHOR: " 11)
+    ("oti" "#+TITLE: " 10)
+    ("osrc" "#+begin_src \n \n #+end_src" (13 15 28))
+    )
+  "Expansions for org mode")
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (expand-add-abbrevs org-mode-abbrev-table org-expand-list)
+            (abbrev-mode 1)))
+
+#+end_src
+
+**** html snippets using expand
+
+#+begin_src emacs-lisp
+
+;; Define macros for single-line and multi-line HTML tags
+(defmacro html-expand-snippet-single-line (var)
+  (list 'quote (list var (concat "<" var ">  </" var ">") (list (+ 4 (length var)) (+ 10 (length var))))))
+
+(defmacro html-expand-snippet-multi-line (var)
+  (list 'quote (list var (concat "<" var ">\n\n</" var ">") (list (+ 4 (length var)) (+ 10 (length var))))))
+
+
+;; Manually define specific expansions
+(defconst specific-html-expand-list
+  '(("img" "<img src=\"\" alt=\"\">" (11 18 20))
+    ("abbr" "<abbr title=\"\"> </abbr>" (14 16 24))
+    ("html" "<!DOCTYPE html>\n<html>\n<head>\n<title> </title>\n</head>\n<body>\n\n</body>\n</html>" (39 63 88))))
+
+;; Define the automatically generated expansion list using the macros
+(defconst auto-html-expand-list
+  (seq-concatenate 'list
+                   (seq-map (lambda (x)
+                              (eval `(html-expand-snippet-single-line ,x)))
+                            '("a" "b" "bdi" "bdo"
+                              "button" "caption" "cite" "data"
+                              "del" "dfn" "em" "figcaption"
+                              "h1" "h2" "h3" "h4"
+                              "h5" "h6" "i" "iframe"
+                              "kbd" "li" "label" "legend"
+                              "mark" "meter" "object" "option"
+                              "p" "progress" "q" "summary"
+                              "s" "samp" "small" "span"
+                              "strong" "sub" "summary" "sup"
+                              "th" "td" "title" "time"))
+                   (seq-map (lambda (x)
+                              (eval `(html-expand-snippet-multi-line ,x)))
+                            '("address" "article" "aside" "audio"
+                              "body" "blockquote" "colgroup" "canvas"
+                              "code" "datalist" "dl" "details"
+                              "dialogue" "div" "fieldset" "figure"
+                              "footer" "form" "head" "header"
+                              "map" "main" "noscript" "nav"
+                              "ol" "optgroup" "pre" "script"
+                              "section" "select" "style" "svg"
+                              "table" "thead" "tbody" "tfoot"
+                              "tr" "template" "textarea" "ul"
+                              "video"))))
+
+;; Combine specific and automatic expansions
+(defconst html-expand-list
+  (append specific-html-expand-list auto-html-expand-list))
+
+(add-hook 'html-mode-hook
+          (lambda ()
+            (expand-add-abbrevs html-mode-abbrev-table html-expand-list)
+            (abbrev-mode 1)))
+
+(add-hook 'mhtml-mode-hook
+          (lambda ()
+            (expand-add-abbrevs html-mode-abbrev-table html-expand-list)
+            (abbrev-mode 1)))
+
+#+end_src
+
+*** COMMENT skeletons
+
+#+begin_src emacs-lisp
+
+#+end_src
+
+
+** COMMENT copy path from shell old
+
+#+begin_src emacs-lisp
+
+;; Simplified exec-path-from-shell.el with clearer names
+
+(defgroup shell-environment nil
+  "Make Emacs use shell-defined environment variables like PATH."
+  :group 'environment)
+
+(defcustom shell-environment-variables '("PATH" "MANPATH")
+  "List of environment variables to import from the shell."
+  :type '(repeat string)
+  :group 'shell-environment)
+
+(defun shell-environment--get-shell-path ()
+  "Return the path to the user's default shell."
+  (or (getenv "SHELL") (error "SHELL environment variable is unset")))
+
+(defun shell-environment--query-shell-for-var (variable-name)
+  "Get VARIABLE-NAME's value from the user's shell."
+  (let* ((shell (shell-environment--get-shell-path))
+         (command (format "%s -lc 'echo -n \"$%s\"'" shell variable-name)))
+    (with-temp-buffer
+      (when (zerop (call-process shell nil t nil "-lc" (format "echo -n \"$%s\"" variable-name)))
+        (buffer-string)))))
+
+(defun shell-environment--set-var (variable-name value)
+  "Set VARIABLE-NAME to VALUE in Emacs environment.
+Special handling for PATH to update related variables."
+  (setenv variable-name value)
+  (when (string-equal "PATH" variable-name)
+    (setq exec-path (append (parse-colon-path value) (list exec-directory)))
+    (setq-default eshell-path-env value)))
+
+(defun shell-environment-import-var (variable-name)
+  "Import an environment variable from shell to Emacs.
+Returns the imported value."
+  (interactive "sImport which environment variable from shell? ")
+  (let ((value (shell-environment--query-shell-for-var variable-name)))
+    (when value
+      (shell-environment--set-var variable-name value)
+      value)))
+
+(defun shell-environment-initialize ()
+  "Import all configured environment variables from shell to Emacs."
+  (interactive)
+  (dolist (var shell-environment-variables)
+    (shell-environment-import-var var)))
+
+(provide 'shell-environment)
+
+#+end_src
+
+
+** copy path from shell newer
+
+#+begin_src emacs-lisp
+
+(defvar simple-shell-env-vars '("PATH" "MANPATH")
+  "List of environment variables to import from the shell.")
+
+(defun simple-shell-getenv (var)
+  "Get the value of VAR by invoking the user's shell.
+Returns nil if the variable is unset or if there's an error."
+  (let* ((shell (or shell-file-name (getenv "SHELL") "/bin/bash"))
+         ;; Command to run bash interactively and load the profile, suppressing warnings
+         (command (format "%s -ic 'echo ${%s}' </dev/null 2>/dev/null" shell var)))
+    (with-temp-buffer
+      (condition-case nil
+          (if (zerop (call-process-shell-command command nil t))
+              (let ((result (string-trim (buffer-string))))
+                (unless (string-empty-p result) result))
+            nil)
+        (error nil)))))
+
+(defun simple-shell-setenv (var value)
+  "Set VAR to VALUE in Emacs, and update exec-path if needed."
+  (setenv var value)
+  (when (string= var "PATH")
+    ;; Set exec-path exactly as in the shell PATH
+    (setq exec-path (parse-colon-path value))
+    ;; Also update eshell path if you use it
+    (when (fboundp 'eshell-path-env)
+      (setq-default eshell-path-env value))))
+
+(defun simple-shell-copy-envs ()
+  "Copy all vars in `simple-shell-env-vars` from shell into Emacs."
+  (dolist (var simple-shell-env-vars)
+    (let ((val (simple-shell-getenv var)))
+      (if val
+          (simple-shell-setenv var val)
+        (message "Shell variable %s is unset or could not be read" var)))))
+
+;; Also refresh when idle to catch any changes
+(run-with-idle-timer
+ 1 nil
+ (lambda ()
+   (message "Refreshing shell environment variables...")
+   (simple-shell-copy-envs)))
+
+#+end_src
+
+
+** COMMENT copy path from shell newer async
+
+#+begin_src emacs-lisp
+
+#+end_src
+
+
+* create launchers for some tui apps if they exist
+
+#+begin_src emacs-lisp
+
+(defun my-create-terminal-function (tuiapp)
+  "Create a terminal function for the given BINARY."
+  (let ((function-name (intern (format "%s-term-open" tuiapp))))
+    (when (executable-find tuiapp)
+        (eval `(defun ,function-name ()
+                 ,(format "Open %s using ansi-term." tuiapp)
+                 (interactive)
+                 (ansi-term ,tuiapp))
+              ;; to be added if if is used instead of when (message "Warning: '%s' tui app not found." tuiapp)
+			  ))))
+
+(defvar my-tui-apps '("toipe" "nnn" "nmtui" "htop" "nvim" "lynx" "gtypist")
+  "List of tui apps to create functions for.")
+
+(add-hook 'after-init-hook
+		  (lambda () (dolist (binary my-tui-apps)
+					   (my-create-terminal-function binary))))
+
+#+end_src
+
+
+* COMMENT start server
+
+#+begin_src emacs-lisp
+
+(run-with-idle-timer 0.6 nil (lambda () (require 'server)
+                               (unless (server-running-p)
+                                 (server-start))))
+
+
+;; (require 'server)
+;; (unless (server-running-p)
+;;   (server-start))
+
+#+end_src
+
+
+* simple dashboard
+
+#+begin_src emacs-lisp
+
+(defun create-buttons-from-list (title button-list)
+  "Create buttons from BUTTON-LIST, where each element is a list
+containing a button label, description, and action."
+  (insert (format "\n%s\n" title))
+  (dolist (item button-list)
+    (let ((button-label (nth 0 item))          ; Get the button label
+          (button-description (nth 1 item))   ; Get the button description
+          (button-action (nth 2 item)))        ; Get the action to be executed
+      ;; Create the button for the label
+      (let ((button (make-button 
+                     (point) 
+                     (progn 
+                       (insert (format "[%s]" button-label)) ; Format the button label
+                       (point)) 
+                     'action 
+                     button-action))) ; Use the defined action
+        
+        ;; Insert the description below the button
+        (insert (format " %s\n" button-description)))))) ; Add description
+
+(defun create-buttons-from-list-padded (title button-list num)
+  "Create buttons from BUTTON-LIST, where each element is a list
+containing a button label, description, and action."
+  (insert (format "%s%s%s%s"
+				  "\n"
+				  (make-string (if (> num 2) (- num 2) 0) ?\s)
+				  title
+				  "\n"))
+  (dolist (item button-list)
+    (let ((button-label (nth 0 item))          ; Get the button label
+          (button-description (nth 1 item))   ; Get the button description
+          (button-action (nth 2 item)))        ; Get the action to be executed
+      ;; Create the button for the label
+	  (insert (make-string num ?\s))
+      (let ((button (make-button 
+                     (point) 
+                     (progn 
+                       (insert (format "[%s]" button-label)) ; Format the button label
+                       (point)) 
+                     'action 
+                     button-action))) ; Use the defined action
+        
+        ;; Insert the description below the button
+        (insert (format "  %s\n" button-description)))))) ; Add description
+
+
+(defun yae-padd-lines (input-string num)
+  "Return a string with each line in INPUT-STRING padded with spaces
+repeated NUM times, including empty lines."
+  (let ((lines (split-string input-string "\n" nil))  ; Split string into lines, keeping empty lines
+        (result ""))  ; Initialize an empty result string
+    (dolist (line lines)  ; Iterate over each line
+      (let ((padding (make-string num ?\s)))  ; Create padding with spaces
+        (setq result (concat result (format "%s%s\n" padding line)))))  ; Accumulate result
+    result))  ; Return the final accumulated string
+
+(defun my-dashboard ()
+  "Display a simple welcome dashboard with clickable links."
+  (interactive)
+  (switch-to-buffer "*Dashboard*")
+  (erase-buffer) ; Clear the buffer
+  (insert "  Welcome to\n") ; Welcome message
+
+  ;; Define the ASCII art button locally
+  (let ((ascii-art-button
+         "
+▒█▀▀█ ▀▀█▀▀ ▒█▀▀▀ ▒█▀▄▀█ 
+▒█▄▄▀ ░▒█░░ ▒█▀▀▀ ▒█▒█▒█ 
+▒█░▒█ ░▒█░░ ▒█░░░ ▒█░░▒█ 
+
+▒█▀▀▀ █▀▄▀█ █▀▀█ █▀▀ █▀▀ 
+▒█▀▀▀ █░▀░█ █▄▄█ █░░ ▀▀█ 
+▒█▄▄▄ ▀░░░▀ ▀░░▀ ▀▀▀ ▀▀▀
+
+   "))
+    
+    ;; Create the ASCII art button
+    (make-button 
+     (point) 
+     (progn 
+       (insert (yae-padd-lines ascii-art-button 10)) ; Insert the ASCII art for the button
+       (point))
+     'action 
+     (lambda (_) 
+       (eww-browse-url "https://www.gnu.org/software/emacs/"))
+	 'follow-link t         ; Make it behave like a link
+	 'mouse-face 'highlight  ; Change mouse hover effect
+	 'face 'default          ; Use default face for text
+	 ':underline nil)) ; Action to open Emacs website
+
+  ;; ;; Optional: Add some spacing
+  ;; (insert (format "%s" (emacs-version)))
+
+  ;; Define buttons with actions
+  (let ((buttons
+         '(("Scratch Buffer" "Open scratch buffer" 
+            (lambda (_) (call-interactively 'create-scratch-buffer)))
+		   ("Find File" "Open a File" 
+            (lambda (_) (call-interactively 'find-file)))
+		   ("Dired" "Open a Directory" 
+            (lambda (_) (call-interactively 'dired)))
+		   ("Recentf" "Open recent files" 
+            (lambda (_) (call-interactively 'recentf-open)))
+		   ("Org Agenda" "Description of org agenda button" 
+            (lambda (_) (call-interactively 'org-agenda)))
+		   ("Emacs Manual" "Browse Emacs Manual" 
+            (lambda (_) (info-emacs-manual)))
+           ("Emacs Website" "Visit Emacs Website" 
+            (lambda (_) (eww-browse-url "https://www.gnu.org/software/emacs/"))))))
+
+	(insert (make-string 0 10))
+    ;; Use the updated function to create buttons with actions
+    (create-buttons-from-list-padded "Quick Links:" buttons 4))
+
+    (insert (format "\nEmacs started in %.2f seconds\n"
+        (float-time (time-subtract after-init-time before-init-time))))
+
+
+  ;; Disable line numbers
+  (setq display-line-numbers nil)
+
+  ;; Enable read-only mode
+  (read-only-mode 1)
+  ;; (beginning-of-buffer)
+  (goto-char (point-min)))
+
+;; ;; (global-set-key (kbd "C-c d") 'my-dashboard)
+;; (add-hook 'emacs-startup-hook 'my-dashboard)
+
+(when (< (length command-line-args) 2) ;; Assume no file name passed
+  (add-hook 'emacs-startup-hook #'my-dashboard))
+
+#+end_src
+
+
+* load-theme
+
+#+begin_src emacs-lisp
+
+(defconst theme-directory (expand-file-name "themes" user-emacs-directory))
+
+(unless (file-directory-p theme-directory)
+  (make-directory theme-directory))
+
+(add-to-list 'custom-theme-load-path
+             (expand-file-name "themes" user-emacs-directory))
+
+
+(let ((basedir theme-directory))
+  (dolist (f (directory-files basedir))
+    (if (and (not (or (equal f ".") (equal f "..")))
+             (file-directory-p (concat basedir f)))
+        (add-to-list 'custom-theme-load-path (concat basedir f)))))
+
+
+;; (add-hook 'after-init-time-hook
+;;           (if (require 'base16-theme nil 'noerror)
+;;               (load-theme 'base16-brewer t)
+;; 			  ;; (load-theme 'base16-black-metal-immortal t)
+;;             (load-theme 'yae_simple t)
+;;             ;; (load-theme 'wombat t)
+;;             ;; (load-theme 'manoj-dark t)
+;;             ;; (load-theme 'modus-vivendi t)
+;;             ))
+
+(add-hook 'after-init-time-hook
+          (progn
+            (customize-set-variable 'yae-selected-palette 'palenight)
+            (load-theme 'yae_simple t)))
+
+;; (add-hook 'after-init-hook (lambda () (load-theme 'xresources t)))
+;; (add-hook 'emacs-startup-hook (lambda () (load-theme 'xresources t)))
+
+#+end_src
+
+
+* COMMENT initial scratch-buffer settings
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-time-hook (progn
+                 (switch-to-buffer "*scratch*")
+                 (lisp-interaction-mode)))
+
+#+end_src
+
+
+* load custom faces
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+              (when (file-exists-p dafile) (load-file dafile)))))
+
+(when EMACS27+
+  (add-hook 'server-after-make-frame-hook
+            (lambda ()
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile))))))
+
+#+end_src
+
+
+* set custom variables
+
+#+begin_src emacs-lisp
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(indicate-empty-lines t)
+ ;; '(safe-local-variable-values
+ ;;   ((eval add-hook 'after-save-hook
+ ;;       (lambda nil
+ ;;         (org-babel-tangle)
+ ;;         (message "tangled-document")))))
+ )
+
+#+end_src
