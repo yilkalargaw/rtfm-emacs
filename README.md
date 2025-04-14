@@ -1,4 +1,4 @@
-# yet-another-emacs
+# RTFM emacs
 
 It is my emacs personal emacs config which I have refactored to make
 use built in emacs features. I had to do this due to the environment I
@@ -12,6 +12,8 @@ built in emacs features and pure elisp code I write.
 
   + snippeting using tempo.el and expand.el you just choose which one
   you like by commenting the header for which one you prefer
+
+  + nerdfonts just because I like it
 
   + etc ...
 
