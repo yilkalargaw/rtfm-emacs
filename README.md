@@ -1,17 +1,18 @@
 # yet-another-emacs
 
-Is my personal emacs config and it is based on the earlier yet-another-emacs. I have tried to make it faster and saner than the old defaults.
+It is my emacs personal emacs config which I have refactored to make
+use built in emacs features. I had to do this due to the environment I
+work in. It has a split configuration in which rtfm.org makes use of
+built in emacs features and pure elisp code I write.
 
 
 # It Uses
 
-  + fido, consult, marginelia for completion
+  + icomplete and/or fido for completion
 
-  + hydra
-
-  + projectile
+  + snippeting using tempo.el and expand.el you just choose which one
+  you like by commenting the header for which one you prefer
 
   + etc ...
 
-![screenshot1](./screenshots/screenshot1.gif "screenshot1")
-![screenshot4](./screenshots/screenshot4.gif "screenshot1")
+![screenshot1](./screenshots/screenshot1.png "screenshot1")
