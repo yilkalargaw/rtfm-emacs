@@ -273,54 +273,71 @@ between 0 and 1)."
    ;; `(font-lock-keyword-face ((t (:weight bold :slant italic))))
    ;; `(font-lock-type-face ((t (:slant italic)))) ;:weight bold))))
 
-
-   ;;;;; org
-   ;; `(org-agenda-structure ((t (:inherit default ,@sans-font :height 2.0 :underline nil))))
-   `(org-level-8 ((t (:inherit 'outline-8
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-7 ((t (:inherit 'outline-7
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-6 ((t (:inherit 'outline-6
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-5 ((t (:inherit 'outline-5
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-4 ((t (:inherit 'outline-4
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-3 ((t (:inherit 'outline-3
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-2 ((t (:inherit 'outline-2
-                               ;; :weight bold
-                               :height 1.0))))
-   `(org-level-1 ((t (:inherit 'outline-1
-                               ;; :weight bold
-                               :height 1.0))))
+   ;; show-paren-match
+   `(show-paren-match ((t (:inherit secondary-selection))))
+   ;; ;;;;; org
+   ;; ;; `(org-agenda-structure ((t (:inherit default ,@sans-font :height 2.0 :underline nil))))
+   ;; `(org-level-8 ((t (:inherit 'outline-8
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-7 ((t (:inherit 'outline-7
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-6 ((t (:inherit 'outline-6
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-5 ((t (:inherit 'outline-5
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-4 ((t (:inherit 'outline-4
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-3 ((t (:inherit 'outline-3
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-2 ((t (:inherit 'outline-2
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
+   ;; `(org-level-1 ((t (:inherit 'outline-1
+   ;;                             ;; :weight bold
+   ;;                             :height 1.0
+   ;;                             :box nil
+   ;;                             :background ,(face-background 'default)
+   ;;                             :overline nil))))
 
    `(org-document-title ((t (:family "sans"
                                      :inherit org-level-1
                                      :height 1.5
                                      :underline nil
-                                     :box ))))
+                                     :box nil))))
 
-   `(org-block ((t (:background nil :box nil))))
-   ;; `(org-block-begin-line ((t (:background nil :box nil))))
-   ;; `(org-block-end-line ((t (:background nil :box nil))))
-
-   ;; `(org-block-begin-line ((t ,org-highlights)))
-   ;; `(org-block-end-line ((t ,org-highlights)))
-   ;; `(org-block ((t (:background ,(face-background 'highlight)))))
-   ;; `(org-block-begin-line ((t (:underline t))))
-   ;; `(org-block-end-line ((t (:overline t))))
+   `(org-block ((t (:inherit default :box nil))))
    `(org-block-begin-line ((t (;; :background ,(face-background 'highlight)
-                               :background nil
+                               :inherit default
                                :foreground ,(face-foreground 'shadow) :underline nil :overline nil :italic t))))
    `(org-block-end-line ((t (;; :background ,(face-background 'highlight)
-                             :background nil
+                             :inherit default
                              :foreground ,(face-foreground 'shadow) :overline nil :underline nil :italic t))))
 
 
@@ -329,183 +346,53 @@ between 0 and 1)."
 
    `(org-headline-done ((t (:strike-through t))))
    `(org-done ((t (:strike-through t :underline t :overline t))))
-   `(org-todo ((t (:foreground ,(face-foreground 'default) :background nil
+   `(org-todo ((t (:inherit default :foreground ,(face-foreground 'default)
                                :underline t :overline t))))
-
-   ;; `(symbol-overlay-default-face ((t (:background ,(color-lighten-name (face-background 'default) 10)
-   ;;                                               :foreground ,(color-darken-name (face-foreground 'default) 10)))))
-
-   ;; `(symbol-overlay-default-face ((t (:background ,(face-foreground 'font-lock-comment-face)
-   ;;                                             :foreground ,(face-background 'font-lock-comment-face)))))
-
    `(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
-   ;; `(mode-line ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :box ,(face-foreground 'link)))))
-   ;; `(mode-line-inactive ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :box nil))))
-   ;; '(mode-line ((t (:background "#002b36"  :foreground "white" :box "dark cyan"))))
-   ;; '(mode-line-inactive ((t (:background "#002b36" :foreground "white" :box nil))))
+     `(mode-line ((t (:inherit variable-pitch
+    						   :background ,(if (dark-p bg-color)
+    											(doomish-lighten bg-color 0.15)
+    										  (doomish-darken bg-color 0.15))
+    						   ;; :background nil
+    						   :foreground ,(face-foreground 'default)
+    						   :box nil
+    						   :box (:color ,(if (dark-p bg-color)
+    													 (doomish-darken bg-color 0.20)
+    													(doomish-lighten bg-color 0.20))
+    												 :line-width 1)
+    						   ;; :box (:color ,(face-foreground 'default) :line-width 1)
+    						   ;; :box nil
+    						   ;; :underline nil :overline nil :height 1.0
+    						   :bold t
+    						   ))))
 
-   ;; `(highlight ((t (:background ,(doomish-blend (face-background 'default) (face-background 'region) 0.1) ;; :box (:line-width 1 :color ,(face-foreground 'default ))
-   ;; 								)))) ;; font-lock-comment-face
-
-
-   ;; `(hl-line ((t (:inherit 'nil
-   ;;             :background ,(face-background 'highlight) :box (:line-width 1 :color ,(face-foreground 'default ) ;; font-lock-comment-face
-   ;;                                                                         )))))
-   ;; `(hl-line-face((t (:box nil))))
-
-   ;; `(objed-hl ((t (:inherit 'nil
-   ;;             :background ,(face-background 'highlight) :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face) ;; font-lock-comment-face
-   ;;                                                                       )))))
-
-   ;; `(highlight ((t (:inherit 'highlight :box nil :underline nil :overline nil)))) ;; font-lock-comment-face
-   ;; `(hl-line ((t (:inherit 'highlight
-   ;;                      :background ,(face-background 'default)
-   ;;                       ;; :underline nil :overline nil
-   ;;                      :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face))
-   ;;                      ))))
-   ;; `(objed-hl ((t (:inherit 'highlight
-   ;;                       ;; :background ,(face-background 'default)
-   ;;                        :underline nil :overline nil
-   ;;                       ;; :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face ))
-   ;;                       ))))
-
-   `(mouse ((t (:foreground ,(face-foreground 'highlight) :background ,(face-background 'default)))))
-
-
-   ;; `(region ((t (;; :inherit 'region :background ,(face-background 'region)
-   ;;                :background nil :foreground nil))))
-   ;; `(secondary-selection ((t (:inherit 'secondary-selection :foreground nil))))
-
-   ;; `(highlight ((t (:inherit 'highlight ;; :box nil
-   ;;                           ;; :underline nil :overline nil
-   ;;                           )))) ;; font-lock-comment-face
-   ;; `(hl-line ((t (;; :inherit 'hl-line
-   ;;                         ;; :background ,(face-background 'default)
-   ;;                          ;; :underline nil :overline nil
-   ;;                         :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face))
-   ;;                               ))))
-
-   ;; `(objed-hl ((t (;; :inherit 'region
-   ;;                           ;; :inherit 'secondary-selection
-   ;;                          ;; :background ,(face-background 'default)
-   ;;                           ;; :underline nil :overline nil
-   ;;                          :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face ))
-   ;;                          ))))
-
-   ;; `(tab-bar ((t (:inherit variable-pitch :background "SlateGray4" :foreground "white"))))
-   ;; `(tab-bar-tab ((t (:inherit tab-bar :box nil))))
-   ;; `(tab-bar-tab-inactive ((t (:inherit tab-bar-tab :background "gray5"))))
-
-   ;; ;;;;; modeline
-
-   ;; `(mode-line ((t (:background ,(if (dark-p (color-name-to-rgb (face-background 'default)))
-   ;;                                  (color-lighten-name (face-background 'default) 50)
-   ;;                                 (color-darken-name (face-background 'default) 50))
-   ;; 								:box nil))))
-
-   ;; (let ((bg-color (doomish-blend (face-foreground 'shadow) (face-background 'default) 0)))
-   ;; 	 `(mode-line ((t (:inherit variable-pitch
-   ;;                             ;; :background ,bg-color
-   ;; 							   :background nil
-   ;; 							   ;; :foreground ,(face-foreground 'default)
-   ;; 							   :foreground ,(apply 'color-rgb-to-hex (color-complement bg-color))
-   ;;                             :box (:color ,(face-foreground 'default) :line-width 1)
-   ;; 							   ;; :box nil
-   ;; 							   :underline nil :overline nil :height 1.0)))))
-
-
-   ;; (let ((bg-color (doomish-blend (doomish-blend (face-background 'link) (face-background 'default) 0) (face-background 'default) 1)))
-   ;; 	 `(mode-line-inactive ((t (:inherit variable-pitch
-   ;; 										;; :background ,bg-color
-   ;; 										:background nil
-   ;; 										:foreground ,(face-foreground 'font-lock-comment-face)
-   ;; 										;; :foreground ,(apply 'color-rgb-to-hex (color-complement bg-color))
-   ;; 										:box (:color ,(face-foreground 'font-lock-comment-face) :line-width 1)
-   ;; 										;; :box nil
-   ;; 										:underline nil :overline nil :height 1.0
-   ;; 										:italic t)))))
-
-   ;; `(mode-line-buffer-id ((t (:inherit variable-pitch
-   ;;                                     ;; :box (:color ,(face-foreground 'default) :line-width -1)
-   ;;                                     ;; :background ,(face-background 'default)
-   ;;                                     :background nil
-   ;;                                     :foreground ,(face-foreground 'link)
-   ;;                                     :bold t :height 1.0
-   ;;                                     :distant-foreground ,(face-background 'region)))))
-
-	 `(mode-line ((t (:inherit variable-pitch
-							   :background ,(if (dark-p bg-color)
-												(doomish-lighten bg-color 0.15)
-											  (doomish-darken bg-color 0.15))
-							   ;; :background nil
-							   :foreground ,(face-foreground 'default)
-							   :box nil
-							   :box (:color ,(if (dark-p bg-color)
-														 (doomish-darken bg-color 0.20)
-														(doomish-lighten bg-color 0.20))
-													 :line-width 1)
-							   ;; :box (:color ,(face-foreground 'default) :line-width 1)
-							   ;; :box nil
-							   ;; :underline nil :overline nil :height 1.0
-							   :bold t
-							   ))))
-
-	 `(mode-line-inactive ((t (:inherit variable-pitch
-										:background ,(if (dark-p bg-color)
-														 (doomish-lighten bg-color 0.07)
-													   (doomish-darken bg-color 0.07))
-										;; :background nil
-										:foreground ,(face-foreground 'font-lock-comment-face)
-										:box nil
-										:box (:color ,(if (dark-p bg-color)
-														 (doomish-darken bg-color 0.07)
-														(doomish-lighten bg-color 0.07))
-													 :line-width 1)
-										;; :box (:color ,(face-background 'font-lock-comment-face) :line-width 1)
-										;; :box nil
-										;; :height 1.0
-										:italic t
-										))))
- 
-
-   ;; ;;;;; modeline
-   ;; `(mode-line ((t (:inherit variable-pitch
-   ;;                           ;; :background ,(face-background 'default)
-   ;;                           :background nil
-   ;;                           :foreground ,(face-foreground 'default)
-   ;;                           :box (:color ,(face-foreground 'default) :line-width 1) :underline nil :overline nil :height 1.0))))
-
-   ;; `(mode-line-inactive ((t (:inherit variable-pitch
-   ;;                                    ;; :background ,(face-background 'default)
-   ;;                                    :background nil
-   ;;                                    :foreground ,(face-foreground 'font-lock-comment-face)
-   ;;                                    :box (:color ,(face-background 'region) :line-width 1) :height 1.0))))
-
+     ;;; modeline
+     `(mode-line-inactive ((t (:inherit variable-pitch
+    									:background ,(if (dark-p bg-color)
+    													 (doomish-lighten bg-color 0.07)
+    												   (doomish-darken bg-color 0.07))
+    									;; :background nil
+    									:foreground ,(face-foreground 'font-lock-comment-face)
+    									:box nil
+    									:box (:color ,(if (dark-p bg-color)
+    													 (doomish-darken bg-color 0.07)
+    													(doomish-lighten bg-color 0.07))
+    												 :line-width 1)
+    									;; :box (:color ,(face-background 'font-lock-comment-face) :line-width 1)
+    									;; :box nil
+    									;; :height 1.0
+    									:italic t
+    									))))
    `(mode-line-buffer-id ((t (:inherit variable-pitch
                                        ;; :box (:color ,(face-foreground 'default) :line-width -1)
                                        ;; :background ,(face-background 'default)
-                                       :background nil
+                                       :background ,(face-background 'mode-line)
                                        :foreground ,(face-foreground 'link)
                                        :bold t :height 1.0
                                        :distant-foreground ,(face-background 'region)))))
 
-
-   ;; `(mode-line-buffer-id-inactive ((t ( :box (:color ,(face-foreground 'font-lock-comment-face) :line-width 1)
-   ;;                                  :box nil
-   ;;                                       :foreground ,(face-foreground 'link)
-   ;;                                 :background nil :bold t :height 1.0))))
-
-   ;; ;; '(mode-line ((t (:background "#002b36"  :foreground "white" :box "dark cyan"))))
-   ;; ;; '(mode-line-inactive ((t (:background "#002b36" :foreground "white" :box nil))))
-   ;; `(spaceline-highlight-face ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :inherit 'mode-line))))
-   ;; `(spaceline-unmodified  ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :inherit 'mode-line))))
-
-   ;; ;;;;; doom-modeline
-   ;; `(doom-modeline-bar ((t (:background ,(face-background 'font-lock-keyword-face)))))
-
-
    ;;header-line
-   `(header-line ((t (:inverse-video nil :background ,(face-background 'default) :box nil :style nil))))
+   `(header-line ((t (:inherit default :background ,(face-background 'default) :box nil))))
 
    ;; menu & toolbar
   `(menu ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :italic nil :height 1.0 :bold t :underline nil))))
@@ -515,51 +402,16 @@ between 0 and 1)."
    ;; `(trailing-whitespace ((t nil)))
    `(whitespace-empty ((t nil)))
    `(whitespace-line ((t nil)))
-   `(whitespace-newline ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-newline-mark ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-space ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-spaces ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-space-mark ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-tabs ((t (:foreground ,(face-background 'default) :background nil))))
-   `(whitespace-tab ((t (:foreground ,(face-background 'default) :background nil))))
+   `(whitespace-newline ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-newline-mark ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-space ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-spaces ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-space-mark ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-tabs ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-tab ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
    `(whitespace-trailing ((t nil)))
    ;; `(whitespace-space-after-tab ((t nil)))
    ;; `(whitespace-space-before-tab ((t nil)))
-
-
-   ;; ;;;;; whitespace-mode
-   ;;   `(whitespace-empty ((t (:background nil))))
-   ;;   `(whitespace-indentation ((t (:background nil))))
-   ;;   `(whitespace-line ((t (:background nil))))
-   ;;   `(whitespace-newline ((t (:background nil))))
-   ;;   `(whitespace-space ((t (:background nil))))
-   ;;   `(whitespace-space-after-tab ((t (:background nil))))
-   ;;   `(whitespace-space-before-tab ((t (:background nil))))
-   ;;   `(whitespace-tab ((t (:background nil))))
-   ;;   `(whitespace-trailing ((t (:background ,err ))))
-
-   ;; ;;;;; ivy
-   ;;  `(ivy-current-match ((t (;; :underline t
-   ;;                         :inherit ivy-current-match :background ,(face-foreground 'link) ;; :foreground ,(face-background 'link)
-   ;;                         :box (:line-width 1 :color ,(face-foreground 'default;; font-lock-comment-face
-   ;;                                                                      ))))))
-
-   ;; `(ivy-current-match ((t (:inherit bold))))
-   ;; `(ivy-minibuffer-match-face-1 ((t (:inherit bold))))
-   ;; `(ivy-minibuffer-match-face-2 ((t (:underline t))))
-   ;; `(ivy-minibuffer-match-face-3 ((t (:underline t))))
-   ;; `(ivy-minibuffer-match-face-4 ((t (:underline t))))
-   ;; `(ivy-virtual ((t (:foreground ,(face-foreground font-lock-comment-face) :slant italic))))
-
-   ;; ;; icomplete
-   ;; ;; `(icompletep-determined ((t (:box (:line-width 1 :color ,(face-foreground 'default))))))
-   ;; ;; ;; ido
-   ;; ;; `(ido-first-match ((t (:box (:line-width 1 :color ,(face-foreground 'default))))))
-   ;; ;; `(ido-only-match ((t (((t (:box (:line-width 1 :color ,(face-foreground 'default)))))))))
-   ;; ;; `(ido-subdir ((t (:inherit bold))))
-   ;; ;; `(ido-virtual ((t (:inherit bold))))
-   ;; ;; `(ido-incomplete-regexp ((t (:inherit bold))))
-   ;; ;; `(ido-indicator ((t (:box t))))
 
    `(icomplete-selected-match
 	 ((t (:foreground ,(doomish-blend (face-foreground 'link) (face-foreground 'default) 1.0)
@@ -571,23 +423,6 @@ between 0 and 1)."
 	 ((t (:foreground ,(doomish-blend (face-foreground 'font-lock-string-face) (face-background 'default) 0.6)
 		  :italic nil :height 1.0 :bold t :underline nil))))
 
-   ;; ;;;;; swiper
-   ;; `(swiper-line-face ((t (;; :underline t
-   ;;                        :inherit swiper-line-face :background ,(face-foreground 'link) ;; :foreground ,(face-background 'link)
-   ;;                        :box (:line-width 1 :color ,(face-foreground 'default;; font-lock-comment-face
-   ;;                                                                      ))))))
-   ;; `(swiper-match-face-1 ((t (:inherit bold))))
-   ;; `(swiper-match-face-2 ((t (:underline t))))
-   ;; `(swiper-match-face-3 ((t (:underline t))))
-   ;; `(swiper-match-face-4 ((t (:underline t))))
-
-
-   ;;selectrum
-   ;; `(selectrum-current-candidate ((t (:inherit 'hl-line ;; :background ,(face-background 'hl-line) :foreground ,(face-foreground 'hl-line) :bold t
-   ;;                                             ;; :underline nil :overline nil
-   ;;                                             :box (:line-width 1 :color ,(face-foreground 'font-lock-comment-face))))))
-
-
    ;; ;;;;; dired-subtree
 
    `(dired-subtree-depth-1-face ((t (:background nil)))) ;; :foreground ,(face-foreground 'default)))))
@@ -598,44 +433,46 @@ between 0 and 1)."
    `(dired-subtree-depth-6-face ((t (:background nil)))) ;; :foreground ,(face-foreground 'default)))))
 
 
-   ;; ;;;;; tabbar
-   ;; `(tab-bar ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 ;; :overline t
-   ;;                            ;; :box (:color ,(face-foreground 'default) :line-width 1)
-   ;;                            ))))
-   ;; `(tab-bar-tab ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 :inverse-video t :underline t
-   ;;                                ;; :box (:color ,(face-foreground 'default) :line-width 1)
-   ;;                                ))))
-   ;; `(tab-bar-tab-inactive ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 ;; :overline t
-   ;;                                         :box (:color ,(face-foreground 'default) :line-width 2)))))
-   ;; ;;;;; tabbar
-   ;; ;; tab-line
-   ;; ;; tab-line-tab
-   ;; ;; tab-line-tab-inactive
-   ;; ;; tab-line-tab-current
-   ;; ;; tab-line-highlight
-   ;; ;; tab-line-close-highlight
+   `(tab-line ((t (:inherit mode-line-inactive ;; :background ,(face-background 'default) :foreground ,(face-foreground 'default) 
+                            :height 1.1 ;; :overline t
+                            ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                            ))))
+   `(tab-line-tab ((t (:inherit variable-pitch :background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0
+                                ;; :inverse-video t
+                                ;; :underline t
+                                ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                                ))))
+   `(tab-line-tab-inactive ((t (:inherit mode-line-inactive
+                                         ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                                         ))))
 
+   `(tab-line-tab-current ((t (:inherit variable-pitch :background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 ;; :inverse-video t
+                                        ;; :underline t
+                                        ;; :box (:color ,(face-foreground 'default) :line-tawidth 1)
+                                        ))))
+   `(tab-line-highlight ((t (:inherit variable-pitch :background ,(face-background 'region) :foreground ,(face-background 'default) :height 1.0 ;; :inverse-video t
+                                      ;; :underline t
+                                      ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                                      ))))
 
-   ;; `(tab-line ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 ;; :overline t
-   ;;                             ;; :box (:color ,(face-foreground 'default) :line-width 1)
-   ;;                             ))))
-   ;; `(tab-line-tab ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 :inverse-video t :underline t
-   ;;                                 ;; :box (:color ,(face-foreground 'default) :line-width 1)
-   ;;                                 ))))
-   ;; `(tab-line-tab-inactive ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 ;; :overline t
-   ;;                                          :box (:color ,(face-foreground 'default) :line-width 2)))))
+   `(tab-bar ((t (:inherit mode-line-inactive ;; :background ,(face-background 'default) :foreground ,(face-foreground 'default) 
+                           :height 1.1 ;; :overline t
+                           ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                           ))))
+   `(tab-bar-tab ((t (:inherit variable-pitch :background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0
+                               ;; :inverse-video t
+                               ;; :underline t
+                               ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                               ))))
+   `(tab-bar-inactive ((t (:inherit mode-line-inactive
+                                    ;; :box (:color ,(face-foreground 'default) :line-width 1)
+                                    ))))
 
-   ;; `(tab-line-tab-current ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'default) :height 1.0 :inverse-video t :underline t
-   ;;                                         ;; :box (:color ,(face-foreground 'default) :line-width 1)
-   ;;                                         ))))
 
    ;;;;; dashboard
    `(dashboard-items-face ((t (:underline nil :height 0.9 ))))
    `(dashboard-no-items-face ((t (:underline nil :height 1.0 :foreground ,(face-foreground font-lock-comment-face) ))))
    `(dashboard-text-banner-face ((t (:underline nil :height 1.2))))
-   ;;    (dashboard-navigator-face)
-   ;;    (dashboard-heading-face)
-   ;;    (dashboard-footer-face)
 
    ;;;; diredfl
 
@@ -657,7 +494,7 @@ between 0 and 1)."
    `(diredfl-ignored-file-name      ((t (:background nil :foreground ,(face-foreground 'font-lock-comment-face)))))
    `(diredfl-link-priv              ((t (:background nil :foreground ,(face-foreground 'trailing-whitespace)))))
    `(diredfl-no-priv                ((t (:background nil :foreground ,(face-foreground 'default)))))
-   `(diredfl-number                 ((t (:background nil :foreground ,(face-foreground 'header-line)))))
+   ;; `(diredfl-number                 ((t (:background nil :foreground ,(face-foreground 'header-line)))))
    `(diredfl-other-priv             ((t (:background nil :foreground ,(face-foreground 'highlight)))))
    `(diredfl-rare-priv              ((t (:background nil :foreground ,(face-foreground 'default)))))
    `(diredfl-read-priv              ((t (:background nil :foreground ,(face-foreground 'font-lock-regexp-grouping-construct)))))

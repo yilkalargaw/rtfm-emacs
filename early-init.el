@@ -68,11 +68,11 @@
 
 (defun yae-set-font (&optional frame)
   (when frame (select-frame frame))
-      (set-frame-font "CaskaydiaMono Nerd Font")
+      (set-frame-font "LiterationMono Nerd Font")
        ;; (set-frame-font "CommitMono Nerd Font")
 	  )
 (yae-set-font)
-(set-face-attribute 'default nil :height 105)
+(set-face-attribute 'default nil :height 110)
 (add-hook 'after-make-frame-functions 'yae-set-font)
 
 
