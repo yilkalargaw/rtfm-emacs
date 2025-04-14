@@ -89,18 +89,6 @@
     (my-load-compiled-config)
 
 
-(add-hook 'after-init-hook
-          (lambda ()
-            (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-              (when (file-exists-p dafile) (load-file dafile)))))
-
-(when EMACS27+
-  (add-hook 'server-after-make-frame-hook
-            (lambda ()
-              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-                (when (file-exists-p dafile) (load-file dafile))))))
-
-
 ;; ------------------------------------------------------------
 ;; Benchmarking Helpers
 ;; ------------------------------------------------------------
