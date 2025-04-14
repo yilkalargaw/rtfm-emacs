@@ -22,47 +22,222 @@
 ;;; Code:
 
 ;;;###theme-autoload
+
+(defgroup yae-simple-theme nil
+  "Custom theme settings for YAE."
+  :group 'faces)
+
+(defcustom yae-color-palettes
+  '((palenight
+     .   ((yae-ansi-black . "#292d3e")
+          (yae-ansi-blue . "#82aaff")
+          (yae-ansi-brightblack . "#676e95")
+          (yae-ansi-brightblue . "#82aaff")
+          (yae-ansi-brightcyan . "#89ddff")
+          (yae-ansi-brightgreen . "#c3e88d")
+          (yae-ansi-brightmagenta . "#c792ea")
+          (yae-ansi-brightred . "#f07178")
+          (yae-ansi-brightwhite . "#ffffff")
+          (yae-ansi-brightyellow . "#ffcb6b")
+          (yae-ansi-cyan . "#89ddff")
+          (yae-ansi-green . "#c3e88d")
+          (yae-ansi-magenta . "#c792ea")
+          (yae-ansi-red . "#f07178")
+          (yae-ansi-white . "#959dcb")
+          (yae-ansi-yellow . "#ffcb6b")))
+
+    (harmonic-dark
+     .   ((yae-ansi-black . "#0B1C2C")
+          (yae-ansi-blue . "#8B56BF")
+          (yae-ansi-brightblack . "#627E99")
+          (yae-ansi-brightblue . "#8B56BF")
+          (yae-ansi-brightcyan . "#568BBF")
+          (yae-ansi-brightgreen . "#56BF8B")
+          (yae-ansi-brightmagenta . "#BF568B")
+          (yae-ansi-brightred . "#BF8B56")
+          (yae-ansi-brightwhite . "#F7F9FB")
+          (yae-ansi-brightyellow . "#8BBF56")
+          (yae-ansi-cyan . "#568BBF")
+          (yae-ansi-green . "#56BF8B")
+          (yae-ansi-magenta . "#BF568B")
+          (yae-ansi-red . "#BF8B56")
+          (yae-ansi-white . "#CBD6E2")
+          (yae-ansi-yellow . "#8BBF56")))
+
+    (grayscale-dark
+     . ((yae-ansi-black . "#101010")
+        (yae-ansi-blue . "#686868")
+        (yae-ansi-brightblack . "#525252")
+        (yae-ansi-brightblue . "#686868")
+        (yae-ansi-brightcyan . "#868686")
+        (yae-ansi-brightgreen . "#8e8e8e")
+        (yae-ansi-brightmagenta . "#747474")
+        (yae-ansi-brightred . "#7c7c7c")
+        (yae-ansi-brightwhite . "#f7f7f7")
+        (yae-ansi-brightyellow . "#a0a0a0")
+        (yae-ansi-cyan . "#868686")
+        (yae-ansi-green . "#8e8e8e")
+        (yae-ansi-magenta . "#747474")
+        (yae-ansi-red . "#7c7c7c")
+        (yae-ansi-white . "#b9b9b9")
+        (yae-ansi-yellow . "#a0a0a0")))
+
+    (brewer
+     . ((yae-ansi-black . "#0c0d0e")
+        (yae-ansi-blue . "#3182bd")
+        (yae-ansi-brightblack . "#737475")
+        (yae-ansi-brightblue . "#3182bd")
+        (yae-ansi-brightcyan . "#80b1d3")
+        (yae-ansi-brightgreen . "#31a354")
+        (yae-ansi-brightmagenta . "#756bb1")
+        (yae-ansi-brightred . "#e31a1c")
+        (yae-ansi-brightwhite . "#fcfdfe")
+        (yae-ansi-brightyellow . "#dca060")
+        (yae-ansi-cyan . "#80b1d3")
+        (yae-ansi-green . "#31a354")
+        (yae-ansi-magenta . "#756bb1")
+        (yae-ansi-red . "#e31a1c")
+        (yae-ansi-white . "#b7b8b9")
+        (yae-ansi-yellow . "#dca060")))
+
+    (grayscale-light
+     . ((yae-ansi-black . "#f7f7f7")
+        (yae-ansi-blue . "#686868")
+        (yae-ansi-brightblack . "#ababab")
+        (yae-ansi-brightblue . "#686868")
+        (yae-ansi-brightcyan . "#868686")
+        (yae-ansi-brightgreen . "#8e8e8e")
+        (yae-ansi-brightmagenta . "#747474")
+        (yae-ansi-brightred . "#7c7c7c")
+        (yae-ansi-brightwhite . "#101010")
+        (yae-ansi-brightyellow . "#a0a0a0")
+        (yae-ansi-cyan . "#868686")
+        (yae-ansi-green . "#8e8e8e")
+        (yae-ansi-magenta . "#747474")
+        (yae-ansi-red . "#7c7c7c")
+        (yae-ansi-white . "#464646")
+        (yae-ansi-yellow . "#a0a0a0")))
+
+    (nord
+     . ((yae-ansi-black . "#2e3440")
+        (yae-ansi-blue . "#ebcb8b")
+        (yae-ansi-brightblack . "#4c566a")
+        (yae-ansi-brightblue . "#ebcb8b")
+        (yae-ansi-brightcyan . "#d08770")
+        (yae-ansi-brightgreen . "#bf616a")
+        (yae-ansi-brightmagenta . "#a3be8c")
+        (yae-ansi-brightred . "#88c0d0")
+        (yae-ansi-brightwhite . "#8fbcbb")
+        (yae-ansi-brightyellow . "#5e81ac")
+        (yae-ansi-cyan . "#d08770")
+        (yae-ansi-green . "#bf616a")
+        (yae-ansi-magenta . "#a3be8c")
+        (yae-ansi-red . "#88c0d0")
+        (yae-ansi-white . "#e5e9f0")
+        (yae-ansi-yellow . "#5e81ac")))
+
+    (solarized-dark
+     . ((yae-ansi-black . "#002b36")
+        (yae-ansi-blue . "#268bd2")
+        (yae-ansi-brightblack . "#657b83")
+        (yae-ansi-brightblue . "#268bd2")
+        (yae-ansi-brightcyan . "#2aa198")
+        (yae-ansi-brightgreen . "#859900")
+        (yae-ansi-brightmagenta . "#6c71c4")
+        (yae-ansi-brightred . "#dc322f")
+        (yae-ansi-brightwhite . "#fdf6e3")
+        (yae-ansi-brightyellow . "#b58900")
+        (yae-ansi-cyan . "#2aa198")
+        (yae-ansi-green . "#859900")
+        (yae-ansi-magenta . "#6c71c4")
+        (yae-ansi-red . "#dc322f")
+        (yae-ansi-white . "#93a1a1")
+        (yae-ansi-yellow . "#b58900")))
+
+    (solarized-light
+     . ((yae-ansi-black . "#fdf6e3")
+        (yae-ansi-blue . "#268bd2")
+        (yae-ansi-brightblack . "#839496")
+        (yae-ansi-brightblue . "#268bd2")
+        (yae-ansi-brightcyan . "#2aa198")
+        (yae-ansi-brightgreen . "#859900")
+        (yae-ansi-brightmagenta . "#6c71c4")
+        (yae-ansi-brightred . "#dc322f")
+        (yae-ansi-brightwhite . "#002b36")
+        (yae-ansi-brightyellow . "#b58900")
+        (yae-ansi-cyan . "#2aa198")
+        (yae-ansi-green . "#859900")
+        (yae-ansi-magenta . "#6c71c4")
+        (yae-ansi-red . "#dc322f")
+        (yae-ansi-white . "#586e75")
+        (yae-ansi-yellow . "#b58900")))
+    )
+  "List of color palettes for themes."
+  :type '(alist :key-type symbol :value-type (repeat color))
+  :group 'yae-simple-theme)
+
+(defcustom yae-selected-palette 'palenight
+  "The currently selected color palette."
+  :type 'symbol
+  :group 'yae-simple-theme)
+
 (deftheme yae_simple
   "Adopted simple form of base16-themes for personal use"
 )
 
-(let*
-      ;; ;; brewer
-      ;; ((yae_simple/base00 "#0c0d0e")    ; Background
-      ;;  (yae_simple/base01 "#2e2f30")    ; Darker background
-      ;;  (yae_simple/base02 "#515253")    ; Selection background
-      ;;  (yae_simple/base03 "#737475")    ; Cursor
-      ;;  (yae_simple/base04 "#959697")    ; Inactive mode line foreground
-      ;;  (yae_simple/base05 "#b7b8b9")    ; Default foreground
-      ;;  (yae_simple/base06 "#dadbdc")    ; Header line foreground
-      ;;  (yae_simple/base07 "#fcfdfe")    ; Brightest foreground
-      ;;  (yae_simple/base08 "#e31a1c")    ; Red
-      ;;  (yae_simple/base09 "#e6550d")    ; Orange
-      ;;  (yae_simple/base0A "#dca060")    ; Yellow
-      ;;  (yae_simple/base0B "#31a354")    ; Green
-      ;;  (yae_simple/base0C "#80b1d3")    ; Cyan
-      ;;  (yae_simple/base0D "#3182bd")    ; Blue
-      ;;  (yae_simple/base0E "#756bb1")    ; Magenta
-      ;;  (yae_simple/base0F "#b15928"))   ; Darker red
+(let* ((color-cells (display-color-cells)) ; Get the number of available colors
+       ;; Retrieve the colors associated with the selected palette
+       (colors (cdr (assoc yae-selected-palette yae-color-palettes)))
 
-      ;; material-palen-light
-      ((yae_simple/base00 "#292d3e")    ; Background
-       (yae_simple/base01 "#444267")    ; Darker background
-       (yae_simple/base02 "#32374d")    ; Selection background
-       (yae_simple/base03 "#676e95")    ; Cursor
-       (yae_simple/base04 "#8796b0")    ; Inactive mode line foreground
-       (yae_simple/base05 "#959dcb")    ; Default foreground
-       (yae_simple/base06 "#959dcb")    ; Header line foreground
-       (yae_simple/base07 "#ffffff")    ; Brightest foreground
-       (yae_simple/base08 "#f07178")    ; Red
-       (yae_simple/base09 "#f78c6c")    ; Orange
-       (yae_simple/base0A "#ffcb6b")    ; Yellow
-       (yae_simple/base0B "#c3e88d")    ; Green
-       (yae_simple/base0C "#89ddff")    ; Cyan
-       (yae_simple/base0D "#82aaff")    ; Blue
-       (yae_simple/base0E "#c792ea")    ; Magenta
-       (yae_simple/base0F "#ff5370"))   ; Darker red
-
+       (yae_simple/base00 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-black colors))
+                            "black"))
+       (yae_simple/base01 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightgreen colors)) 
+                            "brightgreen"))
+       (yae_simple/base02 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightyellow colors)) 
+                            "brightyellow"))
+       (yae_simple/base03 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightblack colors)) 
+                            "brightblack"))
+       (yae_simple/base04 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightblue colors)) 
+                            "brightblue"))
+       (yae_simple/base05 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-white colors)) 
+                            "white"))
+       (yae_simple/base06 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightmagenta colors)) 
+                            "brightmagenta"))
+       (yae_simple/base07 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightwhite colors)) 
+                            "brightwhite"))
+       (yae_simple/base08 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-red colors)) 
+                            "red"))
+       (yae_simple/base09 (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightred colors)) 
+                            "brightred"))
+       (yae_simple/base0A (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-yellow colors)) 
+                            "yellow"))
+       (yae_simple/base0B (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-green colors)) 
+                            "green"))
+       (yae_simple/base0C (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-cyan colors)) 
+                            "cyan"))
+       (yae_simple/base0D (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-blue colors)) 
+                            "blue"))
+       (yae_simple/base0E (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-magenta colors)) 
+                            "magenta"))
+       (yae_simple/base0E (if (and colors (>= color-cells 256)) 
+                              (cdr (assoc 'yae-ansi-brightcyan colors)) 
+                            "brightcyan"))
+       )
 
   (custom-theme-set-faces
    'yae_simple
@@ -70,10 +245,10 @@
    `(bold-italic                  ((t (:bold t))))
    `(border-glyph                 ((t (nil))))
    `(buffers-tab                  ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base00))))
-   `(mode-line                    ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base01 :box nil))))
-   `(mode-line-highlight          ((t (:foreground ,yae_simple/base08 :box nil))))
+   ;; `(mode-line                    ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base01 :box nil))))
+   ;; `(mode-line-highlight          ((t (:foreground ,yae_simple/base08 :box nil))))
    `(hl-line                      ((t (:background ,yae_simple/base02))))     ;; Highlight line background 
-   `(region                       ((t (:background ,yae_simple/base02))))     ;; Selection region color 
+   ;; `(region                       ((t (:background ,yae_simple/base02))))     ;; Selection region color 
    ;; `(italic                       ((t (nil))))
    `(left-margin                  ((t (nil))))
    `(toolbar                      ((t (nil))))
@@ -86,14 +261,14 @@
      ;; `(fringe                                       ((t (:background ,yae_simple/base16-settings-fringe-bg))))
      `(fringe                       ((t (:background ,yae_simple/base00))))
      `(gui-element                                  ((t (:background ,yae_simple/base01))))
-     `(header-line                                  ((t (:foreground ,yae_simple/base0E :background nil :inherit mode-line))))
-     `(highlight                                    ((t (:background ,yae_simple/base01))))
+     `(header-line                                  ((t (:foreground ,yae_simple/base0E :inherit mode-line))))
+     `(highlight                                    ((t (:background ,yae_simple/base00))))
      `(link                                         ((t (:foreground ,yae_simple/base0D :underline t))))
      `(link-visited                                 ((t (:foreground ,yae_simple/base0E :underline t))))
      `(minibuffer-prompt                            ((t (:foreground ,yae_simple/base0D))))
-     `(region                                       ((t (:background ,yae_simple/base02 :distant-foreground ,yae_simple/base05))))
-     `(secondary-selection                          ((t (:background ,yae_simple/base03 :distant-foreground ,yae_simple/base05))))
-     `(trailing-whitespace                          ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0C))))
+     `(region                                       ((t (:background ,yae_simple/base03 :distant-foreground ,yae_simple/base05))))
+     `(secondary-selection                          ((t (:inherit 'default :distant-foreground ,yae_simple/base05 :inverse-video t))))
+     ;; `(trailing-whitespace                          ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0C))))
      `(vertical-border                              ((t (:foreground ,yae_simple/base02))))
      `(widget-button                                ((t (:underline t))))
      `(widget-field                                 ((t (:background ,yae_simple/base03 :box (:line-width 1 :color ,yae_simple/base06)))))
@@ -106,7 +281,7 @@
 ;;;; font-lock
      `(font-lock-builtin-face                       ((t (:foreground ,yae_simple/base0C))))
      `(font-lock-comment-delimiter-face             ((t (:foreground ,yae_simple/base03))))
-     `(font-lock-comment-face                       ((t (:foreground ,yae_simple/base03))))
+     `(font-lock-comment-face                       ((t (:foreground ,yae_simple/base03 :italic t))))
      `(font-lock-constant-face                      ((t (:foreground ,yae_simple/base09))))
      `(font-lock-doc-face                           ((t (:foreground ,yae_simple/base04))))
      `(font-lock-doc-string-face                    ((t (:foreground ,yae_simple/base03))))
@@ -142,6 +317,14 @@
 ;;      `(term-color-cyan                              ((t (:foreground ,yae_simple/base0C :background ,yae_simple/base0C))))
 ;;      `(term-color-blue                              ((t (:foreground ,yae_simple/base0D :background ,yae_simple/base0D))))
 ;;      `(term-color-magenta                           ((t (:foreground ,yae_simple/base0E :background ,yae_simple/base0E))))
+
+     ;; `(header-line                           ((t (:inherit default :background ,yae_simple/base00))))
+
+     `(mode-line                             ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t))))
+
+   ;; ;;; modeline
+     `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base00 :box t))))
+   ;;   `(mode-line-buffer-id ((t (:inherit mode-line))))
 
 	 ))
 
