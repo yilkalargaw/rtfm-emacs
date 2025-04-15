@@ -26,7 +26,7 @@
 ;; Vertical window divider
 (setq window-divider-default-right-width 4
       window-divider-default-places 'right-only)
-(window-divider-mode 1)
+;; (window-divider-mode 1)
 
 ;; ;; No ugly button for checkboxes
 ;; (setq widget-image-enable nil)
