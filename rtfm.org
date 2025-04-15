@@ -210,7 +210,7 @@ continue with regular garbage collection.
     (unless (fboundp 'seq-do)
       (defun seq-do (function sequence)
         "Apply FUNCTION to each element of SEQUENCE for side effects.
-    FUNCTION must be a one-argument function, and SEQUENCE may be a list, vector, or string."
+        FUNCTION must be a one-argument function, and SEQUENCE may be a list, vector, or string."
         (cond
          ((listp sequence)
           (mapc function sequence))
@@ -224,7 +224,7 @@ continue with regular garbage collection.
     (unless (fboundp 'seq-map)
       (defun seq-map (function sequence)
         "Apply FUNCTION to each element of SEQUENCE and return a sequence of the same type.
-    SEQUENCE may be a list, vector, or string."
+        SEQUENCE may be a list, vector, or string."
         (cond
          ((listp sequence)
           (mapcar function sequence))
@@ -238,7 +238,7 @@ continue with regular garbage collection.
     (unless (fboundp 'seq-concatenate)
       (defun seq-concatenate (type &rest sequences)
         "Concatenate SEQUENCES into a single sequence of TYPE.
-    TYPE can be 'list, 'vector, or 'string."
+        TYPE can be 'list, 'vector, or 'string."
         (cond
          ((eq type 'list)
           (apply #'append sequences))
@@ -252,13 +252,53 @@ continue with regular garbage collection.
     (unless (fboundp 'setopt)
       (defmacro setopt (&rest args)
         "Set user options using `customize-set-variable' (for Emacs < 29 compatibility).
-        Accepts VAR VAL pairs, like `setq'."
+            Accepts VAR VAL pairs, like `setq'."
         (let ((forms '()))
           (while args
             (let ((var (pop args))
                   (val (pop args)))
               (push `(customize-set-variable ',var ,val) forms)))
           `(progn ,@(nreverse forms)))))
+
+    (unless (require 'subr-x nil 'noerror)
+      ;; Define string-trim if missing
+      (unless (fboundp 'string-trim)
+        (defun string-trim (string)
+          "Remove leading and trailing whitespace from STRING."
+          (replace-regexp-in-string
+           "\\`[ \t\n\r]+" ""
+           (replace-regexp-in-string "[ \t\n\r]+\\'" "" string))))
+
+      ;; Define string-empty-p if missing
+      (unless (fboundp 'string-empty-p)
+        (defun string-empty-p (string)
+          "Return non-nil if STRING is empty or nil."
+          (or (null string) (string= string ""))))
+
+      ;; Define if-let as macro
+      (unless (fboundp 'if-let)
+        (defmacro if-let (binding then &optional else)
+          "Emacs 24-compatible version of `if-let'. BINDING should be (VAR VAL)."
+          (let ((var (car binding))
+                (val (cadr binding)))
+            `(let ((,var ,val))
+               (if ,var ,then ,else)))))
+
+      ;; when-let for convenience
+      (unless (fboundp 'when-let)
+        (defmacro when-let (binding &rest body)
+          "Emacs 24-compatible version of `when-let'. BINDING should be (VAR VAL)."
+          (let ((var (car binding))
+                (val (cadr binding)))
+            `(let ((,var ,val))
+               (when ,var ,@body))))))
+
+      ;; pcase-lambda (from pcase.el)
+      (unless (fboundp 'pcase-lambda)
+        (defmacro pcase-lambda (args &rest body)
+          `(lambda (&rest args)
+             (pcase args
+               ((list ,@args) ,@body)))))
 
     #+end_src
     
