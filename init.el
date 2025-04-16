@@ -4,8 +4,26 @@
 
 ;;(package-initialize)
 
-(setq vc-follow-symlinks t)
+;; define  variables by using a macro that generates and evaluates as below
+;; (defconst EMACS24+   (> emacs-major-version 23)) using macros
+(defmacro yae-gen-ver-consts (var)
+  "Define a macro to create constants to check Emacs version greater than VAR."
+  (list 'defconst
+        (intern (concat "EMACS" (int-to-string var) "+"))
+        (> emacs-major-version (- var 1))))
 
+;;evaluate the macro for the number range we want
+(seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+
+;; (map #(eval (list 'yae-gen-ver-consts %)) (range 24 36))
+
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+
+
+(setq vc-follow-symlinks t)
 (let ((file-name-handler-alist nil))
   (require 'package)
 
@@ -14,25 +32,6 @@
         ;; don't add that `custom-set-variables' block to my init.el!
         package--init-file-ensured t)
 
-  ;; ;; define custom files
-  ;; (defcustom yae-init-org-file-list
-  ;;   '("rtfm.org"
-  ;;     "server.org"
-  ;;     "pluggedin.org"
-  ;;     )
-  ;;   "List of Org files to load at startup."
-  ;;   :type '(repeat string)
-  ;;   :group 'my-customizations)
-
-  ;; ;; define load function
-  ;; (defun load-yae-init-files ()
-  ;;   "Load all Org files specified in `org-file-list`."
-  ;;   (dolist (file yae-init-org-file-list)
-  ;;     (org-babel-load-file
-  ;;      (expand-file-name file user-emacs-directory))))
-
-  ;; ;; Call the function to load the files
-  ;; (load-yae-init-files)
 
   (defvar my-config-org-files
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))

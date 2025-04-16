@@ -42,7 +42,6 @@
     - [[more garbage collection related settings]]
   - [[some constants and settings that need to be configured initially]]
     - [[compat]]
-    - [[constants]]
     - [[custom-file settings]]
     - [[gnutls and security]]
     - [[encryption related additional]]
@@ -308,7 +307,7 @@ continue with regular garbage collection.
 
     #+end_src
     
-*** constants
+*** COMMENT constants
 
 Dynamically generate version-specific constants for Emacs versions 24
 through 35 and defines constants to identify the operating system
