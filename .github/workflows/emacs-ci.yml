@@ -8,19 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  emacs-29-ubuntu-24.04:
-    name: Emacs 29  on Ubuntu 24.04
+  emacs-29-ubuntu-24:
+    name: Emacs 29 on Ubuntu 24.04
     runs-on: ubuntu-24.04
-    container:
-      image: ubuntu:24.04
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Install Emacs and dependencies
         run: |
-          apt-get update
-          apt-get install -y emacs git make
+          sudo apt-get update
+          sudo apt-get install -y emacs git make
 
       - name: Clone Emacs config to ~/.emacs.d
         run: |
@@ -45,19 +43,17 @@ jobs:
             exit 1
           fi
 
-  emacs27-ubuntu-22.04:
-    name: Emacs 27  on Ubuntu 22.04
+  emacs-27-ubuntu-22:
+    name: Emacs 27 on Ubuntu 22.04
     runs-on: ubuntu-22.04
-    container:
-      image: ubuntu:22.04
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Install Emacs and dependencies
         run: |
-          apt-get update
-          apt-get install -y emacs git make
+          sudo apt-get update
+          sudo apt-get install -y emacs git make
 
       - name: Clone Emacs config to ~/.emacs.d
         run: |
