@@ -1,0 +1,73 @@
+name: Emacs Config CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-emacs-config:
+    name: Test Emacs config on Ubuntu ${{ matrix.ubuntu-version }} with Emacs ${{ matrix.emacs-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: [ "16.04", "22.04" ]
+        emacs-version: [ "26.1", "28.2" ]
+    container:
+      image: ubuntu:${{ matrix.ubuntu-version }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies and Emacs
+      run: |
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          software-properties-common \
+          wget \
+          git \
+          make \
+          libtool-bin
+          
+        # Manually install Emacs if not in apt (especially for versions like 26.1)
+        if ! command -v emacs >/dev/null; then
+          add-apt-repository -y ppa:kelleyk/emacs
+          apt-get update
+          apt-get install -y emacs${{ matrix.emacs-version }}
+        fi
+
+    - name: Set up test environment
+      run: |
+        mkdir -p ~/.emacs.d
+        ln -s "$PWD" ~/.emacs.d/rtfm-emacs
+
+    - name: Byte-compile configuration
+      run: |
+        emacs -batch -Q \
+          --eval "(setq warning-minimum-level :error)" \
+          --eval "(add-to-list 'load-path \"~/.emacs.d/rtfm-emacs\")" \
+          --eval "(setq byte-compile-error-on-warn t)" \
+          -f batch-byte-compile ~/.emacs.d/rtfm-emacs/*.el 2> warnings.txt || true
+
+    - name: Display warnings (if any)
+      run: |
+        if [ -s warnings.txt ]; then
+          echo "::warning::Byte-compilation warnings found"
+          {
+            echo "### Byte-compilation Warnings"
+            echo '```'
+            cat warnings.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        else
+          echo "### No byte-compilation warnings" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Upload warnings artifact
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: emacs-warnings-${{ matrix.ubuntu-version }}-${{ matrix.emacs-version }}
+        path: warnings.txt
