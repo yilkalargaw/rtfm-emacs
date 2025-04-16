@@ -26,12 +26,9 @@ jobs:
         run: |
           git clone https://github.com/yilkalargaw/rtfm-emacs ~/.emacs.d
 
-      - name: Byte-compile configuration
+      - name: Run Emacs to load config and capture warnings/errors
         run: |
-          emacs -batch -Q \
-            --eval "(setq warning-minimum-level :error)" \
-            --eval "(setq byte-compile-error-on-warn nil)" \
-            -f batch-byte-compile ~/.emacs.d/*.el 2> warnings.txt || true
+          emacs -nw --debug-init 2> warnings.txt || true
 
       - name: Show warnings (if any)
         run: |
@@ -40,7 +37,7 @@ jobs:
             cat warnings.txt
           fi
 
-      - name: Check for errors (fail the build if any)
+      - name: Check for errors (fail the build if any errors are found)
         run: |
           if grep -q "Error" warnings.txt; then
             echo "::error::Errors found during byte-compilation"
@@ -66,12 +63,9 @@ jobs:
         run: |
           git clone https://github.com/yilkalargaw/rtfm-emacs ~/.emacs.d
 
-      - name: Byte-compile configuration
+      - name: Run Emacs to load config and capture warnings/errors
         run: |
-          emacs -batch -Q \
-            --eval "(setq warning-minimum-level :error)" \
-            --eval "(setq byte-compile-error-on-warn nil)" \
-            -f batch-byte-compile ~/.emacs.d/*.el 2> warnings.txt || true
+          emacs -nw --debug-init 2> warnings.txt || true
 
       - name: Show warnings (if any)
         run: |
@@ -80,7 +74,7 @@ jobs:
             cat warnings.txt
           fi
 
-      - name: Check for errors (fail the build if any)
+      - name: Check for errors (fail the build if any errors are found)
         run: |
           if grep -q "Error" warnings.txt; then
             echo "::error::Errors found during byte-compilation"
@@ -106,12 +100,9 @@ jobs:
         run: |
           git clone https://github.com/yilkalargaw/rtfm-emacs ~/.emacs.d
 
-      - name: Byte-compile configuration
+      - name: Run Emacs to load config and capture warnings/errors
         run: |
-          emacs -batch -Q \
-            --eval "(setq warning-minimum-level :error)" \
-            --eval "(setq byte-compile-error-on-warn nil)" \
-            -f batch-byte-compile ~/.emacs.d/*.el 2> warnings.txt || true
+          emacs -nw --debug-init 2> warnings.txt || true
 
       - name: Show warnings (if any)
         run: |
@@ -120,7 +111,7 @@ jobs:
             cat warnings.txt
           fi
 
-      - name: Check for errors (fail the build if any)
+      - name: Check for errors (fail the build if any errors are found)
         run: |
           if grep -q "Error" warnings.txt; then
             echo "::error::Errors found during byte-compilation"
