@@ -145,10 +145,15 @@ the native compilation process.
 
 #+begin_src emacs-lisp
 
+;; (when (not (version< emacs-version "27.0"))
+;;   (progn
+;;     (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+;;     (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
+
 (when (not (version< emacs-version "27.0"))
-  (progn
-    (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-    (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
+  (require 'comp)
+  (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+  (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
 
 #+end_src
 
@@ -425,6 +430,26 @@ more predictable and intuitive programming.
 *** general frame and window settings
 #+begin_src emacs-lisp
 
+(defcustom global-text-scale-adjust-resizes-frames nil
+  "Whether `global-text-scale-adjust' resizes the frames."
+  :type '(choice (const :tag "Off" nil)
+                 (const :tag "On" t))
+  :group 'display
+  :version "29.1")
+
+(defcustom global-text-scale-adjust-limits '(10 . 500)
+  "Min/max values for `global-text-scale-adjust'.
+This is a cons cell where the `car' has the minimum font size and
+the `cdr' has the maximum font size, in units of 1/10 pt."
+  :version "29.1"
+  :group 'display
+  :type '(cons (integer :tag "Min")
+               (integer :tag "Max")))
+
+;; (defvar global-text-scale-adjust--default-height nil)
+
+;; (defvar global-text-scale-adjust--increment-factor 5)
+
 ;; Most of what follows is stolen from emcs 29 because my functions to do global scaling
 ;; depend on how I define fonts. This is the more flexable way to do it
 ;; any modification to this code that deals with global-text-scaling will therefore
@@ -636,16 +661,6 @@ increment."
         (list 'menu-item (symbol-name mode) fn
               :button (cons :toggle mode))))))
 
-(defun mode-line-split--format (left right)
-  "Return a string of `window-width' length containing LEFT and
-RIGHT, aligned respectively."
-  (let ((reserve (length right)))
-    (concat left
-            " "
-            (propertize " "
-                        'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
-            right)))
-
 #+end_src
 
 *** mode-line-modify
@@ -849,16 +864,15 @@ RIGHT, aligned respectively."
 
 #+begin_src emacs-lisp
 
-;;input-method
+  ;;input-method
 
-(defun myinput-settings ()
-  "Settings based on input method."
-  (cond ((string= current-input-method "ethiopic")
-         (progn (setq ethio-primary-language 'amharic)
-                (ethio-select-a-translation)))
-        (t nil)))
-
-(add-hook 'input-method-activate-hook #'myinput-settings)
+  (require 'ethiopic)
+  (defun myinput-settings ()
+    "Settings based on input method."
+    (cond ((string= current-input-method "ethiopic")
+	   (progn (setq ethio-primary-language 'amharic)
+		  (ethio-select-a-translation)))
+	  (t nil)))
 
 #+end_src
 
@@ -1212,7 +1226,6 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+begin_src emacs-lisp
 
-(require 'eshell)
 (with-eval-after-load 'eshell
 
   (customize-set-variable 'eshell-visual-commands
@@ -1228,20 +1241,23 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
   (customize-set-variable 'eshell-scroll-show-maximum-output nil)
 
-  (when (executable-find "bash")
-    (progn
-      (defun eshell-load-bash-aliases ()
-        "Read Bash aliases and add them to the list of eshell aliases."
-        ;; Bash needs to be run - temporarily - interactively
-        ;; in order to get the list of aliases.
-        (with-temp-buffer
-          (call-process "bash" nil '(t nil) nil "-ci" "alias")
-          (goto-char (point-min))
-          (while (re-search-forward "alias \\(.+\\)='\\(.+\\)'$" nil t)
-            (eshell/alias (match-string 1) (match-string 2) "$*"))))
-      ;; We only want Bash aliases to be loaded when Eshell loads its own aliases,
-      ;; rather than every time `eshell-mode' is enabled.
-      (add-hook 'eshell-alias-load-hook 'eshell-load-bash-aliases)))
+  (declare-function eshell/alias "em-alias")  ;; To tell the byte-compiler about the function
+
+  (require 'em-alias)
+    (when (executable-find "bash")
+      (progn
+        (defun eshell-load-bash-aliases ()
+          "Read Bash aliases and add them to the list of eshell aliases."
+          ;; Bash needs to be run - temporarily - interactively
+          ;; in order to get the list of aliases.
+          (with-temp-buffer
+            (call-process "bash" nil '(t nil) nil "-ci" "alias")
+            (goto-char (point-min))
+            (while (re-search-forward "alias \\(.+\\)='\\(.+\\)'$" nil t)
+              (eshell/alias (match-string 1) (match-string 2) "$*"))))
+        ;; We only want Bash aliases to be loaded when Eshell loads its own aliases,
+        ;; rather than every time `eshell-mode' is enabled.
+        (add-hook 'eshell-alias-load-hook 'eshell-load-bash-aliases)))
   )
 
 #+end_src
@@ -1331,6 +1347,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+begin_src emacs-lisp
 
+(require 'tramp)  ; Ensure tramp is loaded
+
 (with-eval-after-load 'tramp
   (customize-set-variable 'remote-file-name-inhibit-cache nil)
   (customize-set-variable 'vc-ignore-dir-regexp
@@ -1348,52 +1366,43 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 (add-hook 'dired-mode-hook 'dired-hide-details-mode t)
 
 (with-eval-after-load 'dired
-                      (require 'dired-aux)
-                      (require 'dired-x)
-                      ;; (require 'dired-narrow)
-                      ;; (require 'dired-subtree)
-                      (setq dired-listing-switches "--group-directories-first -lah")
-                      (put 'dired-find-alternate-file 'disabled nil)
-                      (define-key dired-mode-map (kbd "C-<return>") 'dired-find-file)
-                      (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-                      (define-key dired-mode-map (kbd "M-<return>") 'dired-find-file-other-window)
-                      ;; allow dired to delete or copy dir
-                      (setq dired-recursive-copies (quote always)) ; “always” means no asking
-                      (setq dired-recursive-deletes (quote top)) ; “top” means ask once
-                      (setq dired-dwim-target t)
+  (require 'dired-aux)
+  (require 'dired-x)
+  
+  ;; Declare the variable first
+  (defvar dired-dotfiles-show-p nil
+    "Non-nil if dotfiles should be shown in dired.")
+  
+  ;; Rest of your configuration...
+  (setq dired-listing-switches "--group-directories-first -lah")
+  (put 'dired-find-alternate-file 'disabled nil)
+  (define-key dired-mode-map (kbd "C-<return>") 'dired-find-file)
+  (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+  (define-key dired-mode-map (kbd "M-<return>") 'dired-find-file-other-window)
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'top)
+  (setq dired-dwim-target t)
 
-                      (defun dired-dotfiles-toggle ()
-                        "Show/hide dot-files"
-                        (interactive)
-                        (when (equal major-mode 'dired-mode)
-                          (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p) ; if currently showing
-                              (progn
-                                (set (make-local-variable 'dired-dotfiles-show-p) nil)
-                                (message "h")
-                                (dired-mark-files-regexp "^\\\.")
-                                (dired-do-kill-lines))
-                            (progn (revert-buffer) ; otherwise just revert to re-show
-                                   (set (make-local-variable 'dired-dotfiles-show-p) t)))))
+  (defun dired-dotfiles-toggle ()
+    "Show/hide dot-files"
+    (interactive)
+    (when (equal major-mode 'dired-mode)
+      (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p)
+          (progn
+            (set (make-local-variable 'dired-dotfiles-show-p) nil)
+            (message "Hide dotfiles")
+            (dired-mark-files-regexp "^\\.")
+            (dired-do-kill-lines))
+        (progn 
+          (revert-buffer)
+          (set (make-local-variable 'dired-dotfiles-show-p) t)
+          (message "Show dotfiles")))))
 
-                      (define-key dired-mode-map (kbd "H-l")
-                                  (lambda () (interactive) (dired-dotfiles-toggle)))
-
-                      (define-key dired-mode-map (kbd "^")
-                                  (lambda () (interactive) (find-alternate-file "..")))
-
-                      (setq wdired-allow-to-change-permissions t)
-                      ;; (defadvice dired-subtree-toggle (after dired-icons-refreash ())
-                      ;;   "Insert an empty line when moving up from the top line."
-                      ;;   (revert-buffer))
-
-                      ;; (ad-activate 'dired-subtree-toggle)
-
-                      ;; (defadvice dired-subtree-cycle (after dired-icons-refreash ())
-                      ;;   "Insert an empty line when moving up from the top line."
-                      ;;   (revert-buffer))
-
-                      ;; (ad-activate 'dired-subtree-cycle)
-                      )
+  (define-key dired-mode-map (kbd "H-l") 'dired-dotfiles-toggle)
+  (define-key dired-mode-map (kbd "^") 
+    (lambda () (interactive) (find-alternate-file "..")))
+  
+  (setq wdired-allow-to-change-permissions t))
 
 
 
@@ -1568,23 +1577,18 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
             (define-key outline-minor-mode-map (kbd "<f6>") 'outline-cycle)
             (define-key outline-minor-mode-map (kbd "<S-f6>") 'outline-cycle-buffer)))
 
+
 (defun set-outline-minor-mode-regexp ()
-  ""
+  "Set outline-regexp based on current major mode from outline-minor-mode-list."
   (outline-minor-mode 1)
   (let ((regexp-list (append outline-minor-mode-list nil))
-        (find-regexp
-         (lambda (lst)
-           ""
-           (let ((innerList (car lst)))
-             (if innerList
-                 (if (string= (car innerList) major-mode)
-                     (car (cdr innerList))
-                   (progn (pop lst)
-                          (funcall #'find-regexp lst))))
-             ))))
-    (make-local-variable 'outline-regexp)
-    (setq outline-regexp (funcall #'find-regexp regexp-list)))
-  )
+        (found nil))
+    (dolist (entry regexp-list)
+      (when (string= (car entry) (symbol-name major-mode))
+        (setq found (cadr entry))))
+    (when found
+      (make-local-variable 'outline-regexp)
+      (setq outline-regexp found))))
 
 (setq outline-minor-mode-list 
       (list ;; '(emacs-lisp-mode "\\(?:;;; ?\\)\\|(defun\\|(defvar\\|(defcustom\\|(defconst\\|(defgroup\\|(defmacro")
@@ -1632,6 +1636,9 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
 ;; ;; (setq outline-regexp "^[[:upper]]+")
 
 #+end_src
+
+#+RESULTS:
+| shell-mode-hook | sh-mode-hook | eshell-mode-hook | ruby-mode-hook | lua-mode-hook | Man-mode-hook | woman-mode |
 
 *** COMMENT hideshow
 
