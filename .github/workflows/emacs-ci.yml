@@ -8,67 +8,127 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-emacs-config:
-    name: Test Emacs config on Ubuntu ${{ matrix.ubuntu-version }} with Emacs ${{ matrix.emacs-version }}
+  emacs-29-ubuntu-22:
+    name: Emacs 29.0.3 on Ubuntu 22.04
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ubuntu-version: [ "16.04", "22.04" ]
-        emacs-version: [ "26.1", "28.2" ]
     container:
-      image: ubuntu:${{ matrix.ubuntu-version }}
-
+      image: ubuntu:22.04
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Install dependencies and Emacs
-      run: |
-        apt-get update
-        apt-get install -y --no-install-recommends \
-          software-properties-common \
-          wget \
-          git \
-          make \
-          libtool-bin
-          
-        # Manually install Emacs if not in apt (especially for versions like 26.1)
-        if ! command -v emacs >/dev/null; then
-          add-apt-repository -y ppa:kelleyk/emacs
+      - name: Install Emacs 29.0.3 and dependencies
+        run: |
           apt-get update
-          apt-get install -y emacs${{ matrix.emacs-version }}
-        fi
+          apt-get install -y --no-install-recommends \
+            wget \
+            git \
+            build-essential \
+            libgtk-3-dev \
+            libxpm-dev \
+            libjpeg-dev \
+            libgif-dev \
+            libtiff-dev \
+            libncurses-dev \
+            libgnutls28-dev \
+            libjansson-dev \
+            libxml2-dev \
+            libtree-sitter-dev \
+            libgccjit-10-dev \
+            libharfbuzz-dev \
+            libwebkit2gtk-4.0-dev
 
-    - name: Set up test environment
-      run: |
-        mkdir -p ~/.emacs.d
-        ln -s "$PWD" ~/.emacs.d/rtfm-emacs
+          wget https://ftp.gnu.org/gnu/emacs/emacs-29.0.3.tar.gz
+          tar -xzf emacs-29.0.3.tar.gz
+          cd emacs-29.0.3
+          ./configure --without-pop
+          make -j$(nproc)
+          make install
 
-    - name: Byte-compile configuration
-      run: |
-        emacs -batch -Q \
-          --eval "(setq warning-minimum-level :error)" \
-          --eval "(add-to-list 'load-path \"~/.emacs.d/rtfm-emacs\")" \
-          --eval "(setq byte-compile-error-on-warn t)" \
-          -f batch-byte-compile ~/.emacs.d/rtfm-emacs/*.el 2> warnings.txt || true
+      - name: Setup and byte-compile
+        run: |
+          mkdir -p ~/.emacs.d
+          ln -s "$PWD" ~/.emacs.d/rtfm-emacs
+          emacs -batch -Q \
+            --eval "(setq warning-minimum-level :error)" \
+            --eval "(add-to-list 'load-path \"~/.emacs.d/rtfm-emacs\")" \
+            --eval "(setq byte-compile-error-on-warn t)" \
+            -f batch-byte-compile ~/.emacs.d/rtfm-emacs/*.el 2> warnings.txt || true
 
-    - name: Display warnings (if any)
-      run: |
-        if [ -s warnings.txt ]; then
-          echo "::warning::Byte-compilation warnings found"
-          {
-            echo "### Byte-compilation Warnings"
-            echo '```'
+      - name: Show warnings
+        run: |
+          if [ -s warnings.txt ]; then
+            echo "::warning::Byte-compilation warnings found"
             cat warnings.txt
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit 1
-        else
-          echo "### No byte-compilation warnings" >> "$GITHUB_STEP_SUMMARY"
-        fi
+            exit 1
+          else
+            echo "No byte-compilation warnings."
+          fi
 
-    - name: Upload warnings artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: emacs-warnings-${{ matrix.ubuntu-version }}-${{ matrix.emacs-version }}
-        path: warnings.txt
+  emacs-25-ubuntu-18:
+    name: Emacs 25.2.1 on Ubuntu 18.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:18.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Emacs 25.2.1 and dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends software-properties-common
+          add-apt-repository ppa:kelleyk/emacs
+          apt-get update
+          apt-get install -y emacs25
+
+      - name: Setup and byte-compile
+        run: |
+          mkdir -p ~/.emacs.d
+          ln -s "$PWD" ~/.emacs.d/rtfm-emacs
+          emacs25 -batch -Q \
+            --eval "(setq warning-minimum-level :error)" \
+            --eval "(add-to-list 'load-path \"~/.emacs.d/rtfm-emacs\")" \
+            --eval "(setq byte-compile-error-on-warn t)" \
+            -f batch-byte-compile ~/.emacs.d/rtfm-emacs/*.el 2> warnings.txt || true
+
+      - name: Show warnings
+        run: |
+          if [ -s warnings.txt ]; then
+            echo "::warning::Byte-compilation warnings found"
+            cat warnings.txt
+            exit 1
+          else
+            echo "No byte-compilation warnings."
+          fi
+
+  emacs-24-ubuntu-16:
+    name: Emacs 24.5.1 on Ubuntu 16.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:16.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Emacs 24.5.1 and dependencies
+        run: |
+          apt-get update
+          apt-get install -y emacs24 git make
+
+      - name: Setup and byte-compile
+        run: |
+          mkdir -p ~/.emacs.d
+          ln -s "$PWD" ~/.emacs.d/rtfm-emacs
+          emacs24 -batch -Q \
+            --eval "(setq warning-minimum-level :error)" \
+            --eval "(add-to-list 'load-path \"~/.emacs.d/rtfm-emacs\")" \
+            --eval "(setq byte-compile-error-on-warn t)" \
+            -f batch-byte-compile ~/.emacs.d/rtfm-emacs/*.el 2> warnings.txt || true
+
+      - name: Show warnings
+        run: |
+          if [ -s warnings.txt ]; then
+            echo "::warning::Byte-compilation warnings found"
+            cat warnings.txt
+            exit 1
+          else
+            echo "No byte-compilation warnings."
+          fi
