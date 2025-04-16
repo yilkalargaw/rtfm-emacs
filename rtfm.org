@@ -210,7 +210,8 @@ continue with regular garbage collection.
     (unless (fboundp 'seq-do)
       (defun seq-do (function sequence)
         "Apply FUNCTION to each element of SEQUENCE for side effects.
-        FUNCTION must be a one-argument function, and SEQUENCE may be a list, vector, or string."
+        FUNCTION must be a one-argument function, and SEQUENCE may be
+        a list, vector, or string."
         (cond
          ((listp sequence)
           (mapc function sequence))
@@ -223,8 +224,8 @@ continue with regular garbage collection.
 
     (unless (fboundp 'seq-map)
       (defun seq-map (function sequence)
-        "Apply FUNCTION to each element of SEQUENCE and return a sequence of the same type.
-        SEQUENCE may be a list, vector, or string."
+        "Apply FUNCTION to each element of SEQUENCE and return a sequence
+         of the same type. SEQUENCE may be a list, vector, or string."
         (cond
          ((listp sequence)
           (mapcar function sequence))
@@ -238,7 +239,7 @@ continue with regular garbage collection.
     (unless (fboundp 'seq-concatenate)
       (defun seq-concatenate (type &rest sequences)
         "Concatenate SEQUENCES into a single sequence of TYPE.
-        TYPE can be 'list, 'vector, or 'string."
+        TYPE can be \\'list, \\'vector, or \\'string."
         (cond
          ((eq type 'list)
           (apply #'append sequences))
@@ -575,38 +576,38 @@ increment."
 
 (defun yae-minions--modes ()
   (let (local global)
-    (dolist (mode (cl-mapcan (pcase-lambda (`(,mode ,_))
-                                          (and (boundp mode)
-                                               (symbol-value mode)
-                                               (list mode)))
-                                        minor-mode-alist))
-      (when (local-variable-if-set-p mode)
-        (push mode local)
-        (push mode global)))
+    (dolist (entry minor-mode-alist)
+      (let ((mode (car entry)))
+        (when (and (boundp mode)
+                   (symbol-value mode))
+          (when (local-variable-if-set-p mode)
+            (push mode local)
+            (push mode global)))))
     (list (sort local  #'string<)
           (sort global #'string<))))
 
 (defun yae-minions-minor-modes-menu ()
   (interactive)
-  (pcase-let ((map (make-sparse-keymap))
-              (`(,local ,global) (yae-minions--modes)
-               ))
+  (let ((map (make-sparse-keymap))
+        local global)
+    (let ((modes (yae-minions--modes)))
+      (setq local (nth 0 modes))
+      (setq global (nth 1 modes)))
     (define-key-after map [--local] (list 'menu-item "Local Modes"))
     (dolist (mode local)
-      (if-let (menu (and (symbol-value mode)
-                         (yae-minions--mode-menu mode)
-                         ))
-          (define-key-after map (vector mode) menu)
-        (yae-minions--define-toggle map mode)
-        ))
+      (let ((menu (and (symbol-value mode)
+                       (yae-minions--mode-menu mode))))
+        (if menu
+            (define-key-after map (vector mode) menu)
+          (yae-minions--define-toggle map mode))))
     (define-key-after map [--line2]  (list 'menu-item "--double-line"))
     (define-key-after map [--global] (list 'menu-item "Global Modes"))
     (dolist (mode global)
-      (if-let (menu (and (symbol-value mode)
-                         (yae-minions--mode-menu mode)
-                         ))
-          (define-key-after map (vector mode) menu)
-        (yae-minions--define-toggle map mode)))
+      (let ((menu (and (symbol-value mode)
+                       (yae-minions--mode-menu mode))))
+        (if menu
+            (define-key-after map (vector mode) menu)
+          (yae-minions--define-toggle map mode))))
     (define-key-after map [--line1] (list 'menu-item "--double-line"))
     (define-key-after map [describe-mode]
       (list 'menu-item "Describe modes" 'describe-mode))
@@ -634,6 +635,16 @@ increment."
       (define-key-after map (vector mode)
         (list 'menu-item (symbol-name mode) fn
               :button (cons :toggle mode))))))
+
+(defun mode-line-split--format (left right)
+  "Return a string of `window-width' length containing LEFT and
+RIGHT, aligned respectively."
+  (let ((reserve (length right)))
+    (concat left
+            " "
+            (propertize " "
+                        'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
+            right)))
 
 #+end_src
 
