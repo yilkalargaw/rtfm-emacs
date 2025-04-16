@@ -13,7 +13,8 @@
         (> emacs-major-version (- var 1))))
 
 ;;evaluate the macro for the number range we want
-(seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+;; (seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+(mapc (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
 
 ;; (map #(eval (list 'yae-gen-ver-consts %)) (range 24 36))
 

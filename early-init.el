@@ -31,10 +31,11 @@
 ;; ;; No ugly button for checkboxes
 ;; (setq widget-image-enable nil)
 
-
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+(when (display-graphic-p)
+  (progn
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)))
 
 (add-hook 'after-make-frame-functions
           (lambda (frame)
@@ -66,21 +67,23 @@
 ;; (set-face-attribute 'default nil :font "Droid Sans Mono")
 ;; (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji") nil 'prepend)
 
-(defun yae-set-font (&optional frame)
-  (when frame (select-frame frame))
-      (set-frame-font "LiterationMono Nerd Font")
-       ;; (set-frame-font "CommitMono Nerd Font")
-	  )
-(yae-set-font)
-(set-face-attribute 'default nil :height 110)
-(add-hook 'after-make-frame-functions 'yae-set-font)
+(when (display-graphic-p)
+  (defun yae-set-font (&optional frame)
+    (when frame (select-frame frame))
+    (set-frame-font "LiterationMono Nerd Font")
+    ;; (set-frame-font "CommitMono Nerd Font")
+	)
+  (yae-set-font)
+  (set-face-attribute 'default nil :height 110)
+  (add-hook 'after-make-frame-functions 'yae-set-font)
 
 
-;; (setq default-frame-alist '((font . "JetBrainsMono Nerd Font 9"))) ;;; set default font for emacs --daemon / emacsclient
-;; (add-to-list 'default-frame-alist (cons 'font  my-default-font))
-(set-fontset-font t nil "Dejavu Sans Mono" nil 'append)
-(set-fontset-font t 'ethiopic "Noto Sans Ethiopic")
-;; (set-fontset-font t 'thai "Leelawadee UI" nil 'append)
+  ;; (setq default-frame-alist '((font . "JetBrainsMono Nerd Font 9"))) ;;; set default font for emacs --daemon / emacsclient
+  ;; (add-to-list 'default-frame-alist (cons 'font  my-default-font))
+  (set-fontset-font t nil "Dejavu Sans Mono" nil 'append)
+  (set-fontset-font t 'ethiopic "Noto Sans Ethiopic")
+  ;; (set-fontset-font t 'thai "Leelawadee UI" nil 'append)
+  )
 
 ;; (setq w32-enable-synthesized-fonts t) ;;The w32-enable-synthesized-fonts variable is obsolete starting from Emacs 24.4, as Emacs no longer has this limitation.
 ;; (set-face-font 'italic "-*-Courier New-normal-i-*-*-11-*-*-*-c-*-iso8859-1")
