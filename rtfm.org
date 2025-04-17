@@ -149,10 +149,18 @@ the native compilation process.
 ;;     (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
 ;;     (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
 
-(when (not (version< emacs-version "27.0"))
-  (require 'comp)
-  (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-  (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
+;; (when (not (version< emacs-version "27.0"))
+;;   (require 'comp)
+;;   (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+;;   (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
+
+(when (and (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
+  ;; Only load 'comp if it's available, avoiding errors on Emacs <28
+  (require 'comp nil t) ;; 'nil t' => no error if not found
+  (setq comp-deferred-compilation t)
+  (customize-set-variable 'warning-suppress-types
+                          '((flycheck syntax-checker) (comp))))
 
 #+end_src
 
