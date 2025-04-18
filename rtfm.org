@@ -313,17 +313,16 @@ continue with regular garbage collection.
            (pcase args
              ((list ,@args) ,@body)))))
 
+    ;; ;; setopt stub
+    ;; (unless (fboundp 'setopt)
+    ;;   (defmacro setopt (&rest args)
+    ;;     (let ((forms '()))
+    ;;       (while args
+    ;;         (let ((var (pop args))
+    ;;               (val (pop args)))
+    ;;           (push `(customize-set-variable ',var ,val) forms)))
+    ;;       `(progn ,@(nreverse forms)))))
 
-
-    ;; setopt stub
-    (unless (fboundp 'setopt)
-      (defmacro setopt (&rest args)
-        (let ((forms '()))
-          (while args
-            (let ((var (pop args))
-                  (val (pop args)))
-              (push `(customize-set-variable ',var ,val) forms)))
-          `(progn ,@(nreverse forms)))))
     #+end_src
     
 *** COMMENT constants
