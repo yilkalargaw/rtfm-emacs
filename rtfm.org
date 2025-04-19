@@ -51,6 +51,7 @@
     - [[minor-modes-menu-based-on-minions]]
     - [[mode-line-modify]]
     - [[headerline]]
+    - [[disable dialogues]]
   - [[require some libraries]]
   - [[basic emacs editor preferences]]
     - [[set load path]]
@@ -752,7 +753,16 @@ RIGHT, aligned respectively."
                                                          (window-hscroll)))))
 #+end_src
 
-    
+*** disable dialogues
+
+#+begin_src emacs-lisp
+
+(setq use-dialog-box nil)
+(setq use-file-dialog nil)
+
+#+end_src
+
+
 ** require some libraries
 
 #+begin_src emacs-lisp
