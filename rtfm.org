@@ -73,6 +73,7 @@
     - [[explicitly set shell]]
     - [[better support for long lines]]
     - [[rectangle mode]]
+    - [[highlight current line on big movements]]
   - [[theming]]
   - [[completion]]
   - [[scratch_buffer_creator]]
@@ -1114,6 +1115,43 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (define-key rectangle-mark-mode-map (kbd "e") #'rectangle-exchange-point-and-mark) ; C-x C-x
   (define-key rectangle-mark-mode-map (kbd "u") #'undo)
   )
+
+#+end_src
+
+*** highlight current line on big movements
+
+#+begin_src emacs-lisp
+
+(when EMACS28+
+  (progn
+    (defvar yae-position-highlight-overlay nil
+      "Overlay used to highlight the current line.")
+
+    (defun yae-position-highlight-highlight-line ()
+      "Briefly highlight the current line."
+      (when yae-position-highlight-overlay
+        (delete-overlay yae-position-highlight-overlay))
+      (let ((start (line-beginning-position))
+            (end (line-end-position))
+            (region-bg (face-attribute 'region :background)))  ; Get theme's region color
+        (setq yae-position-highlight-overlay (make-overlay start end))
+        (overlay-put yae-position-highlight-overlay 'face `(:background ,region-bg))  ; Use dynamic color
+        (run-with-timer 0.15 nil #'delete-overlay yae-position-highlight-overlay)))
+
+    ;; Hook into window switching
+    (add-hook 'window-selection-change-functions
+              (lambda (_win) (yae-position-highlight-highlight-line)))
+
+    ;; Hook into common scroll commands
+    (dolist (cmd '(scroll-up-command
+                   scroll-down-command
+                   recenter-top-bottom
+                   other-window
+                   next-line
+                   previous-line
+                   end-of-buffer
+                   beginning-of-buffer))
+      (advice-add cmd :after (lambda (&rest _) (yae-position-highlight-highlight-line))))))
 
 #+end_src
 
