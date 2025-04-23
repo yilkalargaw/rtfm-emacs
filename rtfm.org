@@ -2794,7 +2794,7 @@ repeated NUM times, including empty lines."
             (lambda (_) (call-interactively 'dired)))
 		   ("Recentf" "Open recent files" 
             (lambda (_) (call-interactively 'recentf-open)))
-		   ("Org Agenda" "Description of org agenda button" 
+		   ("Org Agenda" "Access your Agenda" 
             (lambda (_) (call-interactively 'org-agenda)))
 		   ("Emacs Manual" "Browse Emacs Manual" 
             (lambda (_) (info-emacs-manual)))
