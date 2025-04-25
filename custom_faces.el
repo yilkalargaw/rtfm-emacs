@@ -350,6 +350,13 @@ between 0 and 1)."
                                :underline t :overline t))))
    `(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
 
+
+   `(region
+     ((((class color) (min-colors 257))
+       (:background ,(if (dark-p bg-color)
+                         (doomish-lighten bg-color 0.15)
+                       (doomish-darken bg-color 0.15))))))
+
    ;;; modeline for color displays with more than 256 colors
    `(mode-line
      ((((class color) (min-colors 257))
@@ -397,7 +404,8 @@ between 0 and 1)."
    ;; `(trailing-whitespace ((t nil)))
    `(whitespace-empty ((t nil)))
    `(whitespace-line ((t nil)))
-   `(whitespace-newline ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-newline ((t (:foreground ,(face-background 'default) ;; :background ,(face-background 'default)
+                                         ))))
    `(whitespace-newline-mark ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
    `(whitespace-space ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
    `(whitespace-spaces ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
