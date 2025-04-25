@@ -412,9 +412,11 @@ between 0 and 1)."
    `(whitespace-space-mark ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
    `(whitespace-tabs ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
    `(whitespace-tab ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
-   `(whitespace-trailing ((t nil)))
+   ;; `(whitespace-trailing ((t nil)))
    ;; `(whitespace-space-after-tab ((t nil)))
    ;; `(whitespace-space-before-tab ((t nil)))
+   `(whitespace-empty ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
+   `(whitespace-trailing ((t (:foreground ,(face-background 'default) :background ,(face-background 'default)))))
 
    `(icomplete-selected-match
 	 ((t (:foreground ,(doomish-blend (face-foreground 'link) (face-foreground 'default) 1.0)
