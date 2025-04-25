@@ -349,47 +349,42 @@ between 0 and 1)."
    `(org-todo ((t (:inherit default :foreground ,(face-foreground 'default)
                                :underline t :overline t))))
    `(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
-     `(mode-line ((t (:inherit variable-pitch
-    						   :background ,(if (dark-p bg-color)
-    											(doomish-lighten bg-color 0.15)
-    										  (doomish-darken bg-color 0.15))
-    						   ;; :background nil
-    						   :foreground ,(face-foreground 'default)
-    						   :box nil
-    						   :box (:color ,(if (dark-p bg-color)
-    													 (doomish-darken bg-color 0.20)
-    													(doomish-lighten bg-color 0.20))
-    												 :line-width 1)
-    						   ;; :box (:color ,(face-foreground 'default) :line-width 1)
-    						   ;; :box nil
-    						   ;; :underline nil :overline nil :height 1.0
-    						   :bold t
-    						   ))))
 
-     ;;; modeline
-     `(mode-line-inactive ((t (:inherit variable-pitch
-    									:background ,(if (dark-p bg-color)
-    													 (doomish-lighten bg-color 0.07)
-    												   (doomish-darken bg-color 0.07))
-    									;; :background nil
-    									:foreground ,(face-foreground 'font-lock-comment-face)
-    									:box nil
-    									:box (:color ,(if (dark-p bg-color)
-    													 (doomish-darken bg-color 0.07)
-    													(doomish-lighten bg-color 0.07))
-    												 :line-width 1)
-    									;; :box (:color ,(face-background 'font-lock-comment-face) :line-width 1)
-    									;; :box nil
-    									;; :height 1.0
-    									:italic t
-    									))))
-   `(mode-line-buffer-id ((t (:inherit variable-pitch
-                                       ;; :box (:color ,(face-foreground 'default) :line-width -1)
-                                       ;; :background ,(face-background 'default)
-                                       :background ,(face-background 'mode-line)
-                                       :foreground ,(face-foreground 'link)
-                                       :bold t :height 1.0
-                                       :distant-foreground ,(face-background 'region)))))
+   ;;; modeline for color displays with more than 256 colors
+   `(mode-line
+     ((((class color) (min-colors 257))
+       (:inherit variable-pitch
+                 :background ,(if (dark-p bg-color)
+                                  (doomish-lighten bg-color 0.15)
+                                (doomish-darken bg-color 0.15))
+                 :foreground ,(face-foreground 'default)
+                 :box (:color ,(if (dark-p bg-color)
+                                   (doomish-darken bg-color 0.20)
+                                 (doomish-lighten bg-color 0.20))
+                              :line-width 1)
+                 :bold t))))
+
+   `(mode-line-inactive
+     ((((class color) (min-colors 257))
+       (:inherit variable-pitch
+                 :background ,(if (dark-p bg-color)
+                                  (doomish-lighten bg-color 0.07)
+                                (doomish-darken bg-color 0.07))
+                 :foreground ,(face-foreground 'font-lock-comment-face)
+                 :box (:color ,(if (dark-p bg-color)
+                                   (doomish-darken bg-color 0.07)
+                                 (doomish-lighten bg-color 0.07))
+                              :line-width 1)
+                 :italic t))))
+
+   `(mode-line-buffer-id
+     ((((class color) (min-colors 257))
+       (:inherit variable-pitch
+                 ;; :background ,(face-background 'mode-line)
+                 :foreground ,(face-foreground 'link)
+                 :bold t :height 1.0
+                 :distant-foreground ,(face-background 'region)))))
+
 
    ;;header-line
    `(header-line ((t (:inherit default :background ,(face-background 'default) :box nil))))

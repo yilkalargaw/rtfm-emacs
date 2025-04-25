@@ -266,7 +266,13 @@
      `(link                                         ((t (:foreground ,yae_simple/base0D :underline t))))
      `(link-visited                                 ((t (:foreground ,yae_simple/base0E :underline t))))
      `(minibuffer-prompt                            ((t (:foreground ,yae_simple/base0D))))
-     `(region                                       ((t (:background ,yae_simple/base03 :distant-foreground ,yae_simple/base05))))
+     ;; `(region                                       ((t (:background ,yae_simple/base03 :distant-foreground ,yae_simple/base05))))
+     `(region
+       ((((class color) (min-colors 257))
+         (:background ,yae_simple/base03 :distant-foreground ,yae_simple/base05))
+        (((class color) (min-colors 256))
+         (:background ,yae_simple/base03 :foreground ,yae_simple/base05))))
+
      `(secondary-selection                          ((t (:inherit 'default :distant-foreground ,yae_simple/base05 :inverse-video t))))
      ;; `(trailing-whitespace                          ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0C))))
      `(vertical-border                              ((t (:foreground ,yae_simple/base02))))
@@ -320,10 +326,15 @@
 
      ;; `(header-line                           ((t (:inherit default :background ,yae_simple/base00))))
 
-     `(mode-line                             ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t))))
+     `(mode-line                             ((t (:inherit variable-pitch :foreground ,yae_simple/base00 :background ,yae_simple/base07 :box t))))
+     ;; `(mode-line
+     ;;   ((((class color) (min-colors 257))
+     ;;     (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t)
+     ;;    (((class color) (min-colors 256))
+     ;;     (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t)))))
 
    ;; ;;; modeline
-     `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base00 :box t))))
+     `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box t))))
    ;;   `(mode-line-buffer-id ((t (:inherit mode-line))))
 
 	 ))
