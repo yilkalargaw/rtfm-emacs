@@ -36,13 +36,13 @@
 - [[vanilla emacs settings]]
   - [[mostly related to initialization process]]
     - [[earlyinits]]
-    - [[deferred compilation]]
     - [[other init settings for speed]]
     - [[suppress some ad-handle-definition warnings]]
     - [[more garbage collection related settings]]
   - [[some constants and settings that need to be configured initially]]
     - [[compat]]
     - [[custom-file settings]]
+    - [[gnutls and security]]
     - [[encryption related additional]]
     - [[lexical binding]]
   - [[window(frame) look and feel setting]]
@@ -135,37 +135,6 @@
          (expand-file-name "early-init.el" user-emacs-directory)))
     (when (file-exists-p dafile)
       (load-file dafile))))
-
-#+end_src
-
-*** deferred compilation
-
-First, it checks if your version of Emacs supports native compilation
-(a feature that speeds up the execution of Emacs Lisp code). If it
-does, the code enables deferred compilation. Next, it customizes the
-warning settings to suppress certain types of messages. Specifically,
-it silences warnings from Flycheck (a popular syntax checker) and from
-the native compilation process.
-
-#+begin_src emacs-lisp
-
-  ;; (when (not (version< emacs-version "27.0"))
-  ;;   (progn
-  ;;     (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-  ;;     (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
-
-  ;; (when (not (version< emacs-version "27.0"))
-  ;;   (require 'comp)
-  ;;   (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-  ;;   (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
-
-  ;; (when (and (fboundp 'native-comp-available-p)
-  ;;            (native-comp-available-p))
-  ;;   ;; Only load 'comp if it's available, avoiding errors on Emacs <28
-  ;;   (require 'comp nil t) ;; 'nil t' => no error if not found
-  ;;   (setq comp-deferred-compilation t)
-  ;;   (customize-set-variable 'warning-suppress-types
-  ;;                           '((flycheck syntax-checker) (comp))))
 
 #+end_src
 
