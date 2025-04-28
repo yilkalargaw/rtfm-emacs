@@ -1698,19 +1698,26 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
 *** tab-bar & tabline
 
 #+begin_src emacs-lisp
-(when (featurep 'tab-line)
-  (require 'tab-line)
-  (setq tab-line-tab-name-truncated-max 10)
-  (setq tab-line-separator "│")
-  ;; (setq tab-line-separator "░")
-  ;; (setq tab-line-separator "║")
-  ;; (setq tab-line-separator "▄▀")
-  ;; (setq tab-line-separator "▀")
+(when (require 'tab-line nil t)
+  (progn
+    (defvar tab-line-separator)
+    (defvar tab-line-tab-name-function)
+    (defvar tab-line-tab-name-truncated-max 10)
 
-  (defun my/tab-line-tab-name-buffer (buffer &optional _buffers)
-    (format "      %s      " (buffer-name buffer)))
-    
-  (setq tab-line-tab-name-function #'my/tab-line-tab-name-buffer))
+
+    (defun my/tab-line-tab-name-buffer (buffer &optional _buffers)
+      (format "      %s      " (buffer-name buffer)))
+
+    (declare-function my/tab-line-tab-name-buffer nil)
+
+    (setq tab-line-tab-name-truncated-max 10)
+    (setq tab-line-separator "│")
+    ;; (setq tab-line-separator "░")
+    ;; (setq tab-line-separator "║")
+    ;; (setq tab-line-separator "▄▀")
+    ;; (setq tab-line-separator "▀")
+
+    (setq tab-line-tab-name-function #'my/tab-line-tab-name-buffer)))
 
 #+end_src
 
