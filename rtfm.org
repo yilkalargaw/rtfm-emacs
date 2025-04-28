@@ -172,6 +172,8 @@ continue with regular garbage collection.
 
 #+begin_src emacs-lisp
 
+(defvar yae-gc-cons-threshold (* 32 1024 1024))
+
 (defun yae-defer-garbage-collection-h ()
   (setq gc-cons-threshold most-positive-fixnum))
 
@@ -179,7 +181,7 @@ continue with regular garbage collection.
   ;; Defer it so that commands launched immediately after will enjoy the
   ;; benefits.
   (run-at-time
-   1 nil (lambda () (setq gc-cons-threshold yae-gc-cons-threshold))))
+   1 nil (lambda () (setq gc-cons-threshold (* 32 1024 1024)))))
 
 (add-hook 'minibuffer-setup-hook #'yae-defer-garbage-collection-h)
 (add-hook 'minibuffer-exit-hook #'yae-restore-garbage-collection-h)
