@@ -948,7 +948,7 @@
      ;; `(fringe                                       ((t (:background ,yae_simple/base16-settings-fringe-bg))))
      `(fringe                       ((t (:background ,yae_simple/base00))))
      `(gui-element                                  ((t (:background ,yae_simple/base01))))
-     `(header-line                                  ((t (:foreground ,yae_simple/base0E :inherit mode-line))))
+     `(header-line                                  ((t (:inherit default))))
      `(highlight                                    ((t (:background ,yae_simple/base00))))
      `(link                                         ((t (:foreground ,yae_simple/base0D :underline t))))
      `(link-visited                                 ((t (:foreground ,yae_simple/base0E :underline t))))
