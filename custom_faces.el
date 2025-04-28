@@ -67,11 +67,11 @@
 ;;   (not (light-p color)))
 
 (defun light-p (color)
-  "Check if the COLOR is on the lighter side.  The color to check.
-Returns non-nil if the color is light, nil if it is dark."
-  (when color
-    (let* ((hsl (apply #'color-rgb-to-hsl
-                       (color-name-to-rgb color)))
+  "Check if the COLOR is on the lighter side.
+Returns non-nil if the color is light, nil if it is dark.
+If COLOR is invalid, returns nil."
+  (when-let ((rgb (color-name-to-rgb color)))
+    (let* ((hsl (apply #'color-rgb-to-hsl rgb))
            (lightness (* (nth 2 hsl) 100)))
       (>= lightness 50))))
 
