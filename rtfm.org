@@ -43,7 +43,6 @@
   - [[some constants and settings that need to be configured initially]]
     - [[compat]]
     - [[custom-file settings]]
-    - [[gnutls and security]]
     - [[encryption related additional]]
     - [[lexical binding]]
   - [[window(frame) look and feel setting]]
@@ -61,7 +60,6 @@
     - [[clipboard]]
     - [[yes,no]]
     - [[enable some disabled commands]]
-    - [[input method]]
     - [[indentation stuff]]
     - [[Sentences end with a single space]]
     - [[line-spacing]]
@@ -108,9 +106,14 @@
 * starting headers
 
 #+begin_src emacs-lisp
+
+;; -*- lexical-binding: t;-*-
+
+
 ;;; package --- Summary
 ;;; Commentary:
 ;;; Code:
+
 #+end_src
 
   
@@ -146,23 +149,23 @@ the native compilation process.
 
 #+begin_src emacs-lisp
 
-;; (when (not (version< emacs-version "27.0"))
-;;   (progn
-;;     (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-;;     (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
+  ;; (when (not (version< emacs-version "27.0"))
+  ;;   (progn
+  ;;     (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+  ;;     (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp)))))
 
-;; (when (not (version< emacs-version "27.0"))
-;;   (require 'comp)
-;;   (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
-;;   (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
+  ;; (when (not (version< emacs-version "27.0"))
+  ;;   (require 'comp)
+  ;;   (if (fboundp 'native-comp-available-p) (setq comp-deferred-compilation t))
+  ;;   (customize-set-variable 'warning-suppress-types '((flycheck syntax-checker) (comp))))
 
-(when (and (fboundp 'native-comp-available-p)
-           (native-comp-available-p))
-  ;; Only load 'comp if it's available, avoiding errors on Emacs <28
-  (require 'comp nil t) ;; 'nil t' => no error if not found
-  (setq comp-deferred-compilation t)
-  (customize-set-variable 'warning-suppress-types
-                          '((flycheck syntax-checker) (comp))))
+  ;; (when (and (fboundp 'native-comp-available-p)
+  ;;            (native-comp-available-p))
+  ;;   ;; Only load 'comp if it's available, avoiding errors on Emacs <28
+  ;;   (require 'comp nil t) ;; 'nil t' => no error if not found
+  ;;   (setq comp-deferred-compilation t)
+  ;;   (customize-set-variable 'warning-suppress-types
+  ;;                           '((flycheck syntax-checker) (comp))))
 
 #+end_src
 
@@ -383,34 +386,36 @@ separately from the main configuration file.
 ;; Emacs is essentially one huge security vulnerability, what with all the
 ;; dependencies it pulls in from all corners of the globe. Let's try to be at
 ;; least a little more discerning.
-(setq gnutls-verify-error (not (getenv-internal "INSECURE"))
-      gnutls-algorithm-priority
-      (when (boundp 'libgnutls-version)
-        (concat "SECURE128:+SECURE192:-VERS-ALL"
-                (if (and (not IS-WINDOWS)
-                         (not (version< emacs-version "26.3"))
-                         (>= libgnutls-version 30605))
-                    ":+VERS-TLS1.3")
-                ":+VERS-TLS1.2"))
-      ;; `gnutls-min-prime-bits' is set based on recommendations from
-      ;; https://www.keylength.com/en/4/
-      gnutls-min-prime-bits 3072
-      tls-checktrust gnutls-verify-error
-      ;; Emacs is built with `gnutls' by default, so `tls-program' would not be
-      ;; used in that case. Otherwise, people have reasons to not go with
-      ;; `gnutls', we use `openssl' instead. For more details, see
-      ;; https://redd.it/8sykl1
-      tls-program '("openssl s_client -connect %h:%p -CAfile %t -nbio -no_ssl3 -no_tls1 -no_tls1_1 -ign_eof"
-                    "gnutls-cli -p %p --dh-bits=3072 --ocsp --x509cafile=%t \
+(with-no-warnings
+  
+  (setq gnutls-verify-error (not (getenv-internal "INSECURE"))
+        gnutls-algorithm-priority
+        (when (boundp 'libgnutls-version)
+          (concat "SECURE128:+SECURE192:-VERS-ALL"
+                  (if (and (not IS-WINDOWS)
+                           (not (version< emacs-version "26.3"))
+                           (>= libgnutls-version 30605))
+                      ":+VERS-TLS1.3")
+                  ":+VERS-TLS1.2"))
+        ;; `gnutls-min-prime-bits' is set based on recommendations from
+        ;; https://www.keylength.com/en/4/
+        gnutls-min-prime-bits 3072
+        tls-checktrust gnutls-verify-error
+        ;; Emacs is built with `gnutls' by default, so `tls-program' would not be
+        ;; used in that case. Otherwise, people have reasons to not go with
+        ;; `gnutls', we use `openssl' instead. For more details, see
+        ;; https://redd.it/8sykl1
+        tls-program '("openssl s_client -connect %h:%p -CAfile %t -nbio -no_ssl3 -no_tls1 -no_tls1_1 -ign_eof"
+                      "gnutls-cli -p %p --dh-bits=3072 --ocsp --x509cafile=%t \
 --strict-tofu --priority='SECURE192:+SECURE128:-VERS-ALL:+VERS-TLS1.2:+VERS-TLS1.3' %h"
-                    ;; compatibility fallbacks
-                    "gnutls-cli -p %p %h"))
+                      ;; compatibility fallbacks
+                      "gnutls-cli -p %p %h"))
 
-;; Emacs stores `authinfo' in $HOME and in plain-text. Let's not do that, mkay?
-;; This file stores usernames, passwords, and other such treasures for the
-;; aspiring malicious third party.
-(setq auth-sources (list (expand-file-name "authinfo.gpg"  user-emacs-directory)
-                         "~/.authinfo.gpg"))
+  ;; Emacs stores `authinfo' in $HOME and in plain-text. Let's not do that, mkay?
+  ;; This file stores usernames, passwords, and other such treasures for the
+  ;; aspiring malicious third party.
+  (setq auth-sources (list (expand-file-name "authinfo.gpg"  user-emacs-directory)
+                           "~/.authinfo.gpg")))
 
 ;;gnutls
 (add-hook 'after-init-time-hook (setq gnutls-min-prime-bits 4096))
@@ -781,32 +786,21 @@ RIGHT, aligned respectively."
 
 #+begin_src emacs-lisp
 
-;; (let ((default-directory  (expand-file-name "lisp" user-emacs-directory)))
-;;   (progn
-;;     (unless (file-directory-p default-directory)
-;;       (make-directory default-directory))
-;;     (normal-top-level-add-subdirs-to-load-path)))
-
-;; for me site lisp is kind of where i try things out, dump random lisp files
-;; and add some of my own packages as git modules
-(let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
-  ;; Ensure lisp directory exists
-  (unless (file-directory-p lisp-dir)
-    (make-directory lisp-dir))
-  ;; Add lisp directory to load-path if not already present
-  (unless (member lisp-dir load-path)
-    (add-to-list 'load-path lisp-dir))
-  ;; Function to add all subdirectories to load-path if not already present
   (defun add-subdirs-to-load-path (dir)
-    "Add all directories under DIR to `load-path' if not already present."
-    (dolist (subdir (directory-files dir t "^[^.]"))
-      (when (file-directory-p subdir)
-        (unless (member subdir load-path)
-          (add-to-list 'load-path subdir))
-        (add-subdirs-to-load-path subdir))))
-  ;; Add all subdirectories of lisp-dir to load-path
-  (add-subdirs-to-load-path lisp-dir))
+    "Add all directories under DIR to `load-path` if not already present."
+    (dolist (subdir (directory-files dir t "^[^.]"))  ; Iterate over non-hidden files
+      (when (file-directory-p subdir)                 ; Check if it's a directory
+        (unless (member subdir load-path)              ; If not already in load-path
+          (add-to-list 'load-path subdir))             ; Add it to load-path
+        (add-subdirs-to-load-path subdir))))            ; Recursively call for subdirectories
 
+  ;; Example usage: Add all subdirectories of the site-lisp directory to load-path
+  (let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
+    (unless (file-directory-p lisp-dir)
+      (make-directory lisp-dir))  ; Ensure the site-lisp directory exists
+    (unless (member lisp-dir load-path)
+      (add-to-list 'load-path lisp-dir))  ; Add the site-lisp directory to load-path
+    (add-subdirs-to-load-path lisp-dir))  ; Add all subdirectories recursively
 #+end_src
 
 *** set utf-8 as default coding system
@@ -888,19 +882,25 @@ RIGHT, aligned respectively."
 
 #+end_src
 
-*** input method
+*** COMMENT input method
 
 #+begin_src emacs-lisp
 
-  ;;input-method
+;;input-method
+(with-no-warnings
+  ;; Set Ethiopic as the default input method
+  (setq default-input-method "ethiopic")
 
-  (require 'ethiopic)
-  (defun myinput-settings ()
-    "Settings based on input method."
-    (cond ((string= current-input-method "ethiopic")
-	   (progn (setq ethio-primary-language 'amharic)
-		  (ethio-select-a-translation)))
-	  (t nil)))
+  ;; Disable input method at startup, so you start in English
+  (add-hook 'after-init-hook 'deactivate-input-method)
+
+  (with-eval-after-load 'ethiopic-util
+    (defun myinput-settings ()
+      "Settings based on input method."
+      (cond ((string= current-input-method "ethiopic")
+             (progn (setq ethio-primary-language 'amharic)
+  	                (ethio-select-a-translation)))
+            (t nil)))))
 
 #+end_src
 
@@ -1122,36 +1122,37 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+begin_src emacs-lisp
 
-(when EMACS28+
-  (progn
-    (defvar yae-position-highlight-overlay nil
-      "Overlay used to highlight the current line.")
+  (defvar yae-position-highlight-overlay nil
+    "Overlay used to highlight the current line.")
 
-    (defun yae-position-highlight-highlight-line ()
-      "Briefly highlight the current line."
-      (when yae-position-highlight-overlay
-        (delete-overlay yae-position-highlight-overlay))
-      (let ((start (line-beginning-position))
-            (end (line-end-position))
-            (region-bg (face-attribute 'region :background)))  ; Get theme's region color
-        (setq yae-position-highlight-overlay (make-overlay start end))
-        (overlay-put yae-position-highlight-overlay 'face `(:background ,region-bg))  ; Use dynamic color
-        (run-with-timer 0.15 nil #'delete-overlay yae-position-highlight-overlay)))
+  (defun yae-position-highlight-highlight-line ()
+    "Briefly highlight the current line."
+    (when yae-position-highlight-overlay
+      (delete-overlay yae-position-highlight-overlay))
+    (let ((start (line-beginning-position))
+          (end (line-end-position))
+          (region-bg (face-attribute 'region :background)))  ; Get theme's region color
+      (setq yae-position-highlight-overlay (make-overlay start end))
+      (overlay-put yae-position-highlight-overlay 'face `(:background ,region-bg))  ; Use dynamic color
+      (run-with-timer 0.15 nil #'delete-overlay yae-position-highlight-overlay)))
 
-    ;; Hook into window switching
-    (add-hook 'window-selection-change-functions
-              (lambda (_win) (yae-position-highlight-highlight-line)))
 
-    ;; Hook into common scroll commands
-    (dolist (cmd '(scroll-up-command
-                   scroll-down-command
-                   recenter-top-bottom
-                   other-window
-                   next-line
-                   previous-line
-                   end-of-buffer
-                   beginning-of-buffer))
-      (advice-add cmd :after (lambda (&rest _) (yae-position-highlight-highlight-line))))))
+  (when EMACS28+
+    (progn
+      ;; Hook into window switching
+      (add-hook 'window-selection-change-functions
+                (lambda (_win) (yae-position-highlight-highlight-line)))
+
+      ;; Hook into common scroll commands
+      (dolist (cmd '(scroll-up-command
+                     scroll-down-command
+                     recenter-top-bottom
+                     other-window
+                     next-line
+                     previous-line
+                     end-of-buffer
+                     beginning-of-buffer))
+        (advice-add cmd :after (lambda (&rest _) (yae-position-highlight-highlight-line))))))
 
 #+end_src
 
@@ -1160,31 +1161,33 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 #+begin_src emacs-lisp
 
-(add-hook 'after-init-time-hook
-          (progn
-            (defadvice load-theme (after custom-faces-after-load-theme())
-              "Insert an empty line when moving up from the top line."
-              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-                (when (file-exists-p dafile) (load-file dafile))
-                ;; (save-excursion
-                ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
-                ))
+(with-no-warnings
+  
+  (add-hook 'after-init-time-hook
+            (progn
+              (defadvice load-theme (after custom-faces-after-load-theme())
+                "Insert an empty line when moving up from the top line."
+                (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                  (when (file-exists-p dafile) (load-file dafile))
+                  ;; (save-excursion
+                  ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                  ))
 
 
-            (ad-activate 'load-theme)
+              (ad-activate 'load-theme)
 
-            (defadvice disable-theme (after custom-faces-after-disable-theme())
-              "Insert an empty line when moving up from the top line."
-              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-                (when (file-exists-p dafile) (load-file dafile))
-                ;; (save-excursion
-                ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
-                ))
-            (ad-activate 'disable-theme)))
+              (defadvice disable-theme (after custom-faces-after-disable-theme())
+                "Insert an empty line when moving up from the top line."
+                (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                  (when (file-exists-p dafile) (load-file dafile))
+                  ;; (save-excursion
+                  ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                  ))
+              (ad-activate 'disable-theme)))
 
-(add-hook 'after-init-time-hook
-          (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-            (when (file-exists-p dafile) (load-file dafile))))
+  (add-hook 'after-init-time-hook
+            (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+              (when (file-exists-p dafile) (load-file dafile)))))
 
 #+end_src
 
@@ -1280,6 +1283,7 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 ;;shell-mode
 
+(require 'shell)
 (with-eval-after-load 'shell
   (define-key shell-mode-map (kbd "<tab>") 'completion-at-point)
   (define-key shell-mode-map (kbd "<backtab>") 'completion-at-point)
@@ -1290,6 +1294,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 *** eshell
 
 #+begin_src emacs-lisp
+
+(require 'eshell)
 
 (with-eval-after-load 'eshell
 
@@ -1365,7 +1371,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 (with-eval-after-load 'flymake
   (customize-set-variable 'flymake-fringe-indicator-position 'right-fringe)
   (customize-set-variable 'flymake-suppress-zero-counters t)
-  (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
+  ;; (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+  )
 
 (add-hook 'prog-mode-hook 'flymake-mode t)
 
@@ -1466,8 +1473,9 @@ This is the same as using \\[set-mark-command] with the prefix argument."
   (define-key dired-mode-map (kbd "H-l") 'dired-dotfiles-toggle)
   (define-key dired-mode-map (kbd "^") 
     (lambda () (interactive) (find-alternate-file "..")))
-  
-  (setq wdired-allow-to-change-permissions t))
+
+  ;; (setq wdired-allow-to-change-permissions t)
+  )
 
 
 
@@ -1480,108 +1488,108 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 ;; :mode (("\\.org\\'" . org-mode)
 ;;        ("\\.org$" . org-mode))
 
-(with-eval-after-load 'org
-  (setq org-src-fontify-natively t
-        org-src-tab-acts-natively t
-        org-confirm-babel-evaluate nil
-        org-edit-src-content-indentation 0)
-  (require 'ox-md))
+(with-no-warnings
+  (with-eval-after-load 'org
+    (setq org-src-fontify-natively t
+          org-src-tab-acts-natively t
+          org-confirm-babel-evaluate nil
+          org-edit-src-content-indentation 0)
+    (require 'ox-md))
 
-(with-eval-after-load 'org
-  (require 'ox-latex)
-  (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
-  )
+  (with-eval-after-load 'org
+    (require 'ox-latex)
+    (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
+    )
 
-(with-eval-after-load "org"
-  (progn
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)
-       (perl . t)
-       (ruby . t)
-       (emacs-lisp . t)))
-    
-    '(require 'ox-md nil t)))
+  (with-eval-after-load "org"
+    (progn
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((python . t)
+         (perl . t)
+         (ruby . t)
+         (emacs-lisp . t)))
+      
+      '(require 'ox-md nil t)))
 
-(if EMACS27+ (with-eval-after-load "org"
-               (progn
-                 (org-babel-do-load-languages
-                  'org-babel-load-languages
-                  '((shell . t))))))
+  (if EMACS27+ (with-eval-after-load "org"
+                 (progn
+                   (org-babel-do-load-languages
+                    'org-babel-load-languages
+                    '((shell . t))))))
 
-(with-eval-after-load "org"
-  (progn
-    (defun yae-org-generate-toc (toc-depth)
-      "Generate a table of contents for the current Org buffer
+  (with-eval-after-load "org"
+    (progn
+      (defun yae-org-generate-toc (toc-depth)
+        "Generate a table of contents for the current Org buffer
 respecting the toc depth."
-      (let ((toc ""))
-        (org-element-map (org-element-parse-buffer) 'headline
-          (lambda (headline)
-            (let ((level (org-element-property :level headline))
-                  (title (org-element-property :raw-value headline)))
-              (when (and (<= level toc-depth)
-                         (not (org-element-property :commentedp headline)))
-                (setq toc (concat toc (make-string (* 2 (- level 1)) ?\ )
-                                  "- [[" title "]]\n"))))))
-        toc))
+        (let ((toc ""))
+          (org-element-map (org-element-parse-buffer) 'headline
+            (lambda (headline)
+              (let ((level (org-element-property :level headline))
+                    (title (org-element-property :raw-value headline)))
+                (when (and (<= level toc-depth)
+                           (not (org-element-property :commentedp headline)))
+                  (setq toc (concat toc (make-string (* 2 (- level 1)) ?\ )
+                                    "- [[" title "]]\n"))))))
+          toc))
 
-    (defun yae-org-generate-or-replace-toc ()
-      "Generate or replace a table of contents for the current Org
+      (defun yae-org-generate-or-replace-toc ()
+        "Generate or replace a table of contents for the current Org
 buffer at the #+BEGIN_TOC block respecting the toc depth option."
-      (interactive)
-      (let ((toc-depth 3) ; Default TOC depth
-            (toc "")
-            (commented-toc nil))
+        (interactive)
+        (let ((toc-depth 3) ; Default TOC depth
+              (toc "")
+              (commented-toc nil))
 
-        ;; Determine the TOC depth from Org mode buffer options
-        (save-excursion
-          (goto-char (point-min))
-          (when (re-search-forward "^#\\+OPTIONS:.*toc:\\([0-9]+\\)" nil t)
-            (setq toc-depth (string-to-number (match-string 1)))))
+          ;; Determine the TOC depth from Org mode buffer options
+          (save-excursion
+            (goto-char (point-min))
+            (when (re-search-forward "^#\\+OPTIONS:.*toc:\\([0-9]+\\)" nil t)
+              (setq toc-depth (string-to-number (match-string 1)))))
 
-        ;; (with-current-buffer (current-buffer)
-        ;;   (let ((keywords (org-collect-keywords '("COMMENTED_TOC"))))
-        ;;  (setq commented-toc (cdr (assoc "COMMENTED_TOC" keywords)))))
+          ;; (with-current-buffer (current-buffer)
+          ;;   (let ((keywords (org-collect-keywords '("COMMENTED_TOC"))))
+          ;;  (setq commented-toc (cdr (assoc "COMMENTED_TOC" keywords)))))
 
-        (with-current-buffer (current-buffer)
-          (let ((commented-toc nil))
-            (org-map-entries
-             (lambda ()
-               (let ((toc (org-entry-get nil "COMMENTED_TOC")))
-                 (when toc
-                   (setq commented-toc toc)))))
-            commented-toc))
+          (with-current-buffer (current-buffer)
+            (let ((commented-toc nil))
+              (org-map-entries
+               (lambda ()
+                 (let ((toc (org-entry-get nil "COMMENTED_TOC")))
+                   (when toc
+                     (setq commented-toc toc)))))
+              commented-toc))
 
 
-        ;; Generate the TOC using the custom function
-        (setq toc (yae-org-generate-toc toc-depth))
+          ;; Generate the TOC using the custom function
+          (setq toc (yae-org-generate-toc toc-depth))
 
-        ;; Replace the custom block with the generated TOC
-        (save-excursion
-          (goto-char (point-min))
-          (while (or (re-search-forward "^#\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t)
-                     (re-search-forward "^# #\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t))
-            (let* ((depth (or (and (match-string 1) (string-to-number (match-string 1))) toc-depth))
-                   (start (match-beginning 0))
-                   (end (progn
-                          (or (re-search-forward "^#\\+END_TOC$" nil t)
-                              (re-search-forward "^# #\\+END_TOC$" nil t))
-                          (match-end 0))))
-              (let ((toc (yae-org-generate-toc depth)))
-                (delete-region start end)
-                (goto-char start)
-                (if commented-toc
-                    (insert "# #+BEGIN_TOC\n" toc "# #+END_TOC")
-                  (insert "#+BEGIN_TOC\n" toc "#+END_TOC"))))))))
+          ;; Replace the custom block with the generated TOC
+          (save-excursion
+            (goto-char (point-min))
+            (while (or (re-search-forward "^#\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t)
+                       (re-search-forward "^# #\\+BEGIN_TOC\\(?: +:depth +\\([0-9]+\\)\\)? *$" nil t))
+              (let* ((depth (or (and (match-string 1) (string-to-number (match-string 1))) toc-depth))
+                     (start (match-beginning 0))
+                     (end (progn
+                            (or (re-search-forward "^#\\+END_TOC$" nil t)
+                                (re-search-forward "^# #\\+END_TOC$" nil t))
+                            (match-end 0))))
+                (let ((toc (yae-org-generate-toc depth)))
+                  (delete-region start end)
+                  (goto-char start)
+                  (if commented-toc
+                      (insert "# #+BEGIN_TOC\n" toc "# #+END_TOC")
+                    (insert "#+BEGIN_TOC\n" toc "#+END_TOC"))))))))
 
-    (defun yae-org-mode-setup ()
-      "Custom configurations for Org mode."
-      (add-hook 'before-save-hook 'yae-org-generate-or-replace-toc nil 'local))
+      (defun yae-org-mode-setup ()
+        "Custom configurations for Org mode."
+        (add-hook 'before-save-hook 'yae-org-generate-or-replace-toc nil 'local))
 
-    (add-hook 'org-mode-hook 'yae-org-mode-setup)
+      (add-hook 'org-mode-hook 'yae-org-mode-setup)
 
-    ))
-
+      )))
 #+end_src
 
 *** COMMENT whitespace-mode
@@ -1643,42 +1651,33 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
             (define-key outline-minor-mode-map (kbd "<S-f6>") 'outline-cycle-buffer)))
 
 
+;; Define a custom list for major modes and their corresponding outline regexps
+(defvar my-outline-mode-regexps
+  '((shell-mode "^dove@zsh.*[#%\$] ")
+    (sh-mode "^\\(?:###[ \t]*\\).*\n\\|function .*[{(]")
+    (perl-mode "sub ")
+    (eshell-mode "^[^#$\n]* [#$] ")
+    (ruby-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def ")
+    (lua-mode "function \\|[ ]+function ")
+    (Man-mode "^[A-Z]+")
+    (woman-mode "^[A-Z]+"))
+  "A list of major modes and their corresponding outline regexps.")
+
+;; Define a function to set the outline-regexp based on the major mode
 (defun set-outline-minor-mode-regexp ()
-  "Set outline-regexp based on current major mode from outline-minor-mode-list."
+  "Set outline-regexp based on current major mode from `my-outline-mode-regexps`."
   (outline-minor-mode 1)
-  (let ((regexp-list (append outline-minor-mode-list nil))
+  (let ((regexp-list my-outline-mode-regexps)
         (found nil))
     (dolist (entry regexp-list)
-      (when (string= (car entry) (symbol-name major-mode))
+      (when (eq (car entry) major-mode)
         (setq found (cadr entry))))
     (when found
       (make-local-variable 'outline-regexp)
       (setq outline-regexp found))))
 
-(setq outline-minor-mode-list 
-      (list ;; '(emacs-lisp-mode "\\(?:;;; ?\\)\\|(defun\\|(defvar\\|(defcustom\\|(defconst\\|(defgroup\\|(defmacro")
-            '(shell-mode "^dove@zsh.*[#%\$] ")
-            '(sh-mode "^\\(?:###[ \t]*\\).*\n\\|function .*[{(]")
-            '(perl-mode "sub ")
-            '(eshell-mode "^[^#$\n]* [#$] ")
-            ;; '(ruby-mode "[ ]+def \\|cloud_pattern\\|[ ]+cloud_node")
-            ;; '(ruby-mode "class \\|[ ]+class \\|module \\|[ ]+module \\|def \\|[ ]+def \\|begin \\|[ ]+begin ")
-            ;; '(ruby-mode "class \\|[ ]+class \\|module \\|[ ]+module \\|def \\|[ ]+def \\|begin \\|[ ]+begin ")
-            ;; ([:space:]*)
-            '(ruby-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def ")
-            ;; '(crystal-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|([ \t]*\\)macro \\|([ \t]*\\)lib \\|([ \t]*\\)struct \\|([ \t]*\\)enum \\|([ \t]*\\)union \\|([ \t]*\\)annotation \\|^\\([ \t]*\\)def ")
-            ;; '(crystal-mode "\\(def\\|class\\|module\\|macro\\|lib\\|struct\\|enum\\|union\\|annotation\\)"
-			;; '(lua-mode "\\(function\\|if\\|for\\|while\\|repeat\\)")
-			;; '(lua-mode "^[[:space:]]*\\(function\\|if\\|for\\|while\\|repeat\\)")
-			;; '(lua-mode "^[[:space:]]*\\(function\\)"
-            ;;            "*end")
-            '(lua-mode "function \\|[ ]+function ")
-            '(Man-mode "^[A-Z]+")
-            '(woman-mode "^[A-Z]+")
-            ))
-
-(mapc (lambda (mode-name) 
-        (add-hook mode-name  'set-outline-minor-mode-regexp t))
+(mapc (lambda (hook) 
+        (add-hook hook 'set-outline-minor-mode-regexp t))
       '(shell-mode-hook
         sh-mode-hook
         ;; emacs-lisp-mode-hook
@@ -1689,6 +1688,18 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
         Man-mode-hook
         woman-mode
         ))
+;; (mapc (lambda (mode-name) 
+;;         (add-hook mode-name  'set-outline-minor-mode-regexp t))
+;;       '(shell-mode-hook
+;;         sh-mode-hook
+;;         ;; emacs-lisp-mode-hook
+;;         eshell-mode-hook
+;;         ruby-mode-hook
+;;         ;; crystal-mode-hook
+;;         lua-mode-hook
+;;         Man-mode-hook
+;;         woman-mode
+;;         ))
 
 ;; ;; (setq outline-regexp "^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def \\|^\\([ \t]*\\)begin ")
 ;; ;; (setq-local outline-heading-end-regexp "\\_<end\\_>")
@@ -1716,18 +1727,18 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
 *** tab-bar & tabline
 
 #+begin_src emacs-lisp
+  (require 'tab-line)
+  (setq tab-line-tab-name-truncated-max 10)
+  (setq tab-line-separator "│")
+  ;; (setq tab-line-separator "░")
+  ;; (setq tab-line-separator "║")
+  ;; (setq tab-line-separator "▄▀")
+  ;; (setq tab-line-separator "▀")
 
-(setq tab-line-tab-name-truncated-max 10)
-(setq tab-line-separator "│")
-;; (setq tab-line-separator "░")
-;; (setq tab-line-separator "║")
-;; (setq tab-line-separator "▄▀")
-;; (setq tab-line-separator "▀")
-
-(defun my/tab-line-tab-name-buffer (buffer &optional _buffers)
-  (format "      %s      " (buffer-name buffer)))
-  
-(setq tab-line-tab-name-function #'my/tab-line-tab-name-buffer)
+  (defun my/tab-line-tab-name-buffer (buffer &optional _buffers)
+    (format "      %s      " (buffer-name buffer)))
+    
+  (setq tab-line-tab-name-function #'my/tab-line-tab-name-buffer)
 
 #+end_src
 
@@ -1787,6 +1798,8 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 (require 'tempo)
 
+(defvar tempo-map nil "Prefix map for Tempo key bindings.")
+
 (defun tempo-space ()
   ""
   (interactive)
@@ -1801,18 +1814,17 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 (defun set-tempo ()
   "Set up emacs-lisp mode to use tempo.el"
-  (define-prefix-command 'tempo-map)
-  (local-set-key (kbd "C-c t") 'tempo-map)
-  (define-key tempo-map (kbd "c") 'tempo-complete-tag)  ;; define keys for complete-tag and movement through stops
+  (require 'tempo)  ;; Ensure tempo.el is loaded
+  (unless tempo-map  ;; Only define it if it's not already defined
+    (define-prefix-command 'tempo-map))  ;; Define the tempo-map globally
+  (local-set-key (kbd "C-c t") 'tempo-map)  ;; Bind the prefix to C-c t
+  (define-key tempo-map (kbd "c") 'tempo-complete-tag)  ;; Define keybindings
   (define-key tempo-map (kbd "n") 'tempo-forward-mark)
-  (define-key tempo-map (kbd "p") 'tempo-backward-mark)
+  (define-key tempo-map (kbd "p") 'tempo-backward-mark))
 
-  ;; (local-set-key " " 'tempo-space)
-  )
-
-(setq hippie-expand-try-functions-list
-      (cons 'try-expand-tempo-tag
-            (remove 'try-expand-tempo-tag hippie-expand-try-functions-list)))
+  (setq hippie-expand-try-functions-list
+        (cons 'try-expand-tempo-tag
+              (remove 'try-expand-tempo-tag hippie-expand-try-functions-list)))
 
 #+end_src
 
@@ -2255,81 +2267,81 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 #+begin_src emacs-lisp
 
-;;; html tempo templates
-(add-hook 'html-mode-hook (lambda () (progn 
-                                       (defvar html-tempo-tags nil)
+  ;;; html tempo templates
+  (add-hook 'html-mode-hook (lambda () (progn 
+                                         (defvar html-tempo-tags nil)
 
-                                       (defmacro html-tempo-paired-tag-single-line (var)
-                                         (list 'tempo-define-template var
-                                               (list 'quote (list var "> " '> 'p (concat " </" var ">") '>))
-                                               var
-                                               (concat "insert html " var " tag")
-                                               (list 'quote 'html-tempo-tags)))
+                                         (defmacro html-tempo-paired-tag-single-line (var)
+                                           (list 'tempo-define-template var
+                                                 (list 'quote (list var "> " '> 'p (concat " </" var ">") '>))
+                                                 var
+                                                 (concat "insert html " var " tag")
+                                                 (list 'quote 'html-tempo-tags)))
 
-                                       (seq-do (lambda (x)
-                                                 "expand macro"
-                                                 (eval (list 'html-tempo-paired-tag-single-line x)))
-                                               '("a" "b" "bdi" "bdo"
-                                                 "button" "caption" "cite" "data"
-                                                 "del" "dfn" "em" "figcaption"
-                                                 "h1" "h2" "h3" "h4"
-                                                 "h5" "h6" "i" "iframe"
-                                                 "kbd" "li" "label" "legend"
-                                                 "mark" "meter" "object" "option"
-                                                 "p" "progress" "q" "summary"
-                                                 "s" "samp" "small" "span"
-                                                 "strong" "sub" "summary" "sup"
-                                                 "th" "td" "title" "time"))
+                                         (seq-do (lambda (x)
+                                                   "expand macro"
+                                                   (eval (list 'html-tempo-paired-tag-single-line x)))
+                                                 '("a" "b" "bdi" "bdo"
+                                                   "button" "caption" "cite" "data"
+                                                   "del" "dfn" "em" "figcaption"
+                                                   "h1" "h2" "h3" "h4"
+                                                   "h5" "h6" "i" "iframe"
+                                                   "kbd" "li" "label" "legend"
+                                                   "mark" "meter" "object" "option"
+                                                   "p" "progress" "q" "summary"
+                                                   "s" "samp" "small" "span"
+                                                   "strong" "sub" "summary" "sup"
+                                                   "th" "td" "title" "time"))
 
-                                       (defmacro html-tempo-paired-tag-multi-line (var)
-                                         (list 'tempo-define-template var
-                                               (list 'quote (list var ">" 'n> 'p 'n> (concat "</" var ">") '>))
-                                               var
-                                               (concat "insert html " var " tag")
-                                               (list 'quote 'html-tempo-tags)))
+                                         (defmacro html-tempo-paired-tag-multi-line (var)
+                                           (list 'tempo-define-template var
+                                                 (list 'quote (list var ">" 'n> 'p 'n> (concat "</" var ">") '>))
+                                                 var
+                                                 (concat "insert html " var " tag")
+                                                 (list 'quote 'html-tempo-tags)))
 
-                                       (seq-do (lambda (x)
-                                                 "expand macro"
-                                                 (eval (list 'html-tempo-paired-tag-multi-line x)))
-                                               '("address" "article" "aside" "audio"
-                                                 "body" "blockquote" "colgroup" "canvas"
-                                                 "code" "datalist" "dl" "details"
-                                                 "dialogue" "div" "fieldset" "figure"
-                                                 "footer" "form" "head" "header"
-                                                 "map" "main" "noscript" "nav"
-                                                 "ol" "optgroup" "pre" "script"
-                                                 "section" "select" "style" "svg"
-                                                 "table" "thead" "tbody" "tfoot"
-                                                 "tr" "template" "textarea" "ul"
-                                                 "video"))
+                                         (seq-do (lambda (x)
+                                                   "expand macro"
+                                                   (eval (list 'html-tempo-paired-tag-multi-line x)))
+                                                 '("address" "article" "aside" "audio"
+                                                   "body" "blockquote" "colgroup" "canvas"
+                                                   "code" "datalist" "dl" "details"
+                                                   "dialogue" "div" "fieldset" "figure"
+                                                   "footer" "form" "head" "header"
+                                                   "map" "main" "noscript" "nav"
+                                                   "ol" "optgroup" "pre" "script"
+                                                   "section" "select" "style" "svg"
+                                                   "table" "thead" "tbody" "tfoot"
+                                                   "tr" "template" "textarea" "ul"
+                                                   "video"))
 
 
-                                       (tempo-define-template "image-item"
-                                                              '("img src=\"" > p "\" alt=\"" p ">">)
-                                                              "img"
-                                                              "insert html image tag"
-                                                              'html-tempo-tags)
+                                         (tempo-define-template "image-item"
+                                                                '("img src=\"" > p "\" alt=\"" p ">">)
+                                                                "img"
+                                                                "insert html image tag"
+                                                                'html-tempo-tags)
 
-                                       (tempo-define-template "abbr"
-                                                              '("abbr title=\"" > p "\">" p "</abbr>">)
-                                                              "abbr"
-                                                              "insert html abbr tag"
-                                                              'html-tempo-tags)
+                                         (tempo-define-template "abbr"
+                                                                '("abbr title=\"" > p "\">" p "</abbr>">)
+                                                                "abbr"
+                                                                "insert html abbr tag"
+                                                                'html-tempo-tags)
 
-                                       (tempo-define-template "html"
-                                                              '("!DOCTYPE html>" n> "<html>" n>"<head>" n>
-                                                                "<title> " > p " </title>" p n>
-                                                                "</head>" n>
-                                                                "<body>" n>  p
-                                                                "\n</body>" > n "</html>" n>)
-                                                              "html"
-                                                              "insert a html template"
-                                                              'html-tempo-tags)
+                                         (tempo-define-template "html"
+                                                                '("!DOCTYPE html>" n> "<html>" n>"<head>" n>
+                                                                  "<title> " > p " </title>" p n>
+                                                                  "</head>" n>
+                                                                  "<body>" n>  p
+                                                                  "\n</body>" > n "</html>" n>)
+                                                                "html"
+                                                                "insert a html template"
+                                                                'html-tempo-tags)
 
-                                       (set-tempo)
-                                       (tempo-use-tag-list 'html-tempo-tags)
-                                       (setq tempo-match-finder "\\(?:<!?\\)\\([^\b]+\\)\\=")
-                                       )))
+                                         (set-tempo)
+                                         (tempo-use-tag-list 'html-tempo-tags)
+                                         (setq tempo-match-finder "\\(?:<!?\\)\\([^\b]+\\)\\=")
+                                         )))
 
 #+end_src
 *** COMMENT expand
@@ -2697,131 +2709,131 @@ containing a button label, description, and action."
   (insert (format "\n%s\n" title))
   (dolist (item button-list)
     (let ((button-label (nth 0 item))          ; Get the button label
-          (button-description (nth 1 item))   ; Get the button description
+          (button-description (nth 1 item))    ; Get the button description
           (button-action (nth 2 item)))        ; Get the action to be executed
       ;; Create the button for the label
-      (let ((button (make-button 
-                     (point) 
-                     (progn 
-                       (insert (format "[%s]" button-label)) ; Format the button label
-                       (point)) 
-                     'action 
-                     button-action))) ; Use the defined action
+      (make-button 
+       (point) 
+       (progn 
+         (insert (format "[%s]" button-label)) ; Format the button label
+         (point)) 
+       'action button-action) ; Use the defined action
         
-        ;; Insert the description below the button
-        (insert (format " %s\n" button-description)))))) ; Add description
+      ;; Insert the description below the button
+      (insert (format " %s\n" button-description))))) ; Add description
 
 (defun create-buttons-from-list-padded (title button-list num)
   "Create buttons from BUTTON-LIST, where each element is a list
 containing a button label, description, and action."
   (insert (format "%s%s%s%s"
-				  "\n"
-				  (make-string (if (> num 2) (- num 2) 0) ?\s)
-				  title
-				  "\n"))
+                  "\n"
+                  (make-string (if (> num 2) (- num 2) 0) ?\s)
+                  title
+                  "\n"))
   (dolist (item button-list)
     (let ((button-label (nth 0 item))          ; Get the button label
-          (button-description (nth 1 item))   ; Get the button description
+          (button-description (nth 1 item))    ; Get the button description
           (button-action (nth 2 item)))        ; Get the action to be executed
+      ;; Add padding before the button label
+      (insert (make-string num ?\s))
+      
       ;; Create the button for the label
-	  (insert (make-string num ?\s))
-      (let ((button (make-button 
-                     (point) 
-                     (progn 
-                       (insert (format "[%s]" button-label)) ; Format the button label
-                       (point)) 
-                     'action 
-                     button-action))) ; Use the defined action
+      (make-button 
+       (point) 
+       (progn 
+         (insert (format "[%s]" button-label)) ; Format the button label
+         (point)) 
+       'action button-action) ; Use the defined action
         
-        ;; Insert the description below the button
-        (insert (format "  %s\n" button-description)))))) ; Add description
+      ;; Insert the description below the button
+      (insert (format "  %s\n" button-description))))) ; Add description
 
 
-(defun yae-padd-lines (input-string num)
-  "Return a string with each line in INPUT-STRING padded with spaces
-repeated NUM times, including empty lines."
-  (let ((lines (split-string input-string "\n" nil))  ; Split string into lines, keeping empty lines
-        (result ""))  ; Initialize an empty result string
-    (dolist (line lines)  ; Iterate over each line
-      (let ((padding (make-string num ?\s)))  ; Create padding with spaces
-        (setq result (concat result (format "%s%s\n" padding line)))))  ; Accumulate result
-    result))  ; Return the final accumulated string
+  (defun yae-padd-lines (input-string num)
+    "Return a string with each line in INPUT-STRING padded with spaces
+  repeated NUM times, including empty lines."
+    (let ((lines (split-string input-string "\n" nil))  ; Split string into lines, keeping empty lines
+          (result ""))  ; Initialize an empty result string
+      (dolist (line lines)  ; Iterate over each line
+        (let ((padding (make-string num ?\s)))  ; Create padding with spaces
+          (setq result (concat result (format "%s%s\n" padding line)))))  ; Accumulate result
+      result))  ; Return the final accumulated string
 
-(defun my-dashboard ()
-  "Display a simple welcome dashboard with clickable links."
-  (interactive)
-  (switch-to-buffer "*Dashboard*")
-  (erase-buffer) ; Clear the buffer
-  (insert "  Welcome to\n") ; Welcome message
+  (defun my-dashboard ()
+    "Display a simple welcome dashboard with clickable links."
+    (interactive)
+    (switch-to-buffer "*Dashboard*")
+    (erase-buffer) ; Clear the buffer
+    (insert "  Welcome to\n") ; Welcome message
 
-  ;; Define the ASCII art button locally
-  (let ((ascii-art-button
-         "
-▒█▀▀█ ▀▀█▀▀ ▒█▀▀▀ ▒█▀▄▀█ 
-▒█▄▄▀ ░▒█░░ ▒█▀▀▀ ▒█▒█▒█ 
-▒█░▒█ ░▒█░░ ▒█░░░ ▒█░░▒█ 
+    ;; Define the ASCII art button locally
+    (let ((ascii-art-button
+           "
+  ▒█▀▀█ ▀▀█▀▀ ▒█▀▀▀ ▒█▀▄▀█ 
+  ▒█▄▄▀ ░▒█░░ ▒█▀▀▀ ▒█▒█▒█ 
+  ▒█░▒█ ░▒█░░ ▒█░░░ ▒█░░▒█ 
 
-▒█▀▀▀ █▀▄▀█ █▀▀█ █▀▀ █▀▀ 
-▒█▀▀▀ █░▀░█ █▄▄█ █░░ ▀▀█ 
-▒█▄▄▄ ▀░░░▀ ▀░░▀ ▀▀▀ ▀▀▀
+  ▒█▀▀▀ █▀▄▀█ █▀▀█ █▀▀ █▀▀ 
+  ▒█▀▀▀ █░▀░█ █▄▄█ █░░ ▀▀█ 
+  ▒█▄▄▄ ▀░░░▀ ▀░░▀ ▀▀▀ ▀▀▀
 
-   "))
-    
-    ;; Create the ASCII art button
-    (make-button 
-     (point) 
-     (progn 
-       (insert (yae-padd-lines ascii-art-button 10)) ; Insert the ASCII art for the button
-       (point))
-     'action 
-     (lambda (_) 
-       (eww-browse-url "https://www.gnu.org/software/emacs/"))
-	 'follow-link t         ; Make it behave like a link
-	 'mouse-face 'highlight  ; Change mouse hover effect
-	 'face 'default          ; Use default face for text
-	 ':underline nil)) ; Action to open Emacs website
+     "))
+      
+      ;; Create the ASCII art button
+      (make-button 
+       (point) 
+       (progn 
+         (insert (yae-padd-lines ascii-art-button 10)) ; Insert the ASCII art for the button
+         (point))
+       'action 
+       (lambda (_) 
+         (eww-browse-url "https://www.gnu.org/software/emacs/"))
+  	 'follow-link t         ; Make it behave like a link
+  	 'mouse-face 'highlight  ; Change mouse hover effect
+  	 'face 'default          ; Use default face for text
+  	 ':underline nil)) ; Action to open Emacs website
 
-  ;; ;; Optional: Add some spacing
-  ;; (insert (format "%s" (emacs-version)))
+    ;; ;; Optional: Add some spacing
+    ;; (insert (format "%s" (emacs-version)))
 
-  ;; Define buttons with actions
-  (let ((buttons
-         '(("Scratch Buffer" "Open scratch buffer" 
-            (lambda (_) (call-interactively 'create-scratch-buffer)))
-		   ("Find File" "Open a File" 
-            (lambda (_) (call-interactively 'find-file)))
-		   ("Dired" "Open a Directory" 
-            (lambda (_) (call-interactively 'dired)))
-		   ("Recentf" "Open recent files" 
-            (lambda (_) (call-interactively 'recentf-open)))
-		   ("Org Agenda" "Access your Agenda" 
-            (lambda (_) (call-interactively 'org-agenda)))
-		   ("Emacs Manual" "Browse Emacs Manual" 
-            (lambda (_) (info-emacs-manual)))
-           ("Emacs Website" "Visit Emacs Website" 
-            (lambda (_) (eww-browse-url "https://www.gnu.org/software/emacs/"))))))
+    ;; Define buttons with actions
+    (let ((buttons
+           '(("Scratch Buffer" "Open scratch buffer" 
+              (lambda (_) (call-interactively 'create-scratch-buffer)))
+  		   ("Find File" "Open a File" 
+              (lambda (_) (call-interactively 'find-file)))
+  		   ("Dired" "Open a Directory" 
+              (lambda (_) (call-interactively 'dired)))
+  		   ("Recentf" "Open recent files" 
+              (lambda (_) (call-interactively 'recentf-open)))
+  		   ("Org Agenda" "Access your Agenda" 
+              (lambda (_) (call-interactively 'org-agenda)))
+  		   ("Emacs Manual" "Browse Emacs Manual" 
+              (lambda (_) (info-emacs-manual)))
+             ("Emacs Website" "Visit Emacs Website" 
+              (lambda (_) (eww-browse-url "https://www.gnu.org/software/emacs/"))))))
 
-	(insert (make-string 0 10))
-    ;; Use the updated function to create buttons with actions
-    (create-buttons-from-list-padded "Quick Links:" buttons 4))
+  	(insert (make-string 0 10))
+      ;; Use the updated function to create buttons with actions
+      (create-buttons-from-list-padded "Quick Links:" buttons 4))
 
-    (insert (format "\nEmacs started in %.2f seconds\n"
-        (float-time (time-subtract after-init-time before-init-time))))
+      (insert (format "\nEmacs started in %.2f seconds\n"
+          (float-time (time-subtract after-init-time before-init-time))))
 
 
-  ;; Disable line numbers
-  (setq display-line-numbers nil)
+    ;; Disable line numbers
+    (setq display-line-numbers nil)
 
-  ;; Enable read-only mode
-  (read-only-mode 1)
-  ;; (beginning-of-buffer)
-  (goto-char (point-min)))
+    ;; Enable read-only mode
+    (read-only-mode 1)
+    ;; (beginning-of-buffer)
+    (goto-char (point-min)))
 
-;; ;; (global-set-key (kbd "C-c d") 'my-dashboard)
-;; (add-hook 'emacs-startup-hook 'my-dashboard)
+  ;; ;; (global-set-key (kbd "C-c d") 'my-dashboard)
+  ;; (add-hook 'emacs-startup-hook 'my-dashboard)
 
-(when (< (length command-line-args) 2) ;; Assume no file name passed
-  (add-hook 'emacs-startup-hook #'my-dashboard))
+  (when (< (length command-line-args) 2) ;; Assume no file name passed
+    (add-hook 'emacs-startup-hook #'my-dashboard))
 
 #+end_src
 
