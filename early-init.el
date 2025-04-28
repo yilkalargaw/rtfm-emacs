@@ -33,8 +33,8 @@
 
 
 ;; Only disable GUI elements if running in a graphical display
+(menu-bar-mode -1)
 (when (display-graphic-p)
-  (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1))
 
@@ -98,12 +98,10 @@
 ;; (setq gc-cons-threshold (if (display-graphic-p) (* 400 1024 1024 ) (* 128 1024 1024)))
 ;; (setq gc-cons-percentage 0.7))
 
-(defvar yae-gc-cons-threshold (* 32 1024 1024))
-
 (add-hook 'after-init-hook #'(lambda ()
                                ;; restore after startup
                                ;; (setq gc-cons-threshold 800000) ;; default
-                               (setq gc-cons-threshold yae-gc-cons-threshold)
+                               (setq gc-cons-threshold (* 32 1024 1024))
                                (setq gc-cons-percentage 0.5)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
