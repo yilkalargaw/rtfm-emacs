@@ -24,9 +24,10 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 
 ;; Vertical window divider
-(setq window-divider-default-right-width 4
-      window-divider-default-places 'right-only)
-(window-divider-mode 1)
+(when (not (version< emacs-version "27.0"))
+  (setq window-divider-default-right-width 4
+        window-divider-default-places 'right-only)
+  (window-divider-mode 1))
 
 ;; ;; No ugly button for checkboxes
 ;; (setq widget-image-enable nil)
