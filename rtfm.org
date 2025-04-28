@@ -2524,17 +2524,18 @@ within stops
 #+begin_src emacs-lisp
 
 #+end_src
-
     
 *** COMMENT viper-mode
 
 #+begin_src emacs-lisp
 
+;; (setq viper-mode t)
 (setq viper-mode t)
 (require 'viper)
 (setq viper-inhibit-startup-message 't)
+(setq viper-mode-maybe t)
+(setq viper-current-state 'emacs-state) ; Start in Emacs keybindings
 (setq viper-expert-level '5)
-
 
 ;; customizations
 (setq viper-ex-style-editing nil)
@@ -2544,6 +2545,14 @@ within stops
 
 (define-key viper-vi-basic-map (kbd "g") 'universal-argument)
 (define-key viper-vi-basic-map (kbd "v") 'set-mark-command)
+
+#+end_src
+
+*** COMMENT cua mode
+
+#+begin_src emacs-lisp
+
+(cua-mode t)
 
 #+end_src
 
