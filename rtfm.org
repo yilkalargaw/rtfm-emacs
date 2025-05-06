@@ -2567,7 +2567,8 @@ within stops
   "Make Emacs use shell-defined environment variables like PATH."
   :group 'environment)
 
-(defcustom shell-environment-variables '("PATH" "MANPATH")
+(defcustom shell-environment-variables '("PATH" ;; "MANPATH"
+                                         )
   "List of environment variables to import from the shell."
   :type '(repeat string)
   :group 'shell-environment)
@@ -2616,7 +2617,8 @@ Returns the imported value."
 
 #+begin_src emacs-lisp
 
-(defvar simple-shell-env-vars '("PATH" "MANPATH")
+(defvar simple-shell-env-vars '("PATH" ;; "MANPATH"
+                                )
   "List of environment variables to import from the shell.")
 
 (defun simple-shell-getenv (var)
@@ -2683,7 +2685,7 @@ Returns nil if the variable is unset or if there's an error."
               ;; to be added if if is used instead of when (message "Warning: '%s' tui app not found." tuiapp)
 			  ))))
 
-(defvar my-tui-apps '("toipe" "nnn" "nmtui" "htop" "nvim" "lynx" "gtypist")
+(defvar my-tui-apps '("toipe" "nnn" "nmtui" "htop" "nvim" "lynx" "gtypist" "lazygit")
   "List of tui apps to create functions for.")
 
 (add-hook 'after-init-hook

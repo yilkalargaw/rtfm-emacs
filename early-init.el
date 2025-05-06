@@ -24,7 +24,7 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 
 ;; Vertical window divider
-(when (not (version< emacs-version "27.0"))
+(when (not (version<= emacs-version "25.0"))
   (setq window-divider-default-right-width 4
         window-divider-default-places 'right-only)
   (window-divider-mode 1))
