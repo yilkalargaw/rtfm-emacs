@@ -1013,17 +1013,10 @@
 
      ;; `(header-line                           ((t (:inherit default :background ,yae_simple/base00))))
 
-     `(mode-line                             ((t (:inherit variable-pitch :foreground ,yae_simple/base00 :background ,yae_simple/base07 :box t))))
-     ;; `(mode-line
-     ;;   ((((class color) (min-colors 257))
-     ;;     (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t)
-     ;;    (((class color) (min-colors 256))
-     ;;     (:foreground ,yae_simple/base07 :background ,yae_simple/base03 :box t)))))
+     `(mode-line                             ((t (:inherit variable-pitch :foreground ,yae_simple/base00 :background ,yae_simple/base05 :box nil))))
 
-   ;; ;;; modeline
-     `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box t))))
-   ;;   `(mode-line-buffer-id ((t (:inherit mode-line))))
-
+     ;;; modeline
+     `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box nil))))
 	 ))
 
 ;;;###autoload
