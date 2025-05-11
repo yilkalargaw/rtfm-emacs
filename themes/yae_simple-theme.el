@@ -46,6 +46,24 @@
         (yae-ansi-white         . "#959dcb")
         (yae-ansi-yellow        . "#ffcb6b")))
 
+    (nordic-darker
+     . ((yae-ansi-black         . "#2e3440")
+        (yae-ansi-blue          . "#82aaff")
+        (yae-ansi-brightblack   . "#676e95")
+        (yae-ansi-brightblue    . "#82aaff")
+        (yae-ansi-brightcyan    . "#89ddff")
+        (yae-ansi-brightgreen   . "#c3e88d")
+        (yae-ansi-brightmagenta . "#c792ea")
+        (yae-ansi-brightred     . "#f07178")
+        (yae-ansi-brightwhite   . "#8fbcbb")
+        (yae-ansi-brightyellow  . "#ffcb6b")
+        (yae-ansi-cyan          . "#89ddff")
+        (yae-ansi-green         . "#c3e88d")
+        (yae-ansi-magenta       . "#c792ea")
+        (yae-ansi-red           . "#f07178")
+        (yae-ansi-white         . "#959dcb")
+        (yae-ansi-yellow        . "#ffcb6b")))
+
     (harmonic-dark
      . ((yae-ansi-black         . "#0B1C2C")
         (yae-ansi-blue          . "#8B56BF")
@@ -67,7 +85,7 @@
     (grayscale-dark
      . ((yae-ansi-black         . "#101010")
         (yae-ansi-blue          . "#686868")
-        (yae-ansi-brightblack   . "#525252")
+        (yae-ansi-brightblack   . "#4c566a")
         (yae-ansi-brightblue    . "#686868")
         (yae-ansi-brightcyan    . "#868686")
         (yae-ansi-brightgreen   . "#8e8e8e")
@@ -79,7 +97,7 @@
         (yae-ansi-green         . "#8e8e8e")
         (yae-ansi-magenta       . "#747474")
         (yae-ansi-red           . "#7c7c7c")
-        (yae-ansi-white         . "#b9b9b9")
+        (yae-ansi-white         . "#e5e9f0")
         (yae-ansi-yellow        . "#a0a0a0")))
 
     (brewer
@@ -921,7 +939,7 @@
        (yae_simple/base0E (if (and colors (> color-cells 256)) 
                               (cdr (assoc 'yae-ansi-magenta colors)) 
                             "magenta"))
-       (yae_simple/base0E (if (and colors (> color-cells 256)) 
+       (yae_simple/base0F (if (and colors (> color-cells 256)) 
                               (cdr (assoc 'yae-ansi-brightcyan colors)) 
                             "brightcyan"))
        )
@@ -989,16 +1007,24 @@
      `(font-lock-variable-name-face                 ((t (:foreground ,yae_simple/base08))))
      `(font-lock-warning-face                       ((t (:foreground ,yae_simple/base08))))
 
-;;;; ansi-colors)
-     `(ansi-color-black                             ((t (:foreground ,yae_simple/base02 :background ,yae_simple/base00))))
-     `(ansi-color-white                             ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base07))))
+;;;; ansi-colors
+     `(ansi-color-black                             ((t (:foreground ,yae_simple/base00 :background ,yae_simple/base00))))
      `(ansi-color-red                               ((t (:foreground ,yae_simple/base08 :background ,yae_simple/base08))))
-     `(ansi-color-yellow                            ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0A))))
      `(ansi-color-green                             ((t (:foreground ,yae_simple/base0B :background ,yae_simple/base0B))))
-     `(ansi-color-cyan                              ((t (:foreground ,yae_simple/base0C :background ,yae_simple/base0C))))
+     `(ansi-color-yellow                            ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0A))))
      `(ansi-color-blue                              ((t (:foreground ,yae_simple/base0D :background ,yae_simple/base0D))))
      `(ansi-color-magenta                           ((t (:foreground ,yae_simple/base0E :background ,yae_simple/base0E))))
-
+     `(ansi-color-cyan                              ((t (:foreground ,yae_simple/base0C :background ,yae_simple/base0C))))
+     `(ansi-color-white                             ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base05))))
+                                                   
+     `(ansi-color-brightblack                       ((t (:foreground ,yae_simple/base03 :background ,yae_simple/base03))))
+     `(ansi-color-brightred                         ((t (:foreground ,yae_simple/base09 :background ,yae_simple/base09))))
+     `(ansi-color-brightgreen                       ((t (:foreground ,yae_simple/base01 :background ,yae_simple/base01))))
+     `(ansi-color-brightyellow                      ((t (:foreground ,yae_simple/base02 :background ,yae_simple/base02))))
+     `(ansi-color-brightblue                        ((t (:foreground ,yae_simple/base04 :background ,yae_simple/base04))))
+     `(ansi-color-brightmagenta                     ((t (:foreground ,yae_simple/base06 :background ,yae_simple/base06))))
+     `(ansi-color-brightcyan                        ((t (:foreground ,yae_simple/base0F :background ,yae_simple/base0F))))
+     `(ansi-color-brightwhite                       ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base07))))
 
 ;; ;;;; term and ansi-term)
 ;;      `(term                                         ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base00))))
