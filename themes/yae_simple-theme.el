@@ -1053,7 +1053,7 @@
 
      ;;; modeline
      `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box nil))))
-     ;; `(mode-line-buffer-id ((t (:inherit variable-pitch :foreground ,(face-background 'default) :distant-foreground ,(face-background 'region) :box nil))))
+     `(mode-line-buffer-id ((t (:inherit variable-pitch :foreground ,(face-foreground 'region) :distant-foreground ,(face-background 'region)))))
 	 ))
 
 ;;;###autoload
