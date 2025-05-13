@@ -48,21 +48,31 @@
 
     (nordic-darker
      . ((yae-ansi-black         . "#2e3440")
-        (yae-ansi-blue          . "#82aaff")
-        (yae-ansi-brightblack   . "#676e95")
-        (yae-ansi-brightblue    . "#82aaff")
-        (yae-ansi-brightcyan    . "#89ddff")
-        (yae-ansi-brightgreen   . "#c3e88d")
-        (yae-ansi-brightmagenta . "#c792ea")
-        (yae-ansi-brightred     . "#f07178")
-        (yae-ansi-brightwhite   . "#8fbcbb")
-        (yae-ansi-brightyellow  . "#ffcb6b")
-        (yae-ansi-cyan          . "#89ddff")
-        (yae-ansi-green         . "#c3e88d")
-        (yae-ansi-magenta       . "#c792ea")
-        (yae-ansi-red           . "#f07178")
-        (yae-ansi-white         . "#959dcb")
-        (yae-ansi-yellow        . "#ffcb6b")))
+        (yae-ansi-brightblack   . "#525d72")
+
+        (yae-ansi-red           . "#e16a70")
+        (yae-ansi-brightred     . "#ff8c94")
+
+        (yae-ansi-green         . "#b1d380")
+        (yae-ansi-brightgreen   . "#d5f7a3")
+
+        (yae-ansi-yellow        . "#ffcb6b")
+        (yae-ansi-brightyellow  . "#ffe399")
+
+        (yae-ansi-blue          . "#7498e4")
+        (yae-ansi-brightblue    . "#a5cfff")
+
+        (yae-ansi-magenta       . "#ad7fcc")
+        (yae-ansi-brightmagenta . "#e1b0ff")
+
+        (yae-ansi-cyan          . "#76bfdc")
+        (yae-ansi-brightcyan    . "#b3eaff")
+
+        (yae-ansi-white         . "#848bb4")
+        (yae-ansi-brightwhite   . "#d8dee9")
+
+        (yae-foreground         . "#959dcb")
+        (yae-background         . "#2e3440")))
 
     (harmonic-dark
      . ((yae-ansi-black         . "#0B1C2C")
@@ -1017,14 +1027,14 @@
      `(ansi-color-cyan                              ((t (:foreground ,yae_simple/base0C :background ,yae_simple/base0C))))
      `(ansi-color-white                             ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base05))))
                                                    
-     `(ansi-color-brightblack                       ((t (:foreground ,yae_simple/base03 :background ,yae_simple/base03))))
-     `(ansi-color-brightred                         ((t (:foreground ,yae_simple/base09 :background ,yae_simple/base09))))
-     `(ansi-color-brightgreen                       ((t (:foreground ,yae_simple/base01 :background ,yae_simple/base01))))
-     `(ansi-color-brightyellow                      ((t (:foreground ,yae_simple/base02 :background ,yae_simple/base02))))
-     `(ansi-color-brightblue                        ((t (:foreground ,yae_simple/base04 :background ,yae_simple/base04))))
-     `(ansi-color-brightmagenta                     ((t (:foreground ,yae_simple/base06 :background ,yae_simple/base06))))
-     `(ansi-color-brightcyan                        ((t (:foreground ,yae_simple/base0F :background ,yae_simple/base0F))))
-     `(ansi-color-brightwhite                       ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base07))))
+     `(ansi-color-bright-black                       ((t (:foreground ,yae_simple/base03 :background ,yae_simple/base03))))
+     `(ansi-color-bright-red                         ((t (:foreground ,yae_simple/base09 :background ,yae_simple/base09))))
+     `(ansi-color-bright-green                       ((t (:foreground ,yae_simple/base01 :background ,yae_simple/base01))))
+     `(ansi-color-bright-yellow                      ((t (:foreground ,yae_simple/base02 :background ,yae_simple/base02))))
+     `(ansi-color-bright-blue                        ((t (:foreground ,yae_simple/base04 :background ,yae_simple/base04))))
+     `(ansi-color-bright-magenta                     ((t (:foreground ,yae_simple/base06 :background ,yae_simple/base06))))
+     `(ansi-color-bright-cyan                        ((t (:foreground ,yae_simple/base0F :background ,yae_simple/base0F))))
+     `(ansi-color-bright-white                       ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base07))))
 
 ;; ;;;; term and ansi-term)
 ;;      `(term                                         ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base00))))
@@ -1043,6 +1053,7 @@
 
      ;;; modeline
      `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box nil))))
+     ;; `(mode-line-buffer-id ((t (:inherit variable-pitch :foreground ,(face-background 'default) :distant-foreground ,(face-background 'region) :box nil))))
 	 ))
 
 ;;;###autoload
