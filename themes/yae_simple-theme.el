@@ -1037,7 +1037,7 @@
    `(buffers-tab                  ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base00))))
    ;; `(mode-line                    ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base01 :box nil))))
    ;; `(mode-line-highlight          ((t (:foreground ,yae_simple/base08 :box nil))))
-   `(hl-line                      ((t (:background ,yae_simple/base02))))     ;; Highlight line background 
+   `(hl-line                      ((t (:inherit default :underline t))))     ;; Highlight line background 
    ;; `(region                       ((t (:background ,yae_simple/base02))))     ;; Selection region color 
    ;; `(italic                       ((t (nil))))
    `(left-margin                  ((t (nil))))
