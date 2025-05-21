@@ -59,9 +59,12 @@
         (yae-ansi-yellow        . "#ffcb6b")
         (yae-ansi-brightyellow  . "#ffe399")
 
-        (yae-ansi-blue          . "#7498e4")
-        (yae-ansi-brightblue    . "#a5cfff")
+        ;; (yae-ansi-blue          . "#7498e4")
+        ;; (yae-ansi-brightblue    . "#a5cfff")
 
+        (yae-ansi-blue          . "#678be3")
+        (yae-ansi-brightblue    . "#82beff")
+        
         (yae-ansi-magenta       . "#ad7fcc")
         (yae-ansi-brightmagenta . "#e1b0ff")
 
@@ -217,6 +220,43 @@
         (yae-ansi-brightmagenta. "#c678dd")
         (yae-ansi-brightcyan   . "#56b6c2")
         (yae-ansi-brightwhite  . "#c8ccd4")))
+
+    ;; (noone-dark
+    ;;  . ((yae-ansi-black         . "#282c34")
+    ;;     (yae-ansi-brightblack   . "#7f8494")
+    ;;     (yae-ansi-red           . "#e06c75")
+    ;;     (yae-ansi-brightred     . "#ff8f97")
+    ;;     (yae-ansi-green         . "#98c379")
+    ;;     (yae-ansi-brightgreen   . "#c0f2a6")
+    ;;     (yae-ansi-yellow        . "#e5c07b")
+    ;;     (yae-ansi-brightyellow  . "#fce87f")
+    ;;     (yae-ansi-blue          . "#61afef")
+    ;;     (yae-ansi-brightblue    . "#9ad1ff")
+    ;;     (yae-ansi-magenta       . "#c678dd")
+    ;;     (yae-ansi-brightmagenta . "#e0b1ff")
+    ;;     (yae-ansi-cyan          . "#56c2c2")
+    ;;     (yae-ansi-brightcyan    . "#8ae0f7")
+    ;;     (yae-ansi-white         . "#abb2bf")
+    ;;     (yae-ansi-brightwhite   . "#f0f4fb")))
+
+    (noone-dark
+     . ((yae-ansi-black        . "#2e3440")
+        (yae-ansi-red          . "#e06c75")
+        (yae-ansi-green        . "#98c379")
+        (yae-ansi-yellow       . "#e5c07b")
+        (yae-ansi-blue         . "#61afef")
+        (yae-ansi-magenta      . "#c678dd")
+        (yae-ansi-cyan         . "#56b6c2")
+        (yae-ansi-white        . "#abb2bf")
+        (yae-ansi-brightblack  . "#4c566a")  ; brighter dark gray
+        (yae-ansi-brightred    . "#ff6c6b")  ; more vivid red
+        (yae-ansi-brightgreen  . "#b4f27b")  ; brighter lime green
+        (yae-ansi-brightyellow . "#f0db6e")  ; brighter yellow
+        (yae-ansi-brightblue   . "#7fc1ff")  ; lighter blue
+        (yae-ansi-brightmagenta. "#d8a9e3")  ; lighter magenta
+        (yae-ansi-brightcyan   . "#63e2e8")  ; brighter cyan
+        (yae-ansi-brightwhite  . "#e6e9ef"))) ; near white
+
 
     (unikitty-dark
      . ((yae-ansi-black        . "#2e2a31")
@@ -664,7 +704,7 @@
         (yae-ansi-brightred    . "#d73737")
         (yae-ansi-brightgreen  . "#60ac39")
         (yae-ansi-brightyellow . "#ae9513")
-        (yae-ansi-brightblue   . "#6684e1")
+        (yae-ansi-brightblue   . "#6684e1")678be3
         (yae-ansi-brightmagenta. "#b854d4")
         (yae-ansi-brightcyan   . "#1fad83")
         (yae-ansi-brightwhite  . "#fefbec")))
