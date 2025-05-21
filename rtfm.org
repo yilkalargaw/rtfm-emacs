@@ -1283,23 +1283,23 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
   (customize-set-variable 'eshell-scroll-show-maximum-output nil)
 
-  (declare-function eshell/alias "em-alias")  ;; To tell the byte-compiler about the function
+  ;; (declare-function eshell/alias "em-alias")  ;; To tell the byte-compiler about the function
 
-  (require 'em-alias)
-    (when (executable-find "bash")
-      (progn
-        (defun eshell-load-bash-aliases ()
-          "Read Bash aliases and add them to the list of eshell aliases."
-          ;; Bash needs to be run - temporarily - interactively
-          ;; in order to get the list of aliases.
-          (with-temp-buffer
-            (call-process "bash" nil '(t nil) nil "-ci" "alias")
-            (goto-char (point-min))
-            (while (re-search-forward "alias \\(.+\\)='\\(.+\\)'$" nil t)
-              (eshell/alias (match-string 1) (match-string 2) "$*"))))
-        ;; We only want Bash aliases to be loaded when Eshell loads its own aliases,
-        ;; rather than every time `eshell-mode' is enabled.
-        (add-hook 'eshell-alias-load-hook 'eshell-load-bash-aliases)))
+  ;; (require 'em-alias)
+  ;;   (when (executable-find "bash")
+  ;;     (progn
+  ;;       (defun eshell-load-bash-aliases ()
+  ;;         "Read Bash aliases and add them to the list of eshell aliases."
+  ;;         ;; Bash needs to be run - temporarily - interactively
+  ;;         ;; in order to get the list of aliases.
+  ;;         (with-temp-buffer
+  ;;           (call-process "bash" nil '(t nil) nil "-ci" "alias")
+  ;;           (goto-char (point-min))
+  ;;           (while (re-search-forward "alias \\(.+\\)='\\(.+\\)'$" nil t)
+  ;;             (eshell/alias (match-string 1) (match-string 2) "$*"))))
+  ;;       ;; We only want Bash aliases to be loaded when Eshell loads its own aliases,
+  ;;       ;; rather than every time `eshell-mode' is enabled.
+  ;;       (add-hook 'eshell-alias-load-hook 'eshell-load-bash-aliases)))
   )
 
 #+end_src
@@ -2882,7 +2882,7 @@ containing a button label, description, and action."
 
 (add-hook 'after-init-time-hook
           (progn
-            (customize-set-variable 'yae-selected-palette 'palenight)
+            (customize-set-variable 'yae-selected-palette 'noone-dark)
             (load-theme 'yae_simple t)))
 
 ;; (add-hook 'after-init-hook (lambda () (load-theme 'xresources t)))
