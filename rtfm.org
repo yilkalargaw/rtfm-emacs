@@ -28,6 +28,7 @@
 #+EXCLUDE_TAGS: noexport
 #+STARTUP: overview
 #+COMMENTED_TOC: 1
+#+beautified: 2
 
 * table of contents                                                :noexport:
 #+BEGIN_TOC
@@ -51,11 +52,13 @@
     - [[mode-line-modify]]
     - [[headerline]]
     - [[disable dialogues]]
+    - [[cursor type]]
   - [[require some libraries]]
   - [[basic emacs editor preferences]]
     - [[set load path]]
     - [[set utf-8 as default coding system]]
     - [[autorevert]]
+    - [[revert buffer on f5]]
     - [[backup and auto-save-list]]
     - [[clipboard]]
     - [[yes,no]]
@@ -109,10 +112,11 @@
 
 ;; -*- lexical-binding: t;-*-
 
-
 ;;; package --- Summary
 ;;; Commentary:
 ;;; Code:
+
+;; -*- lexical-binding: t;-*-
 
 #+end_src
 
@@ -739,6 +743,12 @@ RIGHT, aligned respectively."
 
 #+end_src
 
+*** cursor type
+#+begin_src emacs-lisp
+
+(setq-default cursor-type '(bar . 5))  ;; 'bar or 'box, 'hbar, etc.
+
+#+end_src
 
 ** require some libraries
 
@@ -787,6 +797,19 @@ RIGHT, aligned respectively."
 #+begin_src emacs-lisp
 
 (add-hook 'after-init-hook  #'global-auto-revert-mode)
+
+#+end_src
+
+*** revert buffer on f5
+
+#+begin_src emacs-lisp
+
+(defun my/revert-buffer-no-confirm ()
+  "Revert buffer without confirmation."
+  (interactive)
+  (revert-buffer :ignore-auto :noconfirm))
+
+(global-set-key (kbd "<f5>") #'my/revert-buffer-no-confirm)
 
 #+end_src
 
@@ -1559,6 +1582,148 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
         (add-hook 'before-save-hook 'yae-org-generate-or-replace-toc nil 'local))
 
       (add-hook 'org-mode-hook 'yae-org-mode-setup)
+
+
+      ;; (defun my/org-beautify-buffer ()
+      ;;   "Apply beautified font styles in Org mode if #+beautified: t or 1 is present."
+      ;;   (when (and (derived-mode-p 'org-mode)
+      ;;              (save-excursion
+      ;;                (goto-char (point-min))
+      ;;                (re-search-forward "^#\\+beautified: *\\(t\\|1\\)" nil t)))
+      ;;     ;; Set buffer-wide Sans font
+      ;;     ;; (setq-local buffer-face-mode-face '(:family "Sans"))
+      ;;     (buffer-face-mode 1)
+
+      ;;     ;; Scale headings
+      ;;     (let ((sizes '(1.4 1.3 1.2 1.1 1.0 1.0 1.0)))
+      ;;       (dotimes (i (length sizes))
+      ;;         (let ((level (1+ i))
+      ;;               (scale (nth i sizes)))
+      ;;           (set-face-attribute (intern (format "org-level-%d" level)) nil
+      ;;                               :family "Sans"
+      ;;                               :height (* 1.1 scale)
+      ;;                               :weight 'bold)
+
+      ;;           (set-face-attribute 'org-block nil :inherit 'default :box nil :family "Monospace")
+      ;;           (set-face-attribute 'org-block-begin-line nil
+      ;;                               :inherit 'default
+      ;;                               :foreground (face-foreground 'shadow)
+      ;;                               :italic t
+      ;;                               :underline nil :overline nil
+      ;;                               :family "Monospace")
+      ;;           (set-face-attribute 'org-block-end-line nil
+      ;;                               :inherit 'default
+      ;;                               :foreground (face-foreground 'shadow)
+      ;;                               :italic t
+      ;;                               :underline nil :overline nil
+      ;;                               :family "Monospace"))))))
+
+      ;; (add-hook 'org-mode-hook #'my/org-beautify-buffer)
+
+      ;; (defun my/org-beautify-buffer ()
+      ;;   "Apply beautified font styles in Org mode based on the #+beautified keyword."
+      ;;   (when (derived-mode-p 'org-mode)
+      ;;     (save-excursion
+      ;;       (goto-char (point-min))
+      ;;       (when (re-search-forward "^#\\+beautified: *\\(.*\\)$" nil t)
+      ;;         (let ((value (match-string 1)))
+      ;;           (cond
+      ;;            ;; === Mode 1 or t: Everything Sans + Monospaced blocks ===
+      ;;            ((member value '("1" "t"))
+
+      ;;             (buffer-face-mode 1))
+
+      ;;            ;; === Mode 2: Variable pitch prose, Monospaced blocks ===
+      ;;            ((string= value "2")
+      ;;             (setq-local buffer-face-mode-face '(:family "Sans" :height 1.1))
+      ;;             (buffer-face-mode 1)
+
+      ;;             ;; Make sure fixed-pitch faces are still respected
+      ;;             (dolist (face '(org-code org-block org-block-begin-line
+      ;;                                      org-block-end-line org-table org-verbatim org-formula))
+      ;;               (set-face-attribute face nil :inherit 'fixed-pitch :family "Monospace"))))
+
+      ;;           ;; === Common: Heading scaling ===
+      ;;           (let ((sizes '(1.3 1.2 1.1 1.0 1.0 0.9 0.9)))
+      ;;             (dotimes (i (length sizes))
+      ;;               (let ((level (1+ i))
+      ;;                     (scale (nth i sizes)))
+      ;;                 (set-face-attribute (intern (format "org-level-%d" level)) nil
+      ;;                                     :family "Sans"
+      ;;                                     :height scale
+      ;;                                     :weight 'bold)))))))))
+
+      ;; (add-hook 'org-mode-hook #'my/org-beautify-buffer)
+
+      (defvar-local my/org-beautify-remap-cookies nil
+        "List of face remap cookies for undoing remaps in this buffer.")
+
+      (defun my/org-clear-beautify-remaps ()
+        "Clear face remaps made by `my/org-beautify-buffer`."
+        (when my/org-beautify-remap-cookies
+          (mapc #'face-remap-remove-relative my/org-beautify-remap-cookies)
+          (setq my/org-beautify-remap-cookies nil)))
+
+      (defun my/org-beautify-buffer ()
+        "Apply beautified font styles in Org mode based on the #+beautified keyword."
+        (when (derived-mode-p 'org-mode)
+          (my/org-clear-beautify-remaps)
+          (save-excursion
+            (goto-char (point-min))
+            (if (re-search-forward "^#\\+beautified: *\\(.*\\)$" nil t)
+                (let ((value (downcase (string-trim (match-string 1)))))
+                  (cond
+                   ;; === Mode 1 or t: Everything Sans serif ===
+                   ((member value '("1" "t"))
+                    ;; (setq-local buffer-face-mode-face '(:family "Sans"))
+                    ;; (buffer-face-mode 1)
+                    ;; Scale org headings
+                    (let ((sizes '(1.2 1.15 1.1 1.05 1.0 1.0 1.0)))
+                      (dotimes (i (length sizes))
+                        (let* ((level (1+ i))
+                               (face (intern (format "org-level-%d" level)))
+                               (scale (* 1.0 (nth i sizes)))
+                               (weight (if (<= level 5) 'bold 'normal)))
+                          (push (face-remap-add-relative face
+                                                         `(:family "Sans" :height ,scale :weight ,weight))
+                                my/org-beautify-remap-cookies)))))
+
+                   ;; === Mode 2: Variable-pitch prose, monospaced blocks ===
+                   ((string= value "2")
+                    ;; Remap `default` to variable pitch for prose
+                    (push (face-remap-add-relative 'default '(:family "Sans" :height 1.05))
+                          my/org-beautify-remap-cookies)
+
+                    ;; Make block-like things monospace
+                    (dolist (face '(org-code org-block org-block-begin-line
+                                             org-block-end-line org-table org-verbatim org-formula))
+                      (push (face-remap-add-relative face '(:inherit fixed-pitch :family "Monospace"))
+                            my/org-beautify-remap-cookies))
+
+                    ;; Scale headings
+                    (let ((sizes '(1.2 1.15 1.1 1.05 1.0 1.0 1.0)))
+                      (dotimes (i (length sizes))
+                        (let* ((level (1+ i))
+                               (face (intern (format "org-level-%d" level)))
+                               (scale (* 1.0 (nth i sizes)))
+                               (weight (if (<= level 5) 'bold 'normal)))
+                          (push (face-remap-add-relative face
+                                                         `(:family "Sans" :height ,scale :weight ,weight))
+                                my/org-beautify-remap-cookies)))))
+
+                   ;; === Any other value: reset ===
+                   (t (buffer-face-mode -1))))
+              ;; No #+beautified line: reset
+              (buffer-face-mode -1)))))
+
+      ;; Hooks (outside the function definition)
+      (add-hook 'org-mode-hook #'my/org-beautify-buffer)
+
+      (font-lock-add-keywords 'org-mode
+                              '(("^\\*+ +COMMENT\\(?: +\\|$\\).*" . 'my/org-comment-heading)))
+
+      (require 'presentation-mode nil t)
+      (define-key org-mode-map (kbd "S-<f5>") #'presentation-start)
 
       )))
 #+end_src

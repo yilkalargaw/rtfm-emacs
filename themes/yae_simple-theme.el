@@ -1077,7 +1077,8 @@
 ;;;; font-lock
      `(font-lock-builtin-face                       ((t (:foreground ,yae_simple/base0C))))
      `(font-lock-comment-delimiter-face             ((t (:foreground ,yae_simple/base03))))
-     `(font-lock-comment-face                       ((t (:foreground ,yae_simple/base03 :italic t))))
+     `(font-lock-comment-face                       ((t (:foreground ,yae_simple/base03 ;; :italic t
+                                                                     ))))
      `(font-lock-constant-face                      ((t (:foreground ,yae_simple/base09))))
      `(font-lock-doc-face                           ((t (:foreground ,yae_simple/base04))))
      `(font-lock-doc-string-face                    ((t (:foreground ,yae_simple/base03))))

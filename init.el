@@ -38,7 +38,7 @@
   (defvar my-config-org-files
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
             '("rtfm.org"
-              ;; "server.org"
+              "server.org"
               ;; "pluggedin.org"
               )))
 

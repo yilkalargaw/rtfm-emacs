@@ -275,8 +275,8 @@ between 0 and 1)."
 
    ;; show-paren-match
    `(show-paren-match ((t (:inherit secondary-selection))))
-   ;; ;;;;; org
-   ;; ;; `(org-agenda-structure ((t (:inherit default ,@sans-font :height 2.0 :underline nil))))
+   ;;;;; org
+   ;; `(org-agenda-structure ((t (:inherit default ,@sans-font :height 2.0 :underline nil))))
    ;; `(org-level-8 ((t (:inherit 'outline-8
    ;;                             ;; :weight bold
    ;;                             :height 1.0
@@ -347,7 +347,8 @@ between 0 and 1)."
    `(org-headline-done ((t (:strike-through t))))
    `(org-done ((t (:strike-through t :underline t :overline t))))
    `(org-todo ((t (:inherit default :foreground ,(face-foreground 'default)
-                               :underline t :overline t))))
+                            :underline t :overline t))))
+
    `(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
 
 
@@ -523,6 +524,13 @@ between 0 and 1)."
    ;; `(linum ((t (:inherit line-number :weight thin :height 0.8 :underline nil :font ,(face-font 'highlight) :italic t))))
    `(linum ((t (:background ,(face-background 'default) :foreground ,(face-foreground 'font-lock-comment-face)))))
    `(linum-relative-current-face ((t (:inherit linum :height 1.0 :weight extra-bold :italic nil))))
+
+   `(hl-line
+     ((((class color) (min-colors 257))
+       (:underline nil :background ,(if (dark-p bg-color)  (doomish-lighten bg-color 0.05) (doomish-darken bg-color 0.05) :extend t )))))
+
+   `(my/org-comment-heading
+     ((t (:slant italic :foreground ,(face-background 'region)))))
 
    ))
 
