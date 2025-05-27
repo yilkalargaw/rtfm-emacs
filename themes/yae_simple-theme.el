@@ -1094,23 +1094,23 @@
      `(font-lock-warning-face                       ((t (:foreground ,yae_simple/base08))))
 
 ;;;; ansi-colors
-     `(ansi-color-black                             ((t (:foreground ,yae_simple/base00 :background ,yae_simple/base00))))
-     `(ansi-color-red                               ((t (:foreground ,yae_simple/base08 :background ,yae_simple/base08))))
-     `(ansi-color-green                             ((t (:foreground ,yae_simple/base0B :background ,yae_simple/base0B))))
-     `(ansi-color-yellow                            ((t (:foreground ,yae_simple/base0A :background ,yae_simple/base0A))))
-     `(ansi-color-blue                              ((t (:foreground ,yae_simple/base0D :background ,yae_simple/base0D))))
-     `(ansi-color-magenta                           ((t (:foreground ,yae_simple/base0E :background ,yae_simple/base0E))))
-     `(ansi-color-cyan                              ((t (:foreground ,yae_simple/base0C :background ,yae_simple/base0C))))
-     `(ansi-color-white                             ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base05))))
+     `(ansi-color-black                             ((t (:foreground ,yae_simple/base00))))
+     `(ansi-color-red                               ((t (:foreground ,yae_simple/base08))))
+     `(ansi-color-green                             ((t (:foreground ,yae_simple/base0B))))
+     `(ansi-color-yellow                            ((t (:foreground ,yae_simple/base0A))))
+     `(ansi-color-blue                              ((t (:foreground ,yae_simple/base0D))))
+     `(ansi-color-magenta                           ((t (:foreground ,yae_simple/base0E))))
+     `(ansi-color-cyan                              ((t (:foreground ,yae_simple/base0C))))
+     `(ansi-color-white                             ((t (:foreground ,yae_simple/base05))))
                                                    
-     `(ansi-color-bright-black                       ((t (:foreground ,yae_simple/base03 :background ,yae_simple/base03))))
-     `(ansi-color-bright-red                         ((t (:foreground ,yae_simple/base09 :background ,yae_simple/base09))))
-     `(ansi-color-bright-green                       ((t (:foreground ,yae_simple/base01 :background ,yae_simple/base01))))
-     `(ansi-color-bright-yellow                      ((t (:foreground ,yae_simple/base02 :background ,yae_simple/base02))))
-     `(ansi-color-bright-blue                        ((t (:foreground ,yae_simple/base04 :background ,yae_simple/base04))))
-     `(ansi-color-bright-magenta                     ((t (:foreground ,yae_simple/base06 :background ,yae_simple/base06))))
-     `(ansi-color-bright-cyan                        ((t (:foreground ,yae_simple/base0F :background ,yae_simple/base0F))))
-     `(ansi-color-bright-white                       ((t (:foreground ,yae_simple/base07 :background ,yae_simple/base07))))
+     `(ansi-color-bright-black                       ((t (:foreground ,yae_simple/base03))))
+     `(ansi-color-bright-red                         ((t (:foreground ,yae_simple/base09))))
+     `(ansi-color-bright-green                       ((t (:foreground ,yae_simple/base01))))
+     `(ansi-color-bright-yellow                      ((t (:foreground ,yae_simple/base02))))
+     `(ansi-color-bright-blue                        ((t (:foreground ,yae_simple/base04))))
+     `(ansi-color-brgight-magenta                    ((t (:foreground ,yae_simple/base06))))
+     `(ansi-color-bright-cyan                        ((t (:foreground ,yae_simple/base0F))))
+     `(ansi-color-bright-white                       ((t (:foreground ,yae_simple/base07))))
 
 ;; ;;;; term and ansi-term)
 ;;      `(term                                         ((t (:foreground ,yae_simple/base05 :background ,yae_simple/base00))))
@@ -1129,7 +1129,7 @@
 
      ;;; modeline
      `(mode-line-inactive ((t (:inherit variable-pitch :foreground ,yae_simple/base05 :background ,yae_simple/base03 :box nil))))
-     `(mode-line-buffer-id ((t (:inherit variable-pitch :foreground ,(face-foreground 'region) :distant-foreground ,(face-background 'region)))))
+     `(mode-line-buffer-id ((t (:inherit variable-pitch :foreground ,(face-background 'region) :distant-foreground ,(face-background 'highlight)))))
 	 ))
 
 ;;;###autoload
