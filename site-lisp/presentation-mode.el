@@ -139,7 +139,7 @@ Add invisible padding at the bottom to vertically center content."
   (setq-local truncate-lines nil)
   (setq-local scroll-margin 0)
   (setq-local mode-line-format nil)
-  (setq-local header-line-format nil)
+  (setq-local header-line-format nil) ; This sets it to nil initially for the presentation
   (setq-local display-line-numbers nil)
 
   ;; Collect slides and show first one
@@ -171,6 +171,7 @@ Add invisible padding at the bottom to vertically center content."
     (org-remove-inline-images))
 
   ;; Restore buffer-local settings
+  ;; This loop correctly restores header-line-format to its original value
   (dolist (setting presentation--original-settings)
     (set (make-local-variable (car setting)) (cdr setting)))
 
@@ -180,10 +181,12 @@ Add invisible padding at the bottom to vertically center content."
   (local-unset-key (kbd "n"))
   (local-unset-key (kbd "p"))
   (local-unset-key (kbd "q"))
-  (local-unset-key (kbd "S-<f5>"))
+  (local-set-key (kbd "S-<f5>") #'presentation-start)
   (setq-local buffer-read-only nil)
 
-  (setq header-line-format nil)
+  ;; REMOVE THIS LINE: It overwrites the restored header-line-format
+  ;; (setq header-line-format nil)
+
   (setq presentation--slide-headings nil)
   (message "Presentation ended."))
 
