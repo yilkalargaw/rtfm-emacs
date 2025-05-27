@@ -139,7 +139,7 @@ Add invisible padding at the bottom to vertically center content."
   (setq-local truncate-lines nil)
   (setq-local scroll-margin 0)
   (setq-local mode-line-format nil)
-  (setq-local header-line-format nil) ; This sets it to nil initially for the presentation
+  (setq-local header-line-format nil)
   (setq-local display-line-numbers nil)
 
   ;; Collect slides and show first one
