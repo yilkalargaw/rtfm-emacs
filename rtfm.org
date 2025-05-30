@@ -1624,7 +1624,7 @@ buffer at the #+BEGIN_TOC block respecting the toc depth option."
                                                            `(:family "Sans" :height ,scale :weight ,weight))
                                   my/org-beautify-remap-cookies)))))
 
-                     ((member value '("2 1"))
+                     ((member value '("2 1" "2"))
                       (push (face-remap-add-relative 'default '(:family "Sans" :height 1.05))
                             my/org-beautify-remap-cookies)
                       (dolist (face '(org-code org-block org-block-begin-line
