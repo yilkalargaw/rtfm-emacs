@@ -1,0 +1,14 @@
+#+TITLE: RTFM EMACS
+#+AUTHOR: Yilkal Argaw
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle early-init.el
+
+* Intro
+
+This is my emacs personal emacs config which I have refactored to make
+use of built in emacs features. I had to do this due to the
+environment I work in.
