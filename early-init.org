@@ -115,6 +115,7 @@
   ;; (global-set-key (kbd "C-c m b") 'menu-bar-mode)
   (column-number-mode 1)
   (setq initial-scratch-message nil)
+  (require 'battery)
   (setq battery-mode-line-format " [%b%p%% } ")
   (display-battery-mode t)
   ;; (display-time-mode t)
@@ -123,6 +124,21 @@
   (setq idle-update-delay 1.0)
   (setq compilation-scroll-output t)
 
+#+end_src
+
+* hook to allow recompilation of early-init
+#+begin_src emacs-lisp
+(add-hook 'after-save-hook
+	  (lambda ()
+	    (when (string= (file-name-nondirectory (buffer-file-name)) "early-init.org")
+	      (message "Recompiling early-init.org...")
+	      (require 'org)
+	      ;; Step 1: Tangle (org -> el)
+	      (org-babel-tangle-file (expand-file-name "early-init.org" user-emacs-directory)
+				    (expand-file-name "early-init.el" user-emacs-directory))
+	      ;; Step 2: Compile (el -> elc)
+	      (byte-compile-file (expand-file-name "early-init.el" user-emacs-directory))
+	      (message "Done! Reload with M-x load-file RET early-init.elc"))))
 #+end_src
 
 * ending
