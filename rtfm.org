@@ -39,7 +39,6 @@
 
 #+end_src
 
-
 * vanilla emacs settings
   
 ** mostly related to initialization process
@@ -91,5 +90,4 @@ accept it to avoid warnings related to them. Original value was
 #+begin_src emacs-lisp
 ;;; rtfm.el ends here
 #+end_src
-
 
