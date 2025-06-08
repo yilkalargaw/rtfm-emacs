@@ -21,12 +21,6 @@
 
 #+end_src
 
-* tangle at startup
-#+begin_src emacs-lisp
-  (require 'org)
-  (org-babel-tangle-file (expand-file-name "early-init.org" user-emacs-directory))
-#+end_src
-
 * garbage collection threshold
   Increase garbage collection threshold for startup only to defer
   garbage collection further back in the startup process.
