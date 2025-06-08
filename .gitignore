@@ -1,0 +1,122 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+
+# Backup files
+*~
+
+# Undo-tree save-files
+*.~undo-tree
+
+# -*- mode: gitignore; -*-
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# eshell files
+/eshell/history
+/eshell/lastdir
+
+# elpa packages
+elpa/
+/elpa/
+# Flycheck
+flycheck_*.el
+
+# server auth directory
+/server/
+
+# projectiles files
+.projectile
+projectile*
+
+
+# directory configuration
+.dir-locals.el
+
+#backups
+backups/
+
+#auto-save-list
+auto-save-list
+
+#url
+url/
+
+myinit.html
+myinit.md
+myinit.pdf
+myinit.tex
+myinit.el
+myinit.odt
+myinit.ppt
+myinit.epub
+
+#image_dired
+image-dired/
+
+network-security.data
+
+recentf
+recentf/
+
+# .mc-lists.el
+myinit.el
+
+#minted_directory
+_minted*
+
+#custom's file
+emacs-custom
+
+#transient
+transient/
+
+#eshell
+eshell/
+
+#auto-save-list
+auto-save-list/
+
+#backups
+backups/
+/.python-environments/
+irony/
+/.lsp-session-v1
+/.dap-breakpoints
+/.extension/
+emojis/
+/nov-places
+/forge-database.sqlite
+/amx-items
+/tutorial/
+/straight/
+/var/
+/eln-cache/
+/.cache/
+
+#backups
+backups/
+.python-environments/
+irony/
+.lsp-session-v1
+.dap-breakpoints
+.extension/
+emojis/
+nov-places
+forge-database.sqlite
+amx-items
+tutorial/
+straight/
+var/
+eln-cache/
+.cache/
+compiled/
+games/
