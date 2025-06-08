@@ -51,7 +51,7 @@
   (defvar my-config-org-files
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
 	    '(;; my config files go here they are org files
-	      rtfm.org
+	      "rtfm.org"
 	      )))
 
   (defvar my-compiled-config-dir (expand-file-name "compiled/" user-emacs-directory))
