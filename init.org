@@ -1,0 +1,130 @@
+#+TITLE: early-init
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle init.el
+
+* beginning commentary
+#+begin_src emacs-lisp
+;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+
+;;; Commentary:
+;;
+;; Emacs HEAD (27+) introduces early-init.el, which is run before init.el,
+;; before package and UI initialization happens.
+;;
+
+;;; Code:
+
+#+end_src
+
+* define necessary variables
+#+begin_src emacs-lisp
+
+  ;; define  variables by using a macro that generates and evaluates as below
+  ;; (defconst EMACS24+   (> emacs-major-version 23)) using macros
+  (defmacro yae-gen-ver-consts (var)
+    "Define a macro to create constants to check Emacs version greater than VAR."
+    (list 'defconst
+	  (intern (concat "EMACS" (int-to-string var) "+"))
+	  (> emacs-major-version (- var 1))))
+
+  ;;evaluate the macro for the number range we want
+  ;; (seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+  (mapc (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+
+  ;; (map #(eval (list 'yae-gen-ver-consts %)) (range 24 36))
+
+  (defconst IS-MAC     (eq system-type 'darwin))
+  (defconst IS-LINUX   (eq system-type 'gnu/linux))
+  (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+  (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+
+#+end_src
+
+* bootstrap loading of my configs
+#+begin_src emacs-lisp
+
+  (defvar my-config-org-files
+    (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
+	    '(;; my config files go here they are org files
+	      )))
+
+  (defvar my-compiled-config-dir (expand-file-name "compiled/" user-emacs-directory))
+
+  (defun my-byte-compile-config ()
+    "Compile all org config files to elisp and byte-compile them."
+    (interactive)
+    (make-directory my-compiled-config-dir t)
+    (dolist (org-file my-config-org-files)
+      (let* ((base-name (file-name-nondirectory org-file))
+	     (el-file (expand-file-name (replace-regexp-in-string "\\.org$" ".el" base-name)
+					my-compiled-config-dir))
+	     (elc-file (expand-file-name (replace-regexp-in-string "\\.org$" ".elc" base-name)
+					 my-compiled-config-dir)))
+
+	;; Only recompile if needed
+	(when (or (not (file-exists-p elc-file))
+		  (file-newer-than-file-p org-file elc-file))
+	  ;; Export Org to Elisp
+	  (require 'ox)
+	  (with-current-buffer (find-file-noselect org-file)
+	    (org-babel-tangle-file org-file el-file))
+
+	  ;; Byte-compile the generated Elisp
+	  (byte-compile-file el-file)
+
+	  (message "Compiled %s -> %s" org-file elc-file)))))
+
+  (defun my-load-compiled-config ()
+    "Load the byte-compiled configuration files."
+    (dolist (org-file my-config-org-files)
+      (let ((elc-file (expand-file-name
+		       (replace-regexp-in-string "\\.org$" ".elc"
+						 (file-name-nondirectory org-file))
+		       my-compiled-config-dir)))
+	(when (file-exists-p elc-file)
+	  (load elc-file t t)))))  ; t t for noerror nomessage
+
+  ;; **Key Fix: Compile before loading on startup**
+  (defun my-init-config ()
+    "Compile config (if needed) and then load it."
+    (my-byte-compile-config)  ; Ensure compilation happens first
+    (my-load-compiled-config))
+
+  ;; **Replace direct load with our new init function**
+  (my-init-config)  ; Loads config properly on first run
+
+  ;; Setup after-save hook
+  (add-hook 'after-save-hook
+	    (lambda ()
+	      (when (member (expand-file-name (buffer-file-name)) my-config-org-files)
+		(my-byte-compile-config))))
+
+#+end_src
+* hook to allow recompilation of init.el
+#+begin_src emacs-lisp
+
+(add-hook 'after-save-hook
+	  (lambda ()
+	    (when (string= (file-name-nondirectory (buffer-file-name)) "init.org")
+	      (message "Recompiling init.org...")
+	      (require 'org)
+	      ;; Step 1: Tangle (org -> el)
+	      (org-babel-tangle-file (expand-file-name "init.org" user-emacs-directory)
+				    (expand-file-name "init.el" user-emacs-directory))
+	      ;; Step 2: Compile (el -> elc)
+	      (byte-compile-file (expand-file-name "init.el" user-emacs-directory))
+	      (message "Done! Reload with M-x load-file RET init.elc"))))
+
+#+end_src
+
+* ending
+#+begin_src emacs-lisp
+;;; init.el ends here
+#+end_src
+
+
