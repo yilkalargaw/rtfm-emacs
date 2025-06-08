@@ -1,0 +1,139 @@
+#+TITLE: early-init
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle early-init.el
+
+* beginning commentary
+#+begin_src emacs-lisp
+;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+
+;;; Commentary:
+;;
+;; Emacs HEAD (27+) introduces early-init.el, which is run before init.el,
+;; before package and UI initialization happens.
+;;
+
+;;; Code:
+
+#+end_src
+
+* tangle at startup
+#+begin_src emacs-lisp
+  (require 'org)
+  (org-babel-tangle-file (expand-file-name "early-init.org" user-emacs-directory))
+#+end_src
+
+* garbage collection threshold
+  Increase garbage collection threshold for startup only to defer
+  garbage collection further back in the startup process.
+
+#+begin_src emacs-lisp
+
+  (setq gc-cons-threshold (if (display-graphic-p) (* 400 1024 1024 ) (* 128 1024 1024)))
+
+  ;; or if you  don't want to be that specific you can do
+  ;; (setq gc-cons-threshold most-positive-fixnum)
+
+#+end_src
+
+  Reset gc-cons-threshold after init
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-hook #'(lambda ()
+                               ;; restore after startup
+                               ;; (setq gc-cons-threshold 800000) ;; default
+                               (setq gc-cons-threshold (* 32 1024 1024))
+                               (setq gc-cons-percentage 0.5)))
+
+#+end_src
+
+* inhibit frame resize
+
+#+begin_src emacs-lisp
+
+  (setq frame-inhibit-implied-resize nil)
+
+#+end_src
+
+* set default-frame-settings
+#+begin_src emacs-lisp
+
+  (push '(vertical-scroll-bars . nil) default-frame-alist)
+  (push '(internal-border-width . 0) default-frame-alist)
+  (push '(left-fringe    . 8) default-frame-alist)
+  (push '(right-fringe   . 8) default-frame-alist)
+  (push '(tool-bar-lines . 0) default-frame-alist)
+
+#+end_src
+
+* enable window divider
+
+ Enable vertical window divider if emacs supports it.
+#+begin_src emacs-lisp
+
+  (when (not (version<= emacs-version "25.0"))
+  (setq window-divider-default-right-width 4
+        window-divider-default-places 'right-only)
+  (window-divider-mode 1))
+
+#+end_src
+
+* disable ugly button for checkboxes
+
+#+begin_src emacs-lisp
+
+  (setq widget-image-enable nil)
+
+#+end_src
+
+* declutter the gui environment
+#+begin_src emacs-lisp
+
+  (menu-bar-mode -1)
+  (when (display-graphic-p)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1))
+
+  (add-hook 'after-make-frame-functions
+	    (lambda (frame)
+	      (when (display-graphic-p frame)
+		(with-selected-frame frame
+		  ;; (set-frame-size frame 93 50)
+		  ;; (set-frame-position frame 0 15)
+		  ;; (set-window-margins nil 2)
+		  (scroll-bar-mode -1)
+		  (menu-bar-mode -1)
+		  (tool-bar-mode -1)))))
+
+#+end_src
+
+* more ui setting
+#+begin_src emacs-lisp
+
+  ;;; some minor ui and font settings
+  (set-window-margins nil 2)
+  (setq inhibit-startup-message t)
+  ;; (global-set-key (kbd "C-c m b") 'menu-bar-mode)
+  (column-number-mode 1)
+  (setq initial-scratch-message nil)
+  (setq battery-mode-line-format " [%b%p%% } ")
+  (display-battery-mode t)
+  ;; (display-time-mode t)
+  (setq frame-resize-pixelwise t)
+  (setq redisplay-skip-fontification-on-input t)
+  (setq idle-update-delay 1.0)
+  (setq compilation-scroll-output t)
+
+#+end_src
+
+* ending
+#+begin_src emacs-lisp
+;;; early-init.el ends here
+#+end_src
+
+
