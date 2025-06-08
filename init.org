@@ -1,4 +1,4 @@
-#+TITLE: early-init
+#+TITLE: init.el
 #+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
 #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 #+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
@@ -51,6 +51,7 @@
   (defvar my-config-org-files
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
 	    '(;; my config files go here they are org files
+	      rtfm.org
 	      )))
 
   (defvar my-compiled-config-dir (expand-file-name "compiled/" user-emacs-directory))

@@ -1,0 +1,95 @@
+#+TITLE: rtfm.el
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://classless.de/classless.css">
+# #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://a-dma.github.io/gruvbox-css/gruvbox-dark-medium.min.
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/npm/@exampledev/new.css/new.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/missing.css/dist/missing.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/boltcss/bolt.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.lite.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/neobrutalismcss@latest" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eobrain/classless-tufte-css@v1.0.1/tufte.min.css"/>
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/latex.css/style.min.css" />
+# #+HTML_HEAD: <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></scrip
+
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle init.el
+
+* beginning commentary
+#+begin_src emacs-lisp
+;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+
+;;; Commentary:
+;;
+;; Emacs HEAD (27+) introduces early-init.el, which is run before init.el,
+;; before package and UI initialization happens.
+;;
+
+;;; Code:
+
+#+end_src
+
+
+* vanilla emacs settings
+  
+** mostly related to initialization process
+
+*** earlyinits
+
+ This snippet ensures that users running versions of Emacs prior to
+ 27.0 can utilize custom configurations defined in early-init.el,
+ thereby enhancing their Emacs experience without disrupting
+ compatibility with newer versions.
+
+#+begin_src emacs-lisp
+
+(when (version< emacs-version "27.0")
+  (let ((dafile
+         (expand-file-name "early-init.el" user-emacs-directory)))
+    (when (file-exists-p dafile)
+      (load-file dafile))))
+
+#+end_src
+
+*** other init settings for speed
+
+Inhibit the default setting and kill scratch buffer to speedup
+initialization time and I don't like having an elisp interaction mode
+as the default scratch buffer.
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'inhibit-default-init t)
+;; (setq initial-major-mode 'fundamental-mode)
+(kill-buffer "*scratch*")
+
+#+end_src
+
+*** suppress some ad-handle-definition warnings
+
+Accept ad-redefinitions during advice redefintions. I want it to
+accept it to avoid warnings related to them. Original value was
+‘warn’.
+
+#+begin_src emacs-lisp
+
+(customize-set-variable 'ad-redefinition-action 'accept)
+
+#+end_src
+
+* ending
+#+begin_src emacs-lisp
+;;; rtfm.el ends here
+#+end_src
+
+
