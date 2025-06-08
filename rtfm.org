@@ -23,7 +23,7 @@
 #+OPTIONS: ^:nil
 #+OPTIONS: _:nil
 #+EXCLUDE_TAGS: noexport
-#+PROPERTY: header-args :tangle init.el
+#+PROPERTY: header-args :tangle (expand-file-name "compiled/rtfm.el" user-emacs-directory)
 
 * beginning commentary
 #+begin_src emacs-lisp
