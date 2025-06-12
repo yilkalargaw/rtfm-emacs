@@ -9,7 +9,7 @@
 
 * beginning commentary
 #+begin_src emacs-lisp
-;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+;;; early-init.el --- Initialization. -*- lexical-binding: t -*-
 
 ;;; Commentary:
 ;;
@@ -52,6 +52,7 @@
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
 	    '(;; my config files go here they are org files
 	      "rtfm.org"
+	      "themer.org"
 	      )))
 
   (defvar my-compiled-config-dir (expand-file-name "compiled/" user-emacs-directory))

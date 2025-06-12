@@ -86,6 +86,101 @@ accept it to avoid warnings related to them. Original value was
 
 #+end_src
 
+*** more garbage collection related settings
+
+Define functions to change gc-cons-threshold to the maximum fixnum so
+that garbage collection could be defered. This part delays garbage
+collection during minibuffer completions to until when you exit the
+minibuffer.
+
+#+begin_src emacs-lisp
+
+(defvar yae-gc-cons-threshold (* 32 1024 1024))
+
+(defun yae-defer-garbage-collection-h ()
+  (setq gc-cons-threshold most-positive-fixnum))
+
+(defun yae-restore-garbage-collection-h ()
+  ;; Defer it so that commands launched immediately after will enjoy the
+  ;; benefits.
+  (run-at-time
+   1 nil (lambda () (setq gc-cons-threshold (* 32 1024 1024)))))
+
+(add-hook 'minibuffer-setup-hook #'yae-defer-garbage-collection-h)
+(add-hook 'minibuffer-exit-hook #'yae-restore-garbage-collection-h)
+
+#+end_src
+
+* load-theme
+
+#+begin_src emacs-lisp
+
+(defconst theme-directory (expand-file-name "themes" user-emacs-directory))
+
+(unless (file-directory-p theme-directory)
+  (make-directory theme-directory))
+
+(add-to-list 'custom-theme-load-path
+             (expand-file-name "themes" user-emacs-directory))
+
+
+(let ((basedir theme-directory))
+  (dolist (f (directory-files basedir))
+    (if (and (not (or (equal f ".") (equal f "..")))
+             (file-directory-p (concat basedir f)))
+        (add-to-list 'custom-theme-load-path (concat basedir f)))))
+
+
+;; (add-hook 'after-init-time-hook
+;;           (if (require 'base16-theme nil 'noerror)
+;;               (load-theme 'base16-brewer t)
+;; 			  ;; (load-theme 'base16-black-metal-immortal t)
+;;             (load-theme 'yae_simple t)
+;;             ;; (load-theme 'wombat t)
+;;             ;; (load-theme 'manoj-dark t)
+;;             ;; (load-theme 'modus-vivendi t)
+;;             ))
+
+(add-hook 'after-init-time-hook
+          (progn
+            (load-theme 'rtfm-noone-dark t)))
+
+;; (add-hook 'after-init-hook (lambda () (load-theme 'xresources t)))
+;; (add-hook 'emacs-startup-hook (lambda () (load-theme 'xresources t)))
+
+#+end_src
+
+  
+* COMMENT initial scratch-buffer settings
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-time-hook (progn
+                 (switch-to-buffer "*scratch*")
+                 (lisp-interaction-mode)))
+
+#+end_src
+
+  
+* load custom faces
+
+#+begin_src emacs-lisp
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+              (when (file-exists-p dafile) (load-file dafile)))))
+
+(when EMACS27+
+  (add-hook 'server-after-make-frame-hook
+            (lambda ()
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile))))))
+
+#+end_src
+
+  
+
 * ending
 #+begin_src emacs-lisp
 ;;; rtfm.el ends here
