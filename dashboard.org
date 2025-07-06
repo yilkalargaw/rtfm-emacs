@@ -1,0 +1,165 @@
+#+TITLE: dashboard.el
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://classless.de/classless.css">
+# #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://a-dma.github.io/gruvbox-css/gruvbox-dark-medium.min.
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/npm/@exampledev/new.css/new.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/missing.css/dist/missing.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/boltcss/bolt.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.lite.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/neobrutalismcss@latest" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eobrain/classless-tufte-css@v1.0.1/tufte.min.css"/>
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/latex.css/style.min.css" />
+# #+HTML_HEAD: <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></scrip
+
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle (expand-file-name "compiled/dashboard.el" user-emacs-directory)
+
+
+* simple dashboard
+
+#+begin_src emacs-lisp
+
+(defun create-buttons-from-list (title button-list)
+  "Create buttons from BUTTON-LIST, where each element is a list
+containing a button label, description, and action."
+  (insert (format "\n%s\n" title))
+  (dolist (item button-list)
+    (let ((button-label (nth 0 item))          ; Get the button label
+          (button-description (nth 1 item))    ; Get the button description
+          (button-action (nth 2 item)))        ; Get the action to be executed
+      ;; Create the button for the label
+      (make-button 
+       (point) 
+       (progn 
+         (insert (format "[%s]" button-label)) ; Format the button label
+         (point)) 
+       'action button-action) ; Use the defined action
+        
+      ;; Insert the description below the button
+      (insert (format " %s\n" button-description))))) ; Add description
+
+(defun create-buttons-from-list-padded (title button-list num)
+  "Create buttons from BUTTON-LIST, where each element is a list
+containing a button label, description, and action."
+  (insert (format "%s%s%s%s"
+                  "\n"
+                  (make-string (if (> num 2) (- num 2) 0) ?\s)
+                  title
+                  "\n"))
+  (dolist (item button-list)
+    (let ((button-label (nth 0 item))          ; Get the button label
+          (button-description (nth 1 item))    ; Get the button description
+          (button-action (nth 2 item)))        ; Get the action to be executed
+      ;; Add padding before the button label
+      (insert (make-string num ?\s))
+      
+      ;; Create the button for the label
+      (make-button 
+       (point) 
+       (progn 
+         (insert (format "[%s]" button-label)) ; Format the button label
+         (point)) 
+       'action button-action) ; Use the defined action
+        
+      ;; Insert the description below the button
+      (insert (format "  %s\n" button-description))))) ; Add description
+
+
+  (defun yae-padd-lines (input-string num)
+    "Return a string with each line in INPUT-STRING padded with spaces
+  repeated NUM times, including empty lines."
+    (let ((lines (split-string input-string "\n" nil))  ; Split string into lines, keeping empty lines
+          (result ""))  ; Initialize an empty result string
+      (dolist (line lines)  ; Iterate over each line
+        (let ((padding (make-string num ?\s)))  ; Create padding with spaces
+          (setq result (concat result (format "%s%s\n" padding line)))))  ; Accumulate result
+      result))  ; Return the final accumulated string
+
+  (defun my-dashboard ()
+    "Display a simple welcome dashboard with clickable links."
+    (interactive)
+    (switch-to-buffer "*Dashboard*")
+    (erase-buffer) ; Clear the buffer
+    (insert "  Welcome to\n") ; Welcome message
+
+    ;; Define the ASCII art button locallay
+    (let ((ascii-art-button
+           "
+  ▒█▀▀█ ▀▀█▀▀ ▒█▀▀▀ ▒█▀▄▀█ 
+  ▒█▄▄▀ ░▒█░░ ▒█▀▀▀ ▒█▒█▒█ 
+  ▒█░▒█ ░▒█░░ ▒█░░░ ▒█░░▒█ 
+
+  ▒█▀▀▀ █▀▄▀█ █▀▀█ █▀▀ █▀▀ 
+  ▒█▀▀▀ █░▀░█ █▄▄█ █░░ ▀▀█ 
+  ▒█▄▄▄ ▀░░░▀ ▀░░▀ ▀▀▀ ▀▀▀
+
+     "))
+      
+      ;; Create ASCII art button
+      (make-button 
+       (point) 
+       (progn 
+         (insert (yae-padd-lines ascii-art-button 10)) ; Insert the ASCII art for the button
+         (point))
+       'action 
+       (lambda (_) 
+         (eww-browse-url "https://www.gnu.org/software/emacs/"))
+  	 'follow-link t         ; Make it behave like a link
+  	 'mouse-face 'highlight  ; Change mouse hover effect
+  	 'face 'default          ; Use default face for text
+  	 ':underline nil)) ; Action to open Emacs website
+
+    ;; ;; Optional: Add some spacing
+    ;; (insert (format "%s" (emacs-version)))
+
+    ;; Define buttons with actions
+    (let ((buttons
+           '(("Scratch Buffer" "Open scratch buffer" 
+              (lambda (_) (call-interactively 'create-scratch-buffer)))
+  		   ("Find File" "Open a File" 
+              (lambda (_) (call-interactively 'find-file)))
+  		   ("Dired" "Open a Directory" 
+              (lambda (_) (call-interactively 'dired)))
+  		   ("Recentf" "Open recent files" 
+              (lambda (_) (call-interactively 'recentf-open)))
+  		   ("Org Agenda" "Access your Agenda" 
+              (lambda (_) (call-interactively 'org-agenda)))
+  		   ("Emacs Manual" "Browse Emacs Manual" 
+              (lambda (_) (info-emacs-manual)))
+             ("Emacs Website" "Visit Emacs Website" 
+              (lambda (_) (eww-browse-url "https://www.gnu.org/software/emacs/"))))))
+
+  	(insert (make-string 0 10))
+      ;; Use updated function to create buttons with actions
+      (create-buttons-from-list-padded "Quick Links:" buttons 4))
+
+      (insert (format "\nEmacs started in %.2f seconds\n"
+          (float-time (time-subtract after-init-time before-init-time))))
+
+
+    ;; Disable line numbers
+    (setq display-line-numbers nil)
+
+    ;; Enable read-only mode
+    (read-only-mode 1)
+    ;; (beginning-of-buffer)
+    (goto-char (point-min)))
+
+  ;; ;; (global-set-key (kbd "C-c d") 'my-dashboard)
+  ;; (add-hook 'emacs-startup-hook 'my-dashboard)
+
+  (when (< (length command-line-args) 2) ;; Assume no file name passed
+    (add-hook 'emacs-startup-hook #'my-dashboard))
+
+#+end_src
