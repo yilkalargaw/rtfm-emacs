@@ -134,6 +134,16 @@
 #+end_src
 
 
+* headerline
+
+#+begin_src emacs-lisp
+
+(setq-default header-line-format '(:eval (substring ""
+                                                    (min (length " ")
+                                                         (window-hscroll)))))
+#+end_src
+
+
 * hook to allow recompilation of early-init
 #+begin_src emacs-lisp
 (add-hook 'after-save-hook
