@@ -21,6 +21,7 @@
 
 #+end_src
 
+
 * garbage collection threshold
   Increase garbage collection threshold for startup only to defer
   garbage collection further back in the startup process.
@@ -46,6 +47,7 @@
 
 #+end_src
 
+
 * inhibit frame resize
 
 #+begin_src emacs-lisp
@@ -53,6 +55,7 @@
   (setq frame-inhibit-implied-resize nil)
 
 #+end_src
+
 
 * set default-frame-settings
 #+begin_src emacs-lisp
@@ -64,6 +67,7 @@
   (push '(tool-bar-lines . 0) default-frame-alist)
 
 #+end_src
+
 
 * enable window divider
 
@@ -77,6 +81,7 @@
 
 #+end_src
 
+
 * disable ugly button for checkboxes
 
 #+begin_src emacs-lisp
@@ -84,6 +89,7 @@
   (setq widget-image-enable nil)
 
 #+end_src
+
 
 * declutter the gui environment
 #+begin_src emacs-lisp
@@ -106,6 +112,7 @@
 
 #+end_src
 
+
 * more ui setting
 #+begin_src emacs-lisp
 
@@ -126,6 +133,7 @@
 
 #+end_src
 
+
 * hook to allow recompilation of early-init
 #+begin_src emacs-lisp
 (add-hook 'after-save-hook
@@ -140,6 +148,7 @@
 	      (byte-compile-file (expand-file-name "early-init.el" user-emacs-directory))
 	      (message "Done! Reload with M-x load-file RET early-init.elc"))))
 #+end_src
+
 
 * ending
 #+begin_src emacs-lisp

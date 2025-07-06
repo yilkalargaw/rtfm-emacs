@@ -39,6 +39,7 @@
 
 #+end_src
 
+
 * vanilla emacs settings
   
 ** mostly related to initialization process
@@ -111,6 +112,7 @@ minibuffer.
 
 #+end_src
 
+
 * load-theme
 
 #+begin_src emacs-lisp
@@ -150,7 +152,7 @@ minibuffer.
 
 #+end_src
 
-  
+
 * COMMENT initial scratch-buffer settings
 
 #+begin_src emacs-lisp
