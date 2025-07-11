@@ -236,6 +236,166 @@ more predictable and intuitive programming.
 
 
 
+** window(frame) look and feel setting
+*** minor modes menu much like minions
+
+#+begin_src emacs-lisp
+
+(defun yae-minions--modes ()
+  (let (local global)
+    (dolist (entry minor-mode-alist)
+      (let ((mode (car entry)))
+        (when (and (boundp mode)
+                   (symbol-value mode))
+          (when (local-variable-if-set-p mode)
+            (push mode local)
+            (push mode global)))))
+    (list (sort local  #'string<)
+          (sort global #'string<))))
+
+(defun yae-minions-minor-modes-menu ()
+  (interactive)
+  (let ((map (make-sparse-keymap))
+        local global)
+    (let ((modes (yae-minions--modes)))
+      (setq local (nth 0 modes))
+      (setq global (nth 1 modes)))
+    (define-key-after map [--local] (list 'menu-item "Local Modes"))
+    (dolist (mode local)
+      (let ((menu (and (symbol-value mode)
+                       (yae-minions--mode-menu mode))))
+        (if menu
+            (define-key-after map (vector mode) menu)
+          (yae-minions--define-toggle map mode))))
+    (define-key-after map [--line2]  (list 'menu-item "--double-line"))
+    (define-key-after map [--global] (list 'menu-item "Global Modes"))
+    (dolist (mode global)
+      (let ((menu (and (symbol-value mode)
+                       (yae-minions--mode-menu mode))))
+        (if menu
+            (define-key-after map (vector mode) menu)
+          (yae-minions--define-toggle map mode))))
+    (define-key-after map [--line1] (list 'menu-item "--double-line"))
+    (define-key-after map [describe-mode]
+      (list 'menu-item "Describe modes" 'describe-mode))
+    (condition-case nil
+        (popup-menu map)
+      (quit nil))))
+
+(defun yae-minions--mode-menu (mode)
+  (let* ((map  (or (cdr (assq mode minor-mode-map-alist))
+                   (cdr (assq mode minor-mode-overriding-map-alist))))
+         (menu (and (keymapp map)
+                    (lookup-key map [menu-bar])))
+         (menu (and menu
+                    (mouse-menu-non-singleton menu))))
+    (and menu
+         (let ((wrap (make-sparse-keymap)))
+           (set-keymap-parent wrap menu)
+           (yae-minions--define-toggle wrap mode)
+           (define-key-after wrap [yae-minions] (list 'menu-item "--double-line"))
+           (list 'menu-item (symbol-name mode) wrap)))))
+
+(defun yae-minions--define-toggle (map mode)
+  (let ((fn (or (get mode :minor-mode-function) mode)))
+    (when (functionp fn)
+      (define-key-after map (vector mode)
+        (list 'menu-item (symbol-name mode) fn
+              :button (cons :toggle mode))))))
+
+#+end_src
+
+*** modify mode-line
+
+#+begin_src emacs-lisp
+
+(defun mode-line-split--format (left right)
+  "Return a string of `window-width' length containing LEFT and
+RIGHT, aligned respectively."
+  (let ((reserve (length right)))
+    (concat left
+        " "
+        (propertize " "
+            'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
+        right)))
+
+;; Set the new mode-line-format
+(if (display-graphic-p)
+  (setq-default mode-line-format
+        '((:eval
+           (mode-line-split--format
+            ;; Left
+            (format-mode-line
+             '("%e" mode-line-front-space
+           (:propertize
+            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+            display
+            (min-width
+             (5.0)))
+           mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+            ;; Right
+            (format-mode-line
+             '((vc-mode vc-mode)
+           "   "
+           mode-name " ";; "%m"
+           (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'yae-minions-minor-modes-menu)))
+           "   "
+           (:eval (propertize "[≡]" 'local-map (make-mode-line-mouse-map 'mouse-1 'menu-bar-open)))
+           " "
+           "  " mode-line-misc-info mode-line-end-spaces
+           )
+             )))))
+    (setq-default mode-line-format
+        '((:eval
+           (mode-line-split--format
+            ;; Left
+            (format-mode-line
+             '("%e" mode-line-front-space
+           (:propertize
+            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+            display
+            (min-width
+             (5.0)))
+           mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+            ;; Right
+            (format-mode-line
+             '((vc-mode vc-mode)
+           "   "
+           mode-name " ";; "%m"
+           "  " mode-line-misc-info mode-line-end-spaces
+           )
+             ))))))
+
+#+end_src
+
+*** headerline
+
+#+begin_src emacs-lisp
+
+(setq-default header-line-format '(:eval (substring ""
+                                                    (min (length " ")
+                                                         (window-hscroll)))))
+#+end_src
+
+*** disable dialogues
+
+#+begin_src emacs-lisp
+
+(setq use-dialog-box nil)
+(setq use-file-dialog nil)
+
+#+end_src
+
+*** cursor type
+#+begin_src emacs-lisp
+
+(setq-default cursor-type '(bar . 5))  ;; 'bar or 'box, 'hbar, etc.
+
+#+end_src
+
+
+
+
 * load-theme
 
 #+begin_src emacs-lisp

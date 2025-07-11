@@ -27,6 +27,8 @@
 
 * compat
 
+** compat functionss and macros
+
  These are compatibility functions and macros for my configuration to work with older versions of emacs.
  they include seq-do , seq-map seq-concatenate, setopt, string-trim, string-empty-p, if-let, when-let, pcase-lambda
     #+begin_src emacs-lisp
@@ -127,6 +129,174 @@
 
     #+end_src
     
+** define global-text-scaling for older versions
+#+begin_src emacs-lisp
+
+(defcustom global-text-scale-adjust-resizes-frames nil
+  "Whether `global-text-scale-adjust' resizes the frames."
+  :type '(choice (const :tag "Off" nil)
+                 (const :tag "On" t))
+  :group 'display
+  :version "29.1")
+
+(defcustom global-text-scale-adjust-limits '(10 . 500)
+  "Min/max values for `global-text-scale-adjust'.
+This is a cons cell where the `car' has the minimum font size and
+the `cdr' has the maximum font size, in units of 1/10 pt."
+  :version "29.1"
+  :group 'display
+  :type '(cons (integer :tag "Min")
+               (integer :tag "Max")))
+
+;; (defvar global-text-scale-adjust--default-height nil)
+
+;; (defvar global-text-scale-adjust--increment-factor 5)
+
+;; Most of what follows is stolen from emcs 29 because my functions to do global scaling
+;; depend on how I define fonts. This is the more flexable way to do it
+;; any modification to this code that deals with global-text-scaling will therefore
+;; follow the license that emacs enforces so read the emacs license
+(when (not EMACS29+)
+  (progn
+    (require 'face-remap)
+
+    (defcustom global-text-scale-adjust-resizes-frames nil
+      "Whether `global-text-scale-adjust' resizes the frames."
+      :type '(choice (const :tag "Off" nil)
+                     (const :tag "On" t))
+      :group 'display
+      :version "29.1")
+
+    (defcustom global-text-scale-adjust-limits '(10 . 500)
+      "Min/max values for `global-text-scale-adjust'.
+This is a cons cell where the `car' has the minimum font size and
+the `cdr' has the maximum font size, in units of 1/10 pt."
+      :version "29.1"
+      :group 'display
+      :type '(cons (integer :tag "Min")
+                   (integer :tag "Max")))
+
+    (defvar global-text-scale-adjust--default-height nil)
+
+    (defvar global-text-scale-adjust--increment-factor 5)
+
+
+    (defun global-text-scale-adjust (increment)
+      "Change (a.k.a. \"adjust\") the font size of all faces by INCREMENT.
+
+Interactively, INCREMENT is the prefix numeric argument, and defaults
+to 1.  Positive values of INCREMENT increase the font size, negative
+values decrease it.
+
+When you invoke this command, it performs the initial change of the
+font size, and after that allows further changes by typing one of the
+following keys immediately after invoking the command:
+
+   \\`+', \\`='   Globally increase the height of the default face
+   \\`-'      Globally decrease the height of the default face
+   \\`0'      Globally reset the height of the default face
+
+(The change of the font size produced by these keys depends on the
+final component of the key sequence, with all modifiers removed.)
+
+Buffer-local face adjustments have higher priority than global
+face adjustments.
+
+The variable `global-text-scale-adjust-resizes-frames' controls
+whether the frames are resized to keep the same number of lines
+and characters per line when the font size is adjusted.
+
+See also the related command `text-scale-adjust'.  Unlike that
+command, which scales the font size with a factor,
+`global-text-scale-adjust' scales the font size with an
+increment."
+      (interactive "p")
+      (when (display-graphic-p)
+        (unless global-text-scale-adjust--default-height
+          (setq global-text-scale-adjust--default-height
+                (face-attribute 'default :height)))
+        (let* ((key (event-basic-type last-command-event))
+               (echo-keystrokes nil)
+               (cur (face-attribute 'default :height))
+               (inc
+                (pcase key
+                  (?- (* (- increment)
+                         global-text-scale-adjust--increment-factor))
+                  (?0 (- global-text-scale-adjust--default-height cur))
+                  (_ (* increment
+                        global-text-scale-adjust--increment-factor))))
+               (new (+ cur inc)))
+          (when (< (car global-text-scale-adjust-limits)
+                   new
+                   (cdr global-text-scale-adjust-limits))
+            (let ((frame-inhibit-implied-resize
+                   (not global-text-scale-adjust-resizes-frames)))
+              (set-face-attribute 'default nil :height new)
+              (redisplay 'force)
+              (when (and (not (and (characterp key) (= key ?0)))
+                         (= cur (face-attribute 'default :height)))
+                (setq global-text-scale-adjust--increment-factor
+                      (1+ global-text-scale-adjust--increment-factor))
+                (global-text-scale-adjust increment))))
+          (when (characterp key)
+            (set-transient-map
+             (let ((map (make-sparse-keymap)))
+               (dolist (mod '(() (control meta)))
+                 (dolist (key '(?+ ?= ?- ?0))
+                   (define-key map (vector (append mod (list key)))
+                     'global-text-scale-adjust)))
+               map)
+             nil
+             (message "Use +, - or 0 for further adjustment"))))))
+
+    (define-key ctl-x-map [(control meta ?+)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?=)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?-)] 'global-text-scale-adjust)
+    (define-key ctl-x-map [(control meta ?0)] 'global-text-scale-adjust)
+
+
+  ;;    (defvar my-default-font-height (face-attribute 'default :height))
+  ;;    (defun my-set-to-default-font-height ()
+  ;;      (interactive)
+  ;;      ;; (set-face-attribute 'default nil :height my-default-font-height)
+  ;;      (set-face-font 'default my-default-font)
+  ;;      (message (number-to-string (face-attribute 'default :height))))
+
+
+  ;;    (defun my-increase-default-font-height ()
+  ;;      (interactive)
+  ;;      (let* ((default-face-height (face-attribute 'default :height)))
+  ;;        (set-face-attribute 'default nil :height (+ default-face-height 5))
+  ;;        (message (number-to-string (face-attribute 'default :height)))
+  ;;        ))
+
+
+  ;;    (defun my-decrease-default-font-height ()
+  ;;      (interactive)
+  ;;      (let* ((default-face-height (face-attribute 'default :height)))
+  ;;        (set-face-attribute 'default nil :height (- default-face-height 5))
+  ;;        (message (number-to-string (face-attribute 'default :height)))
+  ;;        ))
+
+  ;;    (global-set-key (kbd "C-M-=") 'my-increase-default-font-height)
+  ;;    (global-set-key (kbd "C-M--") 'my-decrease-default-font-height)
+  ;;    (global-set-key (kbd "C-M-0") 'my-set-to-default-font-height)
+
+
+;; (defadvice text-scale-increase (around all-buffers (arg) activate)
+;;   (dolist (buffer (buffer-list))
+;;     (with-current-buffer buffer
+;;       ad-do-it)))
+
+;; (defadvice text-scale-decrease (around all-buffers (arg) activate)
+;;   (dolist (buffer (buffer-list))
+;;     (with-current-buffer buffer
+;;       ad-do-it)))
+
+ ))
+
+#+end_src
+
 
 * ending
 #+begin_src emacs-lisp
