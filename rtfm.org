@@ -241,7 +241,7 @@ more predictable and intuitive programming.
 
 #+begin_src emacs-lisp
 
-(defun yae-minions--modes ()
+(defun rtfm-emacs-minions--modes ()
   (let (local global)
     (dolist (entry minor-mode-alist)
       (let ((mode (car entry)))
@@ -253,28 +253,28 @@ more predictable and intuitive programming.
     (list (sort local  #'string<)
           (sort global #'string<))))
 
-(defun yae-minions-minor-modes-menu ()
+(defun rtfm-emacs-minions-minor-modes-menu ()
   (interactive)
   (let ((map (make-sparse-keymap))
         local global)
-    (let ((modes (yae-minions--modes)))
+    (let ((modes (rtfm-emacs-minions--modes)))
       (setq local (nth 0 modes))
       (setq global (nth 1 modes)))
     (define-key-after map [--local] (list 'menu-item "Local Modes"))
     (dolist (mode local)
       (let ((menu (and (symbol-value mode)
-                       (yae-minions--mode-menu mode))))
+                       (rtfm-emacs-minions--mode-menu mode))))
         (if menu
             (define-key-after map (vector mode) menu)
-          (yae-minions--define-toggle map mode))))
+          (rtfm-emacs-minions--define-toggle map mode))))
     (define-key-after map [--line2]  (list 'menu-item "--double-line"))
     (define-key-after map [--global] (list 'menu-item "Global Modes"))
     (dolist (mode global)
       (let ((menu (and (symbol-value mode)
-                       (yae-minions--mode-menu mode))))
+                       (rtfm-emacs-minions--mode-menu mode))))
         (if menu
             (define-key-after map (vector mode) menu)
-          (yae-minions--define-toggle map mode))))
+          (rtfm-emacs-minions--define-toggle map mode))))
     (define-key-after map [--line1] (list 'menu-item "--double-line"))
     (define-key-after map [describe-mode]
       (list 'menu-item "Describe modes" 'describe-mode))
@@ -282,7 +282,7 @@ more predictable and intuitive programming.
         (popup-menu map)
       (quit nil))))
 
-(defun yae-minions--mode-menu (mode)
+(defun rtfm-emacs-minions--mode-menu (mode)
   (let* ((map  (or (cdr (assq mode minor-mode-map-alist))
                    (cdr (assq mode minor-mode-overriding-map-alist))))
          (menu (and (keymapp map)
@@ -292,11 +292,11 @@ more predictable and intuitive programming.
     (and menu
          (let ((wrap (make-sparse-keymap)))
            (set-keymap-parent wrap menu)
-           (yae-minions--define-toggle wrap mode)
-           (define-key-after wrap [yae-minions] (list 'menu-item "--double-line"))
+           (rtfm-emacs-minions--define-toggle wrap mode)
+           (define-key-after wrap [rtfm-emacs-minions] (list 'menu-item "--double-line"))
            (list 'menu-item (symbol-name mode) wrap)))))
 
-(defun yae-minions--define-toggle (map mode)
+(defun rtfm-emacs-minions--define-toggle (map mode)
   (let ((fn (or (get mode :minor-mode-function) mode)))
     (when (functionp fn)
       (define-key-after map (vector mode)
@@ -338,7 +338,7 @@ RIGHT, aligned respectively."
              '((vc-mode vc-mode)
            "   "
            mode-name " ";; "%m"
-           (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'yae-minions-minor-modes-menu)))
+           (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'rtfm-emacs-minions-minor-modes-menu)))
            "   "
            (:eval (propertize "[≡]" 'local-map (make-mode-line-mouse-map 'mouse-1 'menu-bar-open)))
            " "
@@ -416,37 +416,13 @@ RIGHT, aligned respectively."
         (add-to-list 'custom-theme-load-path (concat basedir f)))))
 
 
-;; (add-hook 'after-init-time-hook
-;;           (if (require 'base16-theme nil 'noerror)
-;;               (load-theme 'base16-brewer t)
-;; 			  ;; (load-theme 'base16-black-metal-immortal t)
-;;             (load-theme 'yae_simple t)
-;;             ;; (load-theme 'wombat t)
-;;             ;; (load-theme 'manoj-dark t)
-;;             ;; (load-theme 'modus-vivendi t)
-;;             ))
-
 (add-hook 'after-init-time-hook
           (progn
             (load-theme 'rtfm-noone-dark t)))
 
-;; (add-hook 'after-init-hook (lambda () (load-theme 'xresources t)))
-;; (add-hook 'emacs-startup-hook (lambda () (load-theme 'xresources t)))
-
 #+end_src
 
 
-* COMMENT initial scratch-buffer settings
-
-#+begin_src emacs-lisp
-
-(add-hook 'after-init-time-hook (progn
-                 (switch-to-buffer "*scratch*")
-                 (lisp-interaction-mode)))
-
-#+end_src
-
-  
 * load custom faces
 
 #+begin_src emacs-lisp
