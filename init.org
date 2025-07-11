@@ -52,6 +52,7 @@
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
 	    '(;; my config files go here they are org files
 	      "themer.org"
+	      "compat.org"
 	      "dashboard.org"
 	      "rtfm.org"
 	      )))

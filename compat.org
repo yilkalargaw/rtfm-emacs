@@ -1,0 +1,135 @@
+#+TITLE: compat.el
+#+AUTHOR: Yilkal Argaw , StackOverflow, Github, Emacs-wiki and The Internet in General
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://classless.de/classless.css">
+# #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://a-dma.github.io/gruvbox-css/gruvbox-dark-medium.min.
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/npm/@exampledev/new.css/new.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/missing.css/dist/missing.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsDeliver.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/boltcss/bolt.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alvaromontoro/almond.css@latest/dist/almond.lite.min.css" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/neobrutalismcss@latest" />
+# #+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/eobrain/classless-tufte-css@v1.0.1/tufte.min.css"/>
+# #+HTML_HEAD: <link rel="stylesheet" href="https://unpkg.com/latex.css/style.min.css" />
+# #+HTML_HEAD: <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></scrip
+
+#+INFOJS_OPT: view:overview toc:3 ltoc:3 mouse:underline buttons:0 path:https://orgmode.org/worg/code/org-info-js/org-info-src.js
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+EXCLUDE_TAGS: noexport
+#+PROPERTY: header-args :tangle (expand-file-name "compiled/compat.el" user-emacs-directory)
+
+* compat
+
+ These are compatibility functions and macros for my configuration to work with older versions of emacs.
+ they include seq-do , seq-map seq-concatenate, setopt, string-trim, string-empty-p, if-let, when-let, pcase-lambda
+    #+begin_src emacs-lisp
+
+    (unless (fboundp 'seq-do)
+      (defun seq-do (function sequence)
+        "Apply FUNCTION to each element of SEQUENCE for side effects.
+        FUNCTION must be a one-argument function, and SEQUENCE may be
+        a list, vector, or string."
+        (cond
+         ((listp sequence)
+          (mapc function sequence))
+         ((vectorp sequence)
+          (mapc function (append sequence nil)))
+         ((stringp sequence)
+          (mapc function (string-to-list sequence)))
+         (t
+          (error "Unsupported sequence type: %s" (type-of sequence))))))
+
+    (unless (fboundp 'seq-map)
+      (defun seq-map (function sequence)
+        "Apply FUNCTION to each element of SEQUENCE and return a sequence
+         of the same type. SEQUENCE may be a list, vector, or string."
+        (cond
+         ((listp sequence)
+          (mapcar function sequence))
+         ((vectorp sequence)
+          (apply 'vector (mapcar function (append sequence nil))))
+         ((stringp sequence)
+          (concat (mapcar function (string-to-list sequence))))
+         (t
+          (error "Unsupported sequence type: %s" (type-of sequence))))))
+
+    (unless (fboundp 'seq-concatenate)
+      (defun seq-concatenate (type &rest sequences)
+        "Concatenate SEQUENCES into a single sequence of TYPE.
+        TYPE can be \\'list, \\'vector, or \\'string."
+        (cond
+         ((eq type 'list)
+          (apply #'append sequences))
+         ((eq type 'vector)
+          (apply #'vconcat sequences))
+         ((eq type 'string)
+          (mapconcat #'identity sequences ""))
+         (t
+          (error "Unsupported type: %s" type)))))
+
+    (unless (fboundp 'setopt)
+      (defmacro setopt (&rest args)
+        "Set user options using `customize-set-variable' (for Emacs < 29 compatibility).
+            Accepts VAR VAL pairs, like `setq'."
+        (let ((forms '()))
+          (while args
+            (let ((var (pop args))
+                  (val (pop args)))
+              (push `(customize-set-variable ',var ,val) forms)))
+          `(progn ,@(nreverse forms)))))
+
+    (unless (require 'subr-x nil 'noerror)
+      ;; Define string-trim if missing
+      (unless (fboundp 'string-trim)
+        (defun string-trim (string)
+          "Remove leading and trailing whitespace from STRING."
+          (replace-regexp-in-string
+           "\\`[ \t\n\r]+" ""
+           (replace-regexp-in-string "[ \t\n\r]+\\'" "" string))))
+
+      ;; Define string-empty-p if missing
+      (unless (fboundp 'string-empty-p)
+        (defun string-empty-p (string)
+          "Return non-nil if STRING is empty or nil."
+          (or (null string) (string= string ""))))
+
+      ;; Define if-let as macro
+      (unless (fboundp 'if-let)
+        (defmacro if-let (binding then &optional else)
+          "Emacs 24-compatible version of `if-let'. BINDING should be (VAR VAL)."
+          (let ((var (car binding))
+                (val (cadr binding)))
+            `(let ((,var ,val))
+               (if ,var ,then ,else)))))
+
+      ;; when-let for convenience
+      (unless (fboundp 'when-let)
+        (defmacro when-let (binding &rest body)
+          "Emacs 24-compatible version of `when-let'. BINDING should be (VAR VAL)."
+          (let ((var (car binding))
+                (val (cadr binding)))
+            `(let ((,var ,val))
+               (when ,var ,@body))))))
+
+    ;; pcase-lambda (from pcase.el)
+    (unless (fboundp 'pcase-lambda)
+      (defmacro pcase-lambda (args &rest body)
+        `(lambda (&rest args)
+           (pcase args
+             ((list ,@args) ,@body)))))
+
+    #+end_src
+    
+
+* ending
+#+begin_src emacs-lisp
+;;; compat.el ends here
+#+end_src
+
