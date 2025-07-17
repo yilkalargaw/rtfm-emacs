@@ -1079,7 +1079,7 @@
 
 #+END_SRC
 
-* use the macro to generat the theme
+* use the macro to generate the theme
 
 #+BEGIN_SRC emacs-lisp
 (defun rtfm-generate-theme-files (output-dir)
