@@ -27,15 +27,15 @@
 
 * beginning commentary
 #+begin_src emacs-lisp
-;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+  ;;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
 
-;;; Commentary:
-;;
-;; Emacs HEAD (27+) introduces early-init.el, which is run before init.el,
-;; before package and UI initialization happens.
-;;
+  ;;; Commentary:
+  ;;
+  ;; Emacs HEAD (27+) introduces early-init.el, which is run before init.el,
+  ;; before package and UI initialization happens.
+  ;;
 
-;;; Code:
+  ;;; Code:
 
 #+end_src
 
@@ -46,26 +46,26 @@
 
 *** earlyinits
 
- This snippet ensures that users running versions of Emacs prior to
- 27.0 can utilize custom configurations defined in early-init.el,
- thereby enhancing their Emacs experience without disrupting
- compatibility with newer versions.
+This snippet ensures that users running versions of Emacs prior to
+27.0 can utilize custom configurations defined in early-init.el,
+thereby enhancing their Emacs experience without disrupting
+compatibility with newer versions.
 
 #+begin_src emacs-lisp
 
   (when (version< emacs-version "27.0")
     (let ((dafile
-	   (expand-file-name "early-init.el" user-emacs-directory)))
+           (expand-file-name "early-init.el" user-emacs-directory)))
       (when (file-exists-p dafile)
-	(load-file dafile))))
+        (load-file dafile))))
 
 #+end_src
 
 *** other init settings for speed
 
- Inhibit the default setting and kill scratch buffer to speedup
- initialization time and I don't like having an elisp interaction mode
- as the default scratch buffer.
+Inhibit the default setting and kill scratch buffer to speedup
+initialization time and I don't like having an elisp interaction mode
+as the default scratch buffer.
 
 #+begin_src emacs-lisp
 
@@ -77,9 +77,9 @@
 
 *** suppress some ad-handle-definition warnings
 
- Accept ad-redefinitions during advice redefintions. I want it to
- accept it to avoid warnings related to them. Original value was
- ‘warn’.
+Accept ad-redefinitions during advice redefintions. I want it to
+accept it to avoid warnings related to them. Original value was
+‘warn’.
 
 #+begin_src emacs-lisp
 
@@ -89,26 +89,26 @@
 
 *** more garbage collection related settings
 
- Define functions to change gc-cons-threshold to the maximum fixnum so
- that garbage collection could be defered. This part delays garbage
- collection during minibuffer completions to until when you exit the
- minibuffer.
+Define functions to change gc-cons-threshold to the maximum fixnum so
+that garbage collection could be defered. This part delays garbage
+collection during minibuffer completions to until when you exit the
+minibuffer.
 
 #+begin_src emacs-lisp
 
-  (defvar yae-gc-cons-threshold (* 32 1024 1024))
+  (defvar rtfm-emacs-gc-cons-threshold (* 32 1024 1024))
 
-  (defun yae-defer-garbage-collection-h ()
+  (defun rtfm-emacs-defer-garbage-collection-h ()
     (setq gc-cons-threshold most-positive-fixnum))
 
-  (defun yae-restore-garbage-collection-h ()
+  (defun rtfm-emacs-restore-garbage-collection-h ()
     ;; Defer it so that commands launched immediately after will enjoy the
     ;; benefits.
     (run-at-time
      1 nil (lambda () (setq gc-cons-threshold (* 32 1024 1024)))))
 
-  (add-hook 'minibuffer-setup-hook #'yae-defer-garbage-collection-h)
-  (add-hook 'minibuffer-exit-hook #'yae-restore-garbage-collection-h)
+  (add-hook 'minibuffer-setup-hook #'rtfm-emacs-defer-garbage-collection-h)
+  (add-hook 'minibuffer-exit-hook #'rtfm-emacs-restore-garbage-collection-h)
 
 #+end_src
 
@@ -117,26 +117,26 @@
 
 *** COMMENT constants
 
- Dynamically generate version-specific constants for Emacs versions 24
- through 35 and defines constants to identify the operating system
- type. This allows for easy conditional checks based on both Emacs
- version and the underlying system, facilitating cross-platform
- compatibility in configurations.
+Dynamically generate version-specific constants for Emacs versions 24
+through 35 and defines constants to identify the operating system
+type. This allows for easy conditional checks based on both Emacs
+version and the underlying system, facilitating cross-platform
+compatibility in configurations.
 
 #+begin_src emacs-lisp
 
   ;; define  variables by using a macro that generates and evaluates as below
   ;; (defconst EMACS24+   (> emacs-major-version 23)) using macros
-  (defmacro yae-gen-ver-consts (var)
+  (defmacro rtfm-emacs-gen-ver-consts (var)
     "Define a macro to create constants to check Emacs version greater than VAR."
     (list 'defconst
-	  (intern (concat "EMACS" (int-to-string var) "+"))
-	  (> emacs-major-version (- var 1))))
+          (intern (concat "EMACS" (int-to-string var) "+"))
+          (> emacs-major-version (- var 1))))
 
   ;;evaluate the macro for the number range we want
-  (seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
+  (seq-do (lambda (x) (eval (list 'rtfm-emacs-gen-ver-consts x))) (number-sequence 24 35))
 
-  ;; (map #(eval (list 'yae-gen-ver-consts %)) (range 24 36))
+  ;; (map #(eval (list 'rtfm-emacs-gen-ver-consts %)) (range 24 36))
 
   (defconst IS-MAC     (eq system-type 'darwin))
   (defconst IS-LINUX   (eq system-type 'gnu/linux))
@@ -147,9 +147,9 @@
 
 *** custom-file settings
 
- Direct Emacs to save custom settings in a specific file (custom.el),
- which helps in organizing user configurations and maintaining them
- separately from the main configuration file.
+Direct Emacs to save custom settings in a specific file (custom.el),
+which helps in organizing user configurations and maintaining them
+separately from the main configuration file.
 
 #+begin_src emacs-lisp
 
@@ -172,35 +172,35 @@
   ;; dependencies it pulls in from all corners of the globe. Let's try to be at
   ;; least a little more discerning.
   (with-no-warnings
-  
+
     (setq gnutls-verify-error (not (getenv-internal "INSECURE"))
-	  gnutls-algorithm-priority
-	  (when (boundp 'libgnutls-version)
-	    (concat "SECURE128:+SECURE192:-VERS-ALL"
-		    (if (and (not IS-WINDOWS)
-			     (not (version< emacs-version "26.3"))
-			     (>= libgnutls-version 30605))
-			":+VERS-TLS1.3")
-		    ":+VERS-TLS1.2"))
-	  ;; `gnutls-min-prime-bits' is set based on recommendations from
-	  ;; https://www.keylength.com/en/4/
-	  gnutls-min-prime-bits 3072
-	  tls-checktrust gnutls-verify-error
-	  ;; Emacs is built with `gnutls' by default, so `tls-program' would not be
-	  ;; used in that case. Otherwise, people have reasons to not go with
-	  ;; `gnutls', we use `openssl' instead. For more details, see
-	  ;; https://redd.it/8sykl1
-	  tls-program '("openssl s_client -connect %h:%p -CAfile %t -nbio -no_ssl3 -no_tls1 -no_tls1_1 -ign_eof"
-			"gnutls-cli -p %p --dh-bits=3072 --ocsp --x509cafile=%t \
+          gnutls-algorithm-priority
+          (when (boundp 'libgnutls-version)
+            (concat "SECURE128:+SECURE192:-VERS-ALL"
+                    (if (and (not IS-WINDOWS)
+                             (not (version< emacs-version "26.3"))
+                             (>= libgnutls-version 30605))
+                        ":+VERS-TLS1.3")
+                    ":+VERS-TLS1.2"))
+          ;; `gnutls-min-prime-bits' is set based on recommendations from
+          ;; https://www.keylength.com/en/4/
+          gnutls-min-prime-bits 3072
+          tls-checktrust gnutls-verify-error
+          ;; Emacs is built with `gnutls' by default, so `tls-program' would not be
+          ;; used in that case. Otherwise, people have reasons to not go with
+          ;; `gnutls', we use `openssl' instead. For more details, see
+          ;; https://redd.it/8sykl1
+          tls-program '("openssl s_client -connect %h:%p -CAfile %t -nbio -no_ssl3 -no_tls1 -no_tls1_1 -ign_eof"
+                        "gnutls-cli -p %p --dh-bits=3072 --ocsp --x509cafile=%t \
   --strict-tofu --priority='SECURE192:+SECURE128:-VERS-ALL:+VERS-TLS1.2:+VERS-TLS1.3' %h"
-			;; compatibility fallbacks
-			"gnutls-cli -p %p %h"))
+                        ;; compatibility fallbacks
+                        "gnutls-cli -p %p %h"))
 
     ;; Emacs stores `authinfo' in $HOME and in plain-text. Let's not do that, mkay?
     ;; This file stores usernames, passwords, and other such treasures for the
     ;; aspiring malicious third party.
     (setq auth-sources (list (expand-file-name "authinfo.gpg"  user-emacs-directory)
-			     "~/.authinfo.gpg")))
+                             "~/.authinfo.gpg")))
 
   ;;gnutls
   (add-hook 'after-init-time-hook (setq gnutls-min-prime-bits 4096))
@@ -209,8 +209,8 @@
 
 *** encryption related additional
 
- Select gpg2 for the gpg version to use and specify authinfo.gpg for
- credentials.
+Select gpg2 for the gpg version to use and specify authinfo.gpg for
+credentials.
 
 #+begin_src emacs-lisp
 
@@ -221,11 +221,11 @@
 
 *** lexical binding
 
- Lexical binding is a feature in Emacs Lisp (Elisp) that allows
- variables to be bound within the scope where they are defined, rather
- than dynamically through the call stack. This mechanism significantly
- influences how variables behave and are accessed in Elisp, leading to
- more predictable and intuitive programming.
+Lexical binding is a feature in Emacs Lisp (Elisp) that allows
+variables to be bound within the scope where they are defined, rather
+than dynamically through the call stack. This mechanism significantly
+influences how variables behave and are accessed in Elisp, leading to
+more predictable and intuitive programming.
 
 #+begin_src emacs-lisp
 
@@ -244,64 +244,64 @@
   (defun rtfm-emacs-minions--modes ()
     (let (local global)
       (dolist (entry minor-mode-alist)
-	(let ((mode (car entry)))
-	  (when (and (boundp mode)
-		     (symbol-value mode))
-	    (when (local-variable-if-set-p mode)
-	      (push mode local)
-	      (push mode global)))))
+        (let ((mode (car entry)))
+          (when (and (boundp mode)
+                     (symbol-value mode))
+            (when (local-variable-if-set-p mode)
+              (push mode local)
+              (push mode global)))))
       (list (sort local  #'string<)
-	    (sort global #'string<))))
+            (sort global #'string<))))
 
   (defun rtfm-emacs-minions-minor-modes-menu ()
     (interactive)
     (let ((map (make-sparse-keymap))
-	  local global)
+          local global)
       (let ((modes (rtfm-emacs-minions--modes)))
-	(setq local (nth 0 modes))
-	(setq global (nth 1 modes)))
+        (setq local (nth 0 modes))
+        (setq global (nth 1 modes)))
       (define-key-after map [--local] (list 'menu-item "Local Modes"))
       (dolist (mode local)
-	(let ((menu (and (symbol-value mode)
-			 (rtfm-emacs-minions--mode-menu mode))))
-	  (if menu
-	      (define-key-after map (vector mode) menu)
-	    (rtfm-emacs-minions--define-toggle map mode))))
+        (let ((menu (and (symbol-value mode)
+                         (rtfm-emacs-minions--mode-menu mode))))
+          (if menu
+              (define-key-after map (vector mode) menu)
+            (rtfm-emacs-minions--define-toggle map mode))))
       (define-key-after map [--line2]  (list 'menu-item "--double-line"))
       (define-key-after map [--global] (list 'menu-item "Global Modes"))
       (dolist (mode global)
-	(let ((menu (and (symbol-value mode)
-			 (rtfm-emacs-minions--mode-menu mode))))
-	  (if menu
-	      (define-key-after map (vector mode) menu)
-	    (rtfm-emacs-minions--define-toggle map mode))))
+        (let ((menu (and (symbol-value mode)
+                         (rtfm-emacs-minions--mode-menu mode))))
+          (if menu
+              (define-key-after map (vector mode) menu)
+            (rtfm-emacs-minions--define-toggle map mode))))
       (define-key-after map [--line1] (list 'menu-item "--double-line"))
       (define-key-after map [describe-mode]
-	(list 'menu-item "Describe modes" 'describe-mode))
+        (list 'menu-item "Describe modes" 'describe-mode))
       (condition-case nil
-	  (popup-menu map)
-	(quit nil))))
+          (popup-menu map)
+        (quit nil))))
 
   (defun rtfm-emacs-minions--mode-menu (mode)
     (let* ((map  (or (cdr (assq mode minor-mode-map-alist))
-		     (cdr (assq mode minor-mode-overriding-map-alist))))
-	   (menu (and (keymapp map)
-		      (lookup-key map [menu-bar])))
-	   (menu (and menu
-		      (mouse-menu-non-singleton menu))))
+                     (cdr (assq mode minor-mode-overriding-map-alist))))
+           (menu (and (keymapp map)
+                      (lookup-key map [menu-bar])))
+           (menu (and menu
+                      (mouse-menu-non-singleton menu))))
       (and menu
-	   (let ((wrap (make-sparse-keymap)))
-	     (set-keymap-parent wrap menu)
-	     (rtfm-emacs-minions--define-toggle wrap mode)
-	     (define-key-after wrap [rtfm-emacs-minions] (list 'menu-item "--double-line"))
-	     (list 'menu-item (symbol-name mode) wrap)))))
+           (let ((wrap (make-sparse-keymap)))
+             (set-keymap-parent wrap menu)
+             (rtfm-emacs-minions--define-toggle wrap mode)
+             (define-key-after wrap [rtfm-emacs-minions] (list 'menu-item "--double-line"))
+             (list 'menu-item (symbol-name mode) wrap)))))
 
   (defun rtfm-emacs-minions--define-toggle (map mode)
     (let ((fn (or (get mode :minor-mode-function) mode)))
       (when (functionp fn)
-	(define-key-after map (vector mode)
-	  (list 'menu-item (symbol-name mode) fn
-		:button (cons :toggle mode))))))
+        (define-key-after map (vector mode)
+          (list 'menu-item (symbol-name mode) fn
+                :button (cons :toggle mode))))))
 
 #+end_src
 
@@ -314,57 +314,57 @@
   RIGHT, aligned respectively."
     (let ((reserve (length right)))
       (concat left
-	      " "
-	      (propertize " "
-			  'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
-	      right)))
+              " "
+              (propertize " "
+                          'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
+              right)))
 
   ;; Set the new mode-line-format
   (if (display-graphic-p)
       (setq-default mode-line-format
-		    '((:eval
-		       (mode-line-split--format
-			;; Left
-			(format-mode-line
-			 '("%e" mode-line-front-space
-			   (:propertize
-			    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-			    display
-			    (min-width
-			     (5.0)))
-			   mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
-			;; Right
-			(format-mode-line
-			 '((vc-mode vc-mode)
-			   "   "
-			   mode-name " ";; "%m"
-			   (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'rtfm-emacs-minions-minor-modes-menu)))
-			   "   "
-			   (:eval (propertize "[≡]" 'local-map (make-mode-line-mouse-map 'mouse-1 'menu-bar-open)))
-			   " "
-			   "  " mode-line-misc-info mode-line-end-spaces
-			   )
-			 )))))
+                    '((:eval
+                       (mode-line-split--format
+                        ;; Left
+                        (format-mode-line
+                         '("%e" mode-line-front-space
+                           (:propertize
+                            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+                            display
+                            (min-width
+                             (5.0)))
+                           mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+                        ;; Right
+                        (format-mode-line
+                         '((vc-mode vc-mode)
+                           "   "
+                           mode-name " ";; "%m"
+                           (:eval (propertize "[+]" 'local-map (make-mode-line-mouse-map 'mouse-1 'rtfm-emacs-minions-minor-modes-menu)))
+                           "   "
+                           (:eval (propertize "[≡]" 'local-map (make-mode-line-mouse-map 'mouse-1 'menu-bar-open)))
+                           " "
+                           "  " mode-line-misc-info mode-line-end-spaces
+                           )
+                         )))))
     (setq-default mode-line-format
-		  '((:eval
-		     (mode-line-split--format
-		      ;; Left
-		      (format-mode-line
-		       '("%e" mode-line-front-space
-			 (:propertize
-			  ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-			  display
-			  (min-width
-			   (5.0)))
-			 mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
-		      ;; Right
-		      (format-mode-line
-		       '((vc-mode vc-mode)
-			 "   "
-			 mode-name " ";; "%m"
-			 "  " mode-line-misc-info mode-line-end-spaces
-			 )
-		       ))))))
+                  '((:eval
+                     (mode-line-split--format
+                      ;; Left
+                      (format-mode-line
+                       '("%e" mode-line-front-space
+                         (:propertize
+                          ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+                          display
+                          (min-width
+                           (5.0)))
+                         mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position))
+                      ;; Right
+                      (format-mode-line
+                       '((vc-mode vc-mode)
+                         "   "
+                         mode-name " ";; "%m"
+                         "  " mode-line-misc-info mode-line-end-spaces
+                         )
+                       ))))))
 
 #+end_src
 
@@ -373,8 +373,8 @@
 #+begin_src emacs-lisp
 
   (setq-default header-line-format '(:eval (substring ""
-						      (min (length " ")
-							   (window-hscroll)))))
+                                                      (min (length " ")
+                                                           (window-hscroll)))))
 #+end_src
 
 *** disable dialogues
@@ -398,8 +398,8 @@
 
 ** require some libraries
 
- Require some libraries like cl-lib and color because they are
- necessary for the rest of the config.
+Require some libraries like cl-lib and color because they are
+necessary for the rest of the config.
 
 #+begin_src emacs-lisp
 
@@ -410,6 +410,7 @@
 
 #+end_src
 
+
 ** set load path
 
 #+begin_src emacs-lisp
@@ -418,9 +419,9 @@
     "Add all directories under DIR to `load-path` if not already present."
     (dolist (subdir (directory-files dir t "^[^.]"))  ; Iterate over non-hidden files
       (when (file-directory-p subdir)                 ; Check if it's a directory
-	(unless (member subdir load-path)              ; If not already in load-path
-	  (add-to-list 'load-path subdir))             ; Add it to load-path
-	(add-subdirs-to-load-path subdir))))            ; Recursively call for subdirectories
+        (unless (member subdir load-path)              ; If not already in load-path
+          (add-to-list 'load-path subdir))             ; Add it to load-path
+        (add-subdirs-to-load-path subdir))))            ; Recursively call for subdirectories
 
   ;; Example usage: Add all subdirectories of the site-lisp directory to load-path
   (let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
@@ -433,6 +434,466 @@
 #+end_src
 
 
+** basic emacs editor preferences
+*** set utf-8 as default coding system
+
+#+begin_src emacs-lisp
+
+  (set-language-environment "UTF-8")
+
+#+end_src
+
+*** autorevert
+
+#+begin_src emacs-lisp
+
+  (add-hook 'after-init-hook  #'global-auto-revert-mode)
+
+#+end_src
+
+*** revert buffer on f5
+
+#+begin_src emacs-lisp
+
+  (defun rtfm-revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer :ignore-auto :noconfirm))
+
+  (global-set-key (kbd "<f5>") #'rtfm-revert-buffer-no-confirm)
+
+#+end_src
+
+*** backup and auto-save-list
+
+#+begin_src emacs-lisp
+
+  ;;backups
+
+  (let ((thedir  (expand-file-name "auto-save-list" user-emacs-directory)))
+    (unless (file-directory-p thedir)
+      (make-directory thedir)))
+
+  (let ((thedir  (expand-file-name "backups" user-emacs-directory)))
+    (unless (file-directory-p thedir)
+      (make-directory thedir)))
+
+  (setq ;; backup-directory-alist '(((expand-file-name "backups" user-emacs-directory)))
+   backup-by-copying t    ; Don't delink hardlinks
+   version-control t      ; Use version numbers on backups
+   delete-old-versions t  ; Automatically delete excess backups
+   kept-new-versions 20   ; how many of the newest versions to keep
+   kept-old-versions 5    ; and how many of the old
+   ;;auto-save-file-name-transforms `((expand-file-name "backups" user-emacs-directory) t)
+   auto-save-file-name-transforms
+   `((".*" ,(expand-file-name  "auto-save-list" user-emacs-directory) t))
+   backup-directory-alist
+   `((".*" . ,(expand-file-name  "backups" user-emacs-directory)))
+   )
+
+#+end_src
+
+*** clipboard
+
+#+begin_src emacs-lisp
+
+  ;;clipboard
+
+  (customize-set-variable 'select-enable-clipboard t)
+
+#+end_src
+
+*** yes,no
+
+#+begin_src emacs-lisp
+
+  ;;yes,no
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+#+end_src
+
+*** enable some disabled commands
+
+#+begin_src emacs-lisp
+
+  ;; enable narrowing commands
+  (put 'narrow-to-region 'disabled nil)
+  (put 'narrow-to-page 'disabled nil)
+  (put 'narrow-to-defun 'disabled nil)
+
+  ;; enabled change region case commands
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+
+#+end_src
+
+*** indentation stuff
+
+#+begin_src emacs-lisp
+
+  ;; ;; to setup tabs
+  ;; (setq c-basic-indent 2)
+  ;; (setq tab-width 4)
+  ;; (setq indent-tabs-mode nil)
+
+  (defvaralias 'c-basic-offset 'tab-width)
+  (defvaralias 'c-basic-indent 'tab-width)
+  (defvaralias 'cperl-indent-level 'tab-width)
+  (customize-set-variable 'indent-tabs-mode nil)
+  (setq-default tab-width 4)
+
+  ;; make tab key do indent first then completion.
+  (setq-default tab-always-indent 'complete)
+
+#+end_src
+
+*** Sentences end with a single space
+
+#+begin_src emacs-lisp
+
+  (customize-set-variable 'sentence-end-double-space nil)
+
+#+end_src
+
+*** line-spacing
+
+#+begin_src emacs-lisp
+
+  (setq-default line-spacing 0.1)
+  (add-hook 'minibuffer-setup-hook (lambda () (setq line-spacing nil)))
+
+#+end_src
+
+*** line-number
+
+#+begin_src emacs-lisp
+
+  ;;line-numbers
+
+  (when EMACS26+
+    (setq-default display-line-numbers-type 'relative
+                  display-line-numbers-grow-only t
+                  display-line-numbers-width-start t
+                  display-line-numbers-width 4 )
+
+    (global-display-line-numbers-mode t))
+
+#+end_src
+
+*** show-parens
+
+#+begin_src emacs-lisp
+
+  (customize-set-variable 'show-paren-mode t)
+
+#+end_src
+
+*** scrolling
+**** horizontal scrolling
+
+#+begin_src emacs-lisp
+
+  (add-hook 'prog-mode-hook (lambda () (setq truncate-lines t)))
+  (add-hook 'html-mode-hook (lambda () (setq truncate-lines t)))
+  (add-hook 'web-mode-hook (lambda () (setq truncate-lines t)))
+  (add-hook 'dired-mode-hook (lambda () (setq truncate-lines t)))
+  (add-hook 'org-mode (lambda () (setq truncate-lines nil)))
+  ;; (add-hook 'eww-after-render-hook (lambda () (setq truncate-lines t)))
+
+  (customize-set-variable 'hscroll-margin 0)
+
+  (global-set-key (kbd "<mouse-7>") #'(lambda ()
+                                        (interactive)
+                                        (scroll-left 4)))
+
+  (global-set-key (kbd "<mouse-6>") #'(lambda ()
+                                        (interactive)
+                                        (scroll-right 4)))
+
+#+end_src
+
+**** smooth-scrolling
+
+#+begin_src emacs-lisp
+  ;; Make scrolling less stuttered
+  (when EMACS29+
+    (pixel-scroll-precision-mode t)
+    (setq-default pixel-scroll-precision-large-scroll-height 40.0
+                  pixel-scroll-precision-interpolation-factor 30))
+
+  (customize-set-variable 'auto-window-vscroll nil)
+  (customize-set-variable 'fast-but-imprecise-scrolling t)
+  (customize-set-variable 'scroll-conservatively 101)
+  (customize-set-variable 'scroll-margin 0)
+  (customize-set-variable 'scroll-preserve-screen-position t)
+  ;; (customize-set-variable 'mouse-wheel-progressive-speed t)
+
+#+end_src
+
+*** marking
+
+#+begin_src emacs-lisp
+
+  (transient-mark-mode 1)
+
+  (delete-selection-mode 1)
+
+  (defun push-mark-no-activate ()
+    "Pushes `point' to `mark-ring' and does not activate the region
+   Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
+    (interactive)
+    (push-mark (point) t nil)
+    (message "Pushed mark to ring"))
+
+  (defun jump-to-mark ()
+    "Jumps to the local mark, respecting the `mark-ring' order.
+  This is the same as using \\[set-mark-command] with the prefix argument."
+    (interactive)
+    (set-mark-command 1))
+
+  (defun exchange-point-and-mark-no-activate ()
+    "Identical to \\[exchange-point-and-mark] but will not activate the region."
+    (interactive)
+    (exchange-point-and-mark)
+    (deactivate-mark nil))
+
+#+end_src
+
+*** isearch
+
+#+begin_src emacs-lisp
+
+  (setq-default
+   ;; Match count next to the minibuffer prompt
+   isearch-lazy-count t
+   ;; Don't be stingy with history; default is to keep just 16 entries
+   search-ring-max 200
+   regexp-search-ring-max 200)
+
+  ;; swiper like fuzzy search
+  ;; (setq-default
+  ;;  isearch-regexp-lax-whitespace t
+  ;;  search-whitespace-regexp ".*?")
+
+  ;; (defun move-end-of-line-maybe-ending-isearch (arg)
+  ;; "End search and move to end of line, but only if already at the end of the minibuffer."
+  ;;   (interactive "p")
+  ;;   (if (eobp)
+  ;;       (isearch-mb--after-exit
+  ;;        (lambda ()
+  ;;          (move-end-of-line arg)
+  ;;          (isearch-done)))
+  ;;     (move-end-of-line arg)))
+
+  ;; (define-key isearch-mb-minibuffer-map (kbd "C-e") 'move-end-of-line-maybe-ending-isearch)
+
+#+end_src
+
+*** explicitly set shell
+
+#+begin_src emacs-lisp
+
+  ;; (customize-set-variable 'explicit-shell-file-name "/bin/bash")
+
+  (if (executable-find "bash")
+      (customize-set-variable 'explicit-shell-file-name "/bin/bash")
+    (customize-set-variable 'explicit-shell-file-name "/bin/sh"))
+
+#+end_src
+
+*** better support for long lines
+
+#+begin_src emacs-lisp
+
+  ;; Better support for files with long lines
+  (setq-default bidi-paragraph-direction 'left-to-right)
+  (setq-default bidi-inhibit-bpa t)
+  (when EMACS27+
+    (global-so-long-mode 1))
+
+#+end_src
+
+*** rectangle mode
+
+#+begin_src emacs-lisp
+
+  (require 'rect)
+  (with-eval-after-load 'rect
+    ;; (define-key rectangle-mark-mode-map (kbd "f") #'rectangle-right-char)
+    ;; (define-key rectangle-mark-mode-map (kbd "b") #'rectangle-left-char)
+    (define-key rectangle-mark-mode-map (kbd "n") #'rectangle-next-line)
+    (define-key rectangle-mark-mode-map (kbd "p") #'rectangle-previous-line)
+    (define-key rectangle-mark-mode-map (kbd "f") #'rectangle-forward-char)
+    (define-key rectangle-mark-mode-map (kbd "b") #'rectangle-backward-char)
+    (define-key rectangle-mark-mode-map (kbd "i") #'string-rectangle)
+    (define-key rectangle-mark-mode-map (kbd "e") #'rectangle-exchange-point-and-mark)
+    (define-key rectangle-mark-mode-map (kbd "#") #'rectangle-number-lines)
+    (define-key rectangle-mark-mode-map (kbd "w") #'copy-rectangle-as-kill) ; C-x r M-w
+    (define-key rectangle-mark-mode-map (kbd "y") #'yank-rectangle)         ; C-x r y
+    (define-key rectangle-mark-mode-map (kbd "t") #'string-rectangle)     ; C-x r t
+    (define-key rectangle-mark-mode-map (kbd "d") #'kill-rectangle)         ; C-x r d
+    (define-key rectangle-mark-mode-map (kbd "c") #'clear-rectangle)       ; C-x r c
+    (define-key rectangle-mark-mode-map (kbd "o") #'open-rectangle)        ; C-x r o
+    (define-key rectangle-mark-mode-map (kbd "N") #'rectangle-number-lines)        ; C-x r N
+    (define-key rectangle-mark-mode-map (kbd "e") #'rectangle-exchange-point-and-mark) ; C-x C-x
+    (define-key rectangle-mark-mode-map (kbd "u") #'undo)
+    )
+
+#+end_src
+
+*** highlight current line on big movements
+
+#+begin_src emacs-lisp
+
+  (defvar rtfm-emacs-position-highlight-overlay nil
+    "Overlay used to highlight the current line.")
+
+  (defun rtfm-emacs-position-highlight-highlight-line ()
+    "Briefly highlight the current line."
+    (when rtfm-emacs-position-highlight-overlay
+      (delete-overlay rtfm-emacs-position-highlight-overlay))
+    (let ((start (line-beginning-position))
+          (end (line-end-position))
+          (region-bg (face-attribute 'region :background)))  ; Get theme's region color
+      (setq rtfm-emacs-position-highlight-overlay (make-overlay start end))
+      (overlay-put rtfm-emacs-position-highlight-overlay 'face `(:background ,region-bg))  ; Use dynamic color
+      (run-with-timer 0.15 nil #'delete-overlay rtfm-emacs-position-highlight-overlay)))
+
+
+  (when EMACS28+
+    (progn
+      ;; Hook into window switching
+      (add-hook 'window-selection-change-functions
+                (lambda (_win) (rtfm-emacs-position-highlight-highlight-line)))
+
+      ;; Hook into common scroll commands
+      (dolist (cmd '(scroll-up-command
+                     scroll-down-command
+                     recenter-top-bottom
+                     other-window
+                     next-line
+                     previous-line
+                     end-of-buffer
+                     beginning-of-buffer))
+        (advice-add cmd :after (lambda (&rest _) (rtfm-emacs-position-highlight-highlight-line))))))
+
+#+end_src
+
+    
+** theming
+
+#+begin_src emacs-lisp
+
+  (with-no-warnings
+  
+    (add-hook 'after-init-time-hook
+              (progn
+                (defadvice load-theme (after custom-faces-after-load-theme())
+                  "Insert an empty line when moving up from the top line."
+                  (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                    (when (file-exists-p dafile) (load-file dafile))
+                    ;; (save-excursion
+                    ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                    ))
+
+
+                (ad-activate 'load-theme)
+
+                (defadvice disable-theme (after custom-faces-after-disable-theme())
+                  "Insert an empty line when moving up from the top line."
+                  (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                    (when (file-exists-p dafile) (load-file dafile))
+                    ;; (save-excursion
+                    ;;  (if (and solaire-mode (fboundp 'dashboard-refresh-buffer)) (dashboard-refresh-buffer)))
+                    ))
+                (ad-activate 'disable-theme)))
+
+    (add-hook 'after-init-time-hook
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile)))))
+
+#+end_src
+
+   
+** completion
+
+#+begin_src emacs-lisp
+
+(setq enable-recursive-minibuffers t)
+(setq completion-cycle-threshold 1)
+(setq tab-always-indent 'complete)
+(setq completion-styles '(basic initials substring))
+(setq completion-auto-help 'always)
+(when EMACS28+ (setopt completions-detailed t))
+(setq completion-auto-help 'lazy)                  ; Open completion `always'; `lazy' another option
+(when EMACS28+ (setopt completions-format 'one-column))
+(when EMACS28+ (setopt completions-group t))
+(when EMACS29+ (setopt completion-auto-select 'second-tab))
+(when EMACS29+ (setopt completions-max-height 20))
+
+;; (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete)
+(define-key minibuffer-local-map (kbd "TAB") 'minibuffer-complete)
+
+(when (not EMACS26+) (ido-mode))
+(when EMACS26+ (icomplete-mode))
+(when EMACS27+ (fido-mode))
+(when EMACS28+ (fido-vertical-mode))
+
+#+end_src
+
+   
+** scratch_buffer_creator
+
+#+begin_src emacs-lisp
+
+(defun create-scratch-buffer (mode)
+  "Create a new scratch buffer with a specified major MODE."
+  (interactive
+   (list (intern (completing-read "Choose major mode: "
+                                   (mapcar 'symbol-name
+                                           (apropos-internal "-mode$"))))))
+  (let* ((buffer-name (generate-new-buffer-name "*scratch*"))
+         (comment-start (if (fboundp mode)
+                            (with-temp-buffer
+                              (funcall mode)
+                              (if (boundp 'comment-start)
+                                  comment-start
+                                ";; ")) ;; Fallback if no comment-start is defined
+                          ";; ")))  ;; Fallback for invalid modes
+    (generate-new-buffer buffer-name)
+    (switch-to-buffer buffer-name)
+    (funcall mode)  ;; Set the specified major mode
+    (insert comment-start "This is a new scratch buffer in " 
+            (symbol-name mode) " mode.\n\n")))
+
+#+end_src
+
+   
+* create launchers for some tui apps if they exist
+
+#+begin_src emacs-lisp
+
+  (defun rtfm-create-terminal-function (tuiapp)
+    "Create a terminal function for the given BINARY."
+    (let ((function-name (intern (format "%s-term-open" tuiapp))))
+      (when (executable-find tuiapp)
+        (eval `(defun ,function-name ()
+                 ,(format "Open %s using ansi-term." tuiapp)
+                 (interactive)
+                 (ansi-term ,tuiapp))
+              ;; to be added if if is used instead of when (message "Warning: '%s' tui app not found." tuiapp)
+              ))))
+
+  (defvar rtfm-tui-apps '("toipe" "nnn" "nmtui" "htop" "nvim" "lynx" "gtypist" "lazygit")
+    "List of tui apps to create functions for.")
+
+  (add-hook 'after-init-hook
+            (lambda () (dolist (binary rtfm-tui-apps)
+                         (rtfm-create-terminal-function binary))))
+
+#+end_src
+
+  
 * load-theme
 
 #+begin_src emacs-lisp
@@ -443,19 +904,19 @@
     (make-directory theme-directory))
 
   (add-to-list 'custom-theme-load-path
-	       (expand-file-name "themes" user-emacs-directory))
+               (expand-file-name "themes" user-emacs-directory))
 
 
   (let ((basedir theme-directory))
     (dolist (f (directory-files basedir))
       (if (and (not (or (equal f ".") (equal f "..")))
-	       (file-directory-p (concat basedir f)))
-	  (add-to-list 'custom-theme-load-path (concat basedir f)))))
+               (file-directory-p (concat basedir f)))
+          (add-to-list 'custom-theme-load-path (concat basedir f)))))
 
 
   (add-hook 'after-init-time-hook
-	    (progn
-	      (load-theme 'rtfm-noone-dark t)))
+            (progn
+              (load-theme 'rtfm-noone-dark t)))
 
 #+end_src
 
@@ -465,15 +926,15 @@
 #+begin_src emacs-lisp
 
   (add-hook 'after-init-hook
-	    (lambda ()
-	      (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-		(when (file-exists-p dafile) (load-file dafile)))))
+            (lambda ()
+              (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                (when (file-exists-p dafile) (load-file dafile)))))
 
   (when EMACS27+
     (add-hook 'server-after-make-frame-hook
-	      (lambda ()
-		(let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
-		  (when (file-exists-p dafile) (load-file dafile))))))
+              (lambda ()
+                (let ((dafile (expand-file-name "custom_faces.el" user-emacs-directory)))
+                  (when (file-exists-p dafile) (load-file dafile))))))
 
 #+end_src
   
