@@ -1026,8 +1026,8 @@ necessary for the rest of the config.
   (add-hook 'artist-mode-hook (lambda () (whitespace-mode -1)))
 
   (when (or (display-graphic-p)
-            (and palette (> color-cells 256))
-            (add-hook 'after-init-hook (global-whitespace-mode t))))
+            (and palette (> color-cells 256)))
+            (add-hook 'after-init-hook (global-whitespace-mode t)))
 
 #+end_src
 
