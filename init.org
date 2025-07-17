@@ -29,8 +29,8 @@
   (defmacro yae-gen-ver-consts (var)
     "Define a macro to create constants to check Emacs version greater than VAR."
     (list 'defconst
-	  (intern (concat "EMACS" (int-to-string var) "+"))
-	  (> emacs-major-version (- var 1))))
+      (intern (concat "EMACS" (int-to-string var) "+"))
+      (> emacs-major-version (- var 1))))
 
   ;;evaluate the macro for the number range we want
   ;; (seq-do (lambda (x) (eval (list 'yae-gen-ver-consts x))) (number-sequence 24 35))
@@ -50,12 +50,12 @@
 
   (defvar my-config-org-files
     (mapcar (lambda (file) (expand-file-name file user-emacs-directory))
-	    '(;; my config files go here they are org files
-	      "themer.org"
-	      "compat.org"
-	      "dashboard.org"
-	      "rtfm.org"
-	      )))
+        '(;; my config files go here they are org files
+          "themer.org"
+          "compat.org"
+          "dashboard.org"
+          "rtfm.org"
+          )))
 
   (defvar my-compiled-config-dir (expand-file-name "compiled/" user-emacs-directory))
 
@@ -65,33 +65,33 @@
     (make-directory my-compiled-config-dir t)
     (dolist (org-file my-config-org-files)
       (let* ((base-name (file-name-nondirectory org-file))
-	     (el-file (expand-file-name (replace-regexp-in-string "\\.org$" ".el" base-name)
-					my-compiled-config-dir))
-	     (elc-file (expand-file-name (replace-regexp-in-string "\\.org$" ".elc" base-name)
-					 my-compiled-config-dir)))
+         (el-file (expand-file-name (replace-regexp-in-string "\\.org$" ".el" base-name)
+                    my-compiled-config-dir))
+         (elc-file (expand-file-name (replace-regexp-in-string "\\.org$" ".elc" base-name)
+                     my-compiled-config-dir)))
 
-	;; Only recompile if needed
-	(when (or (not (file-exists-p elc-file))
-		  (file-newer-than-file-p org-file elc-file))
-	  ;; Export Org to Elisp
-	  (require 'ox)
-	  (with-current-buffer (find-file-noselect org-file)
-	    (org-babel-tangle-file org-file el-file))
+    ;; Only recompile if needed
+    (when (or (not (file-exists-p elc-file))
+          (file-newer-than-file-p org-file elc-file))
+      ;; Export Org to Elisp
+      (require 'ox)
+      (with-current-buffer (find-file-noselect org-file)
+        (org-babel-tangle-file org-file el-file))
 
-	  ;; Byte-compile the generated Elisp
-	  (byte-compile-file el-file)
+      ;; Byte-compile the generated Elisp
+      (byte-compile-file el-file)
 
-	  (message "Compiled %s -> %s" org-file elc-file)))))
+      (message "Compiled %s -> %s" org-file elc-file)))))
 
   (defun my-load-compiled-config ()
     "Load the byte-compiled configuration files."
     (dolist (org-file my-config-org-files)
       (let ((elc-file (expand-file-name
-		       (replace-regexp-in-string "\\.org$" ".elc"
-						 (file-name-nondirectory org-file))
-		       my-compiled-config-dir)))
-	(when (file-exists-p elc-file)
-	  (load elc-file t t)))))  ; t t for noerror nomessage
+               (replace-regexp-in-string "\\.org$" ".elc"
+                         (file-name-nondirectory org-file))
+               my-compiled-config-dir)))
+    (when (file-exists-p elc-file)
+      (load elc-file t t)))))  ; t t for noerror nomessage
 
   ;; **Key Fix: Compile before loading on startup**
   (defun my-init-config ()
@@ -104,25 +104,25 @@
 
   ;; Setup after-save hook
   (add-hook 'after-save-hook
-	    (lambda ()
-	      (when (member (expand-file-name (buffer-file-name)) my-config-org-files)
-		(my-byte-compile-config))))
+        (lambda ()
+          (when (member (expand-file-name (buffer-file-name)) my-config-org-files)
+        (my-byte-compile-config))))
 
 #+end_src
 * hook to allow recompilation of init.el
 #+begin_src emacs-lisp
 
 (add-hook 'after-save-hook
-	  (lambda ()
-	    (when (string= (file-name-nondirectory (buffer-file-name)) "init.org")
-	      (message "Recompiling init.org...")
-	      (require 'org)
-	      ;; Step 1: Tangle (org -> el)
-	      (org-babel-tangle-file (expand-file-name "init.org" user-emacs-directory)
-				    (expand-file-name "init.el" user-emacs-directory))
-	      ;; Step 2: Compile (el -> elc)
-	      (byte-compile-file (expand-file-name "init.el" user-emacs-directory))
-	      (message "Done! Reload with M-x load-file RET init.elc"))))
+      (lambda ()
+        (when (string= (file-name-nondirectory (buffer-file-name)) "init.org")
+          (message "Recompiling init.org...")
+          (require 'org)
+          ;; Step 1: Tangle (org -> el)
+          (org-babel-tangle-file (expand-file-name "init.org" user-emacs-directory)
+                    (expand-file-name "init.el" user-emacs-directory))
+          ;; Step 2: Compile (el -> elc)
+          (byte-compile-file (expand-file-name "init.el" user-emacs-directory))
+          (message "Done! Reload with M-x load-file RET init.elc"))))
 
 #+end_src
 

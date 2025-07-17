@@ -100,15 +100,15 @@
     (scroll-bar-mode -1))
 
   (add-hook 'after-make-frame-functions
-	    (lambda (frame)
-	      (when (display-graphic-p frame)
-		(with-selected-frame frame
-		  ;; (set-frame-size frame 93 50)
-		  ;; (set-frame-position frame 0 15)
-		  ;; (set-window-margins nil 2)
-		  (scroll-bar-mode -1)
-		  (menu-bar-mode -1)
-		  (tool-bar-mode -1)))))
+        (lambda (frame)
+          (when (display-graphic-p frame)
+        (with-selected-frame frame
+          ;; (set-frame-size frame 93 50)
+          ;; (set-frame-position frame 0 15)
+          ;; (set-window-margins nil 2)
+          (scroll-bar-mode -1)
+          (menu-bar-mode -1)
+          (tool-bar-mode -1)))))
 
 #+end_src
 
@@ -147,16 +147,16 @@
 * hook to allow recompilation of early-init
 #+begin_src emacs-lisp
 (add-hook 'after-save-hook
-	  (lambda ()
-	    (when (string= (file-name-nondirectory (buffer-file-name)) "early-init.org")
-	      (message "Recompiling early-init.org...")
-	      (require 'org)
-	      ;; Step 1: Tangle (org -> el)
-	      (org-babel-tangle-file (expand-file-name "early-init.org" user-emacs-directory)
-				    (expand-file-name "early-init.el" user-emacs-directory))
-	      ;; Step 2: Compile (el -> elc)
-	      (byte-compile-file (expand-file-name "early-init.el" user-emacs-directory))
-	      (message "Done! Reload with M-x load-file RET early-init.elc"))))
+      (lambda ()
+        (when (string= (file-name-nondirectory (buffer-file-name)) "early-init.org")
+          (message "Recompiling early-init.org...")
+          (require 'org)
+          ;; Step 1: Tangle (org -> el)
+          (org-babel-tangle-file (expand-file-name "early-init.org" user-emacs-directory)
+                    (expand-file-name "early-init.el" user-emacs-directory))
+          ;; Step 2: Compile (el -> elc)
+          (byte-compile-file (expand-file-name "early-init.el" user-emacs-directory))
+          (message "Done! Reload with M-x load-file RET early-init.elc"))))
 #+end_src
 
 
