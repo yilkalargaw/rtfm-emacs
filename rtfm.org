@@ -1025,9 +1025,10 @@ necessary for the rest of the config.
 
   (add-hook 'artist-mode-hook (lambda () (whitespace-mode -1)))
 
-  (when (or (display-graphic-p)
-            (and palette (> color-cells 256)))
-            (add-hook 'after-init-hook (global-whitespace-mode t)))
+  (let* ((color-cells (display-color-cells)))
+    (when (or (display-graphic-p)
+              (> color-cells 256))
+      (add-hook 'after-init-hook (global-whitespace-mode t))))
 
 #+end_src
 
@@ -1633,6 +1634,8 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
                                          )))
 
 #+end_src
+
+
 * create launchers for some tui apps if they exist
 
 #+begin_src emacs-lisp
