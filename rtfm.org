@@ -869,6 +869,770 @@ necessary for the rest of the config.
 #+end_src
 
    
+** emacs built in packages
+
+*** imenu
+
+#+begin_src emacs-lisp
+
+(with-eval-after-load 'imenu (set-default 'imenu-auto-rescan t))
+
+#+end_src
+
+*** ibuffer
+
+#+begin_src emacs-lisp
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+#+end_src
+
+*** comint-mode
+
+#+begin_src emacs-lisp
+
+;;conmint-mode
+(with-eval-after-load 'comint
+  (customize-set-variable 'comint-scroll-show-maximum-output nil)
+  (customize-set-variable 'comint-scroll-to-bottom-on-input nil)
+  (customize-set-variable 'comint-scroll-to-bottom-on-output nil)
+  (add-hook 'comint-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1)))))
+
+#+end_src
+
+*** shell-mode
+
+#+begin_src emacs-lisp
+
+;;shell-mode
+
+(require 'shell)
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "<tab>") 'completion-at-point)
+  (define-key shell-mode-map (kbd "<backtab>") 'completion-at-point)
+  (add-hook 'comint-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1)))))
+
+#+end_src
+
+*** eshell
+
+#+begin_src emacs-lisp
+
+(require 'eshell)
+
+(with-eval-after-load 'eshell
+
+  (customize-set-variable 'eshell-visual-commands
+                          '("vi" "screen" "top" "less" "more" "lynx"
+                            "ncftp" "pine" "tin" "trn" "elm" "vim" "kak"
+                            "nano" "tmux" "alpine" "mutt" "htop" "irb"
+                            "python" "python3" "python2" "csc" "sbcl"
+                            "guile" "guile2" "node" "joe" "jstar"
+                            "jmacs" "jpico" "ne" "micro" "nnn" "lf"
+                            "ranger" "mc" "gtypist" "toipe"))
+
+  (add-hook 'eshell-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+
+  (customize-set-variable 'eshell-scroll-show-maximum-output nil))
+
+#+end_src
+
+*** term-mode
+
+#+begin_src emacs-lisp
+
+(require 'term)
+(with-eval-after-load 'term
+  (define-key term-raw-map (kbd "C-c C-y") 'term-paste)
+  (add-hook 'term-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+  (add-hook 'term-mode-hook (lambda () (display-line-numbers-mode -1)))
+
+  (defun term-just-close-exec-hook ()
+	(let* ((buff (current-buffer))
+           (proc (get-buffer-process buff)))
+      (set-process-sentinel
+       proc
+       `(lambda (process event)
+          (if (string= event "finished\n")
+              (kill-buffer ,buff))))))
+
+  (add-hook 'term-exec-hook 'term-just-close-exec-hook))
+
+#+end_src
+
+*** eww & shr
+
+#+begin_src emacs-lisp
+
+(add-hook 'eww-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+
+#+end_src
+
+*** ediff
+
+#+begin_src emacs-lisp
+
+(add-hook 'ediff-prepare-buffer-hook 'outline-show-all)
+(add-hook 'ediff-quit-hook 'winner-undo)
+
+(with-eval-after-load 'ediff
+  (customize-set-variable 'ediff-window-setup-function 'ediff-setup-windows-plain)
+  (customize-set-variable 'ediff-split-window-function 'split-window-horizontally)
+  (customize-set-variable 'ediff-merge-split-window-function 'split-window-horizontally))
+
+#+end_src
+
+*** whitespace-mode
+
+#+begin_src emacs-lisp
+
+  (with-eval-after-load 'whitespace
+    ;; Make whitespace-mode with very basic background coloring for whitespaces.
+    ;; http://xahlee.info/emacs/emacs/whitespace-mode.html
+    (customize-set-variable 'whitespace-style (quote (face spaces tabs newline space-mark tab-mark newline-mark )))
+
+    ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+    (customize-set-variable 'whitespace-display-mappings
+          ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+          '(
+            (space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+            ;; (space-mark 32 [168] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+            (newline-mark 10 [182 10]) ; LINE FEED,
+            ;; (newline-mark 10 [36 10]) ; LINE FEED,
+            ;; (newline-mark 10 [172 10]) ; LINE FEED
+            (tab-mark 9 [9655 9] [92 9]) ; tab
+            ))
+
+  ;; Don't enable whitespace for.
+  (setq-default whitespace-global-modes
+                '(not shell-mode
+                      eshell-mode
+                      term-mode
+                      comint-mode
+                      vterm-mode
+                      help-mode
+                      magit-mode
+                      magit-diff-mode
+                      ibuffer-mode
+                      dired-mode
+                      occur-mode
+                      org-mode
+                      pdf-view-mode
+                      nov-mode
+                      artist-mode
+                      text-mode
+                      fundamental-mode)))
+
+  (add-hook 'artist-mode-hook (lambda () (whitespace-mode -1)))
+
+  (when (or (display-graphic-p)
+            (and palette (> color-cells 256))
+            (add-hook 'after-init-hook (global-whitespace-mode t))))
+
+#+end_src
+
+*** recentf
+
+#+begin_src emacs-lisp
+
+;; Turn on recentf mode
+(add-hook 'after-init-hook #'recentf-mode)
+(customize-set-variable 'recentf-save-file
+                        (expand-file-name "recentf" user-emacs-directory))
+
+#+end_src
+
+*** hippie_expand
+
+#+begin_src emacs-lisp
+
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+
+#+end_src
+
+*** abbrev
+
+#+begin_src emacs-lisp
+
+(setq-default abbrev-file-name (expand-file-name "abbrev_defs"  user-emacs-directory))
+(if (file-exists-p abbrev-file-name)
+    (quietly-read-abbrev-file)
+  (setq save-abbrevs 'silently))
+
+(require 'abbrev)
+
+#+end_src
+
+*** tempo
+
+This file provides a simple way to define powerful templates, or
+macros, if you wish. It is mainly intended for, but not limited to,
+other programmers to be used for creating shortcuts for editing
+certain kind of documents. Most of what I learned about this package
+from the following the article on
+https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html by the
+Author(or I think it is the author)
+
+The settings in the "general settings" part are used to override
+"space" so that tempo completion could take place after writing a
+valid tag and define a keymap for the package. Movement keys are set
+to "C-c t f", and "C-c t b" for moving forward and moving backward
+respectively inside the stops in the snippet.
+
+**** general settings needed for snippets
+
+sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
+
+#+begin_src emacs-lisp
+
+(require 'tempo)
+
+(defvar tempo-map nil "Prefix map for Tempo key bindings.")
+
+(defun tempo-space ()
+  ""
+  (interactive)
+  (if (tempo-expand-if-complete)
+      nil
+    (insert " ")))
+
+(defun try-expand-tempo-tag (old)
+  "Try to expand a Tempo tag."
+  (unless old
+    (tempo-complete-tag)))
+
+(defun set-tempo ()
+  "Set up emacs-lisp mode to use tempo.el"
+  (require 'tempo)  ;; Ensure tempo.el is loaded
+  (unless tempo-map  ;; Only define it if it's not already defined
+    (define-prefix-command 'tempo-map))  ;; Define the tempo-map globally
+  (local-set-key (kbd "C-c t") 'tempo-map)  ;; Bind the prefix to C-c t
+  (define-key tempo-map (kbd "c") 'tempo-complete-tag)  ;; Define keybindings
+  (define-key tempo-map (kbd "n") 'tempo-forward-mark)
+  (define-key tempo-map (kbd "p") 'tempo-backward-mark))
+
+  (setq hippie-expand-try-functions-list
+        (cons 'try-expand-tempo-tag
+              (remove 'try-expand-tempo-tag hippie-expand-try-functions-list)))
+
+#+end_src
+
+**** c && c++ snippets using tempo
+
+sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
+
+#+begin_src emacs-lisp
+
+(require 'tempo)
+
+;; This is a way to hook tempo into cc-mode
+
+(defvar c-tempo-tags nil
+  "Tempo tags for C mode")
+
+(defvar c++-tempo-tags nil
+  "Tempo tags for C++ mode")
+
+;;; C-Mode Templates and C++-Mode Templates (uses C-Mode Templates also)
+(add-hook 'c-mode-hook
+          (lambda () (progn
+                      ;;; Preprocessor Templates (appended to c-tempo-tags)
+
+                       (tempo-define-template "c-include"
+                                              '("#include <" r ".h>" > n
+                                                )
+                                              "#include"
+                                              "Insert a #include <> statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-ifdef"
+                                              '("#ifdef " (p "ifdef-clause: " clause) > n> p n
+                                                "#else /* !(" (s clause) ") */" n> p n
+                                                "#endif /* " (s clause)" */" n>
+                                                )
+                                              "#ifdef"
+                                              "Insert a #ifdef #else #endif statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-ifndef"
+                                              '("#ifndef " (p "ifndef-clause: " clause) > n 
+                                                "#define " (s clause) n> p n
+                                                "#endif /* " (s clause)" */" n>
+                                                )
+                                              "#ifndef"
+                                              "Insert a #ifndef #define #endif statement"
+                                              'c-tempo-tags)
+
+                       ;;; C-Mode Templates
+
+                       (tempo-define-template "c-if"
+                                              '(> "if(" (p "if-clause: " clause) ")"  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ") */" > n> 
+                                                  )
+                                              "if"
+                                              "Insert a C if statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-else"
+                                              '(> "else" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of else */" > n>
+                                                  )
+                                              "else"
+                                              "Insert a C else statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-if-else"
+                                              '(> "if(" (p "if-clause: " clause) ")"  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ") */" > n>
+                                                  > "else" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if(" (s clause) ")else */" > n> 
+                                                  )
+                                              "ifelse"
+                                              "Insert a C if else statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-while"
+                                              '(> "while(" (p "while-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of while(" (s clause) ") */" > n>
+                                                  )
+                                              "while"
+                                              "Insert a C while statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for"
+                                              '(> "for(" (p "for-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s clause) ") */" > n>
+                                                  )
+                                              "for"
+                                              "Insert a C for statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for-i"
+                                              '(> "for(" (p "variable: " var) " = 0; " (s var)
+                                                  " < "(p "upper bound: " ub)"; " (s var) "++)" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s var) " = 0; "
+                                                  (s var) " < " (s ub) "; " (s var) "++) */" > n>
+                                                  )
+                                              "fori"
+                                              "Insert a C for loop: for(x = 0; x < ..; x++)"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-for"
+                                              '(> "for(" (p "for-clause: " clause) ")" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of for(" (s clause) ") */" > n>
+                                                  )
+                                              "for"
+                                              "Insert a C for statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-main"
+                                              '(> "main(int argc, char *argv[])" >  n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of main() */" > n>
+                                                  )
+                                              "main"
+                                              "Insert a C main statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-if-malloc"
+                                              '(> "if((" (p "variable: " var) " = ("
+                                                  (p "type: " type) " *) malloc(sizeof(" (s type) 
+                                                  "))) == (" (s type) " *) NULL)" n> 
+                                                  "{" > n> r n 
+                                                  "} /* end of if((" (s var) " = (" (s type) 
+                                                  " *) malloc...) == NULL) */" > n>
+                                                  )
+                                              "ifmalloc"
+                                              "Insert a C if(malloc...) statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-switch"
+                                              '(> "switch(" (p "switch-condition: " clause) ")" >  n> 
+                                                  "{" > n 
+                                                  "case " (p "first value: ") ":" > n> p n
+                                                  "break;" > n> p n
+                                                  "default:" > n> p n
+                                                  "break;" > n
+                                                  "} /* end of switch(" (s clause) ") */" > n>
+                                                  )
+                                              "switch"
+                                              "Insert a C switch statement"
+                                              'c-tempo-tags)
+
+                       (tempo-define-template "c-case"
+                                              '(n "case " (p "value: ") ":" > n> p n
+                                                  "break;" > n> p
+                                                  )
+                                              "case"
+                                              "Insert a C case statement"
+                                              'c-tempo-tags)
+
+                       (set-tempo)
+                       (tempo-use-tag-list 'c-tempo-tags))))
+
+
+;;;C++-Mode Templates
+
+(add-hook 'c++-mode-hook
+          (lambda () (progn 
+                       (tempo-define-template "c++-class"
+                                              '("class " (p "classname: " class) p n "{" n "public:" n>
+
+                                                (s class) "();" 
+                                                (indent-for-comment) "the default constructor" n>
+
+                                                (s class) 
+                                                "(const " (s class) "&rhs);"
+                                                (indent-for-comment) "the copy constructor" n>
+
+                                                (s class)
+                                                "& operator=(const " (s class) "&rhs);"
+                                                (indent-for-comment) "the assignment operator" n>
+
+                                                n> "// the default address-of operators" n>
+                                                "// "(s class)
+                                                "* operator&()             { return this; };" n>
+                                                "// const "(s class)
+                                                "* operator&() const { return this; };" n
+
+
+                                                n > "~" (s class) "();"
+                                                (indent-for-comment) "the destructor" n n>
+                                                p n
+                                                "protected:" n> p n
+                                                "private:" n> p n
+                                                "};\t// end of class " (s class) n>
+                                                )
+                                              "class"
+                                              "Insert a class skeleton"
+                                              'c++-tempo-tags)
+                       (set-tempo)
+                       (tempo-use-tag-list 'c-tempo-tags)
+                       (tempo-use-tag-list 'c++-tempo-tags))))
+
+#+end_src
+
+**** Emacs-lisp snippets using tempo
+
+#+begin_src emacs-lisp
+
+(defun define-my-elisp-tempo-tags ()
+  (defvar elisp-tempo-tags nil)
+
+  (tempo-define-template "defun"
+                         '("defun " p " (" p ")" n> "\"" p "\"" n> r ")")
+                         "defun"
+                         "Insert a defun expression"
+                         'elisp-tempo-tags)
+  (tempo-define-template "defvar"
+                         '("defvar " p  n> "\"" p "\")")
+                         "defvar"
+                         "Insert a defvar expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "lambda"
+                         '("lambda (" p ")" n> "\"" p "\"" n> r ")")
+                         "lambda"
+                         "Insert a lamb expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "if"
+                         '("if " p n> r ")")
+                         "if"
+                         "Insert an if expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "when"
+                         '("when " p n> r ")")
+                         "when"
+                         "Insert an when expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "unless"
+                         '("unless " p n> r ")")
+                         "unless"
+                         "Insert an unless expression"
+                         'elisp-tempo-tags)
+
+  (tempo-define-template "cond"
+                         '("cond ((" p ") " r "))")
+                         "cond"
+                         "Insert a cond expression"
+                         'elisp-tempo-tags))
+
+
+(add-hook 'emacs-lisp-mode-hook (lambda () (progn (define-my-elisp-tempo-tags)
+                                                  (set-tempo)
+                                                  (setq tempo-match-finder "(\\([^\b]+\\)\\=")
+                                                  (tempo-use-tag-list 'elisp-tempo-tags))))
+
+(add-hook 'lisp-interaction-mode-hook (lambda () (progn (define-my-elisp-tempo-tags)
+                                                        (set-tempo)
+                                                        (setq tempo-match-finder "(\\([^\b]+\\)\\=")
+                                                        (tempo-use-tag-list 'elisp-tempo-tags))))
+#+end_src
+
+**** org-mode snippets using tempo
+
+#+begin_src emacs-lisp
+
+(add-hook 'org-mode-hook (lambda () (progn 
+;;; org-mode templates
+                                      (defvar org-tempo-tags nil)
+
+                                      (tempo-define-template "title"
+                                                             '("TITLE: "> p)
+                                                             "ti"
+                                                             "Insert a document title"
+                                                             'org-tempo-tags)
+
+                                      (tempo-define-template "author"
+                                                             '("AUTHOR: "> p)
+                                                             "au"
+                                                             "Insert a author name"
+                                                             'org-tempo-tags)
+
+                                      (tempo-define-template "src_block"
+                                                             '("begin_src "> p n> p n> "#+end_src" n>)
+                                                             "src"
+                                                             "Insert a defun expression"
+                                                             'org-tempo-tags)
+
+
+                                      (set-tempo)
+                                      (defvar html-tempo-tags nil)
+                                      (tempo-use-tag-list 'org-tempo-tags)
+                                      (setq tempo-match-finder "\\#\\+\\([^\b]+\\)\\="))))
+
+#+end_src
+
+**** ruby snippets using tempo
+
+#+begin_src emacs-lisp
+
+;;; ruby-mode templates
+
+(add-hook 'ruby-mode-hook (lambda () (progn 
+                                       (defvar ruby-tempo-tags nil)
+
+                                       (tempo-define-template "ruby-class"
+                                                              '("class " > p n> p n "end" >)
+                                                              "cls"
+                                                              "Insert a class"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-module"
+                                                              '("module " > p n> p n "end" >)
+                                                              "mod"
+                                                              "Insert a class"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-def"
+                                                              '("def " > p "(" p ")" n> p n "end" >)
+                                                              "def"
+                                                              "Insert a module"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-intialize"
+                                                              '("def intialize(" p ")" > n> p n> "end" >)
+                                                              "init"
+                                                              "Insert a constructor"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-include"
+                                                              '("include " > p >)
+                                                              "incl"
+                                                              "include a module"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-require"
+                                                              '("require \"" > p "\"" >)
+                                                              "req"
+                                                              "require"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-if"
+                                                              '("if " > p n> p n> "end" >)
+                                                              "if"
+                                                              "Insert an if clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-ifelse"
+                                                              '("if " > p n >"else " n> p n> "end" >)
+                                                              "ifel"
+                                                              "Insert an if else clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-unless"
+                                                              '("unless "> p n> p n> "end" >)
+                                                              "unless"
+                                                              "Insert a unless clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-until"
+                                                              '("until " > p n> p n> "end" >)
+                                                              "until"
+                                                              "Insert an until loop"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-when"
+                                                              '(> "when "> p n> p n> "end" >)
+                                                              "when"
+                                                              "Insert a when clause"
+                                                              'ruby-tempo-tags)
+
+                                       (tempo-define-template "ruby-while"
+                                                              '("while "> p n> p n> "end" >)
+                                                              "while"
+                                                              "Insert a while loop"
+                                                              'ruby-tempo-tags)
+
+                                       (set-tempo)
+                                       (tempo-use-tag-list 'ruby-tempo-tags))))
+
+#+end_src
+
+**** python snippets using tempo
+
+#+begin_src emacs-lisp
+
+(add-hook 'python-mode-hook
+          (lambda () (progn
+
+;;; python-mode templates
+                       (defvar python-tempo-tags nil)
+
+                       (tempo-define-template "python-class"
+                                              '("class " > p ":"n>)
+                                              "cls"
+                                              "Insert a class"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-def"
+                                              '("def " > p "(" p "):" n> p n>)
+                                              "def"
+                                              "define a function"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "import"
+                                              '("import " p >)
+                                              "imp"
+                                              "python import"
+                                              'python-tempo-tags)
+
+
+                       (tempo-define-template "python-include"
+                                              '("from " > p " import " p>)
+                                              "from"
+                                              "from tag"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-if"
+                                              '("if " > p ":"n> p >)
+                                              "if"
+                                              "Insert an if clause"
+                                              'python-tempo-tags)
+
+                       (tempo-define-template "python-ifelse"
+                                              '("if " > p ":"n> p "else:" n> p >)
+                                              "ife"
+                                              "Insert an if else clause"
+                                              'python-tempo-tags)
+
+                       (set-tempo)
+                       (tempo-use-tag-list 'python-tempo-tags))))
+
+#+end_src
+
+**** html snippets using tempo
+
+#+begin_src emacs-lisp
+
+  ;;; html tempo templates
+  (add-hook 'html-mode-hook (lambda () (progn 
+                                         (defvar html-tempo-tags nil)
+
+                                         (defmacro html-tempo-paired-tag-single-line (var)
+                                           (list 'tempo-define-template var
+                                                 (list 'quote (list var "> " '> 'p (concat " </" var ">") '>))
+                                                 var
+                                                 (concat "insert html " var " tag")
+                                                 (list 'quote 'html-tempo-tags)))
+
+                                         (seq-do (lambda (x)
+                                                   "expand macro"
+                                                   (eval (list 'html-tempo-paired-tag-single-line x)))
+                                                 '("a" "b" "bdi" "bdo"
+                                                   "button" "caption" "cite" "data"
+                                                   "del" "dfn" "em" "figcaption"
+                                                   "h1" "h2" "h3" "h4"
+                                                   "h5" "h6" "i" "iframe"
+                                                   "kbd" "li" "label" "legend"
+                                                   "mark" "meter" "object" "option"
+                                                   "p" "progress" "q" "summary"
+                                                   "s" "samp" "small" "span"
+                                                   "strong" "sub" "summary" "sup"
+                                                   "th" "td" "title" "time"))
+
+                                         (defmacro html-tempo-paired-tag-multi-line (var)
+                                           (list 'tempo-define-template var
+                                                 (list 'quote (list var ">" 'n> 'p 'n> (concat "</" var ">") '>))
+                                                 var
+                                                 (concat "insert html " var " tag")
+                                                 (list 'quote 'html-tempo-tags)))
+
+                                         (seq-do (lambda (x)
+                                                   "expand macro"
+                                                   (eval (list 'html-tempo-paired-tag-multi-line x)))
+                                                 '("address" "article" "aside" "audio"
+                                                   "body" "blockquote" "colgroup" "canvas"
+                                                   "code" "datalist" "dl" "details"
+                                                   "dialogue" "div" "fieldset" "figure"
+                                                   "footer" "form" "head" "header"
+                                                   "map" "main" "noscript" "nav"
+                                                   "ol" "optgroup" "pre" "script"
+                                                   "section" "select" "style" "svg"
+                                                   "table" "thead" "tbody" "tfoot"
+                                                   "tr" "template" "textarea" "ul"
+                                                   "video"))
+
+
+                                         (tempo-define-template "image-item"
+                                                                '("img src=\"" > p "\" alt=\"" p ">">)
+                                                                "img"
+                                                                "insert html image tag"
+                                                                'html-tempo-tags)
+
+                                         (tempo-define-template "abbr"
+                                                                '("abbr title=\"" > p "\">" p "</abbr>">)
+                                                                "abbr"
+                                                                "insert html abbr tag"
+                                                                'html-tempo-tags)
+
+                                         (tempo-define-template "html"
+                                                                '("!DOCTYPE html>" n> "<html>" n>"<head>" n>
+                                                                  "<title> " > p " </title>" p n>
+                                                                  "</head>" n>
+                                                                  "<body>" n>  p
+                                                                  "\n</body>" > n "</html>" n>)
+                                                                "html"
+                                                                "insert a html template"
+                                                                'html-tempo-tags)
+
+                                         (set-tempo)
+                                         (tempo-use-tag-list 'html-tempo-tags)
+                                         (setq tempo-match-finder "\\(?:<!?\\)\\([^\b]+\\)\\=")
+                                         )))
+
+#+end_src
 * create launchers for some tui apps if they exist
 
 #+begin_src emacs-lisp
