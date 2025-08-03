@@ -1793,47 +1793,47 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 #+begin_src emacs-lisp
 
-;; :mode (("\\.org\\'" . org-mode)
-;;        ("\\.org$" . org-mode))
+  ;; :mode (("\\.org\\'" . org-mode)
+  ;;        ("\\.org$" . org-mode))
 
-(with-no-warnings
-  (with-eval-after-load 'org
-    (setq org-src-fontify-natively t
-          org-src-tab-acts-natively t
-          org-confirm-babel-evaluate nil
-          org-edit-src-content-indentation 0)
-    (require 'ox-md))
+  (with-no-warnings
+    (with-eval-after-load 'org
+      (setq org-src-fontify-natively t
+            org-src-tab-acts-natively t
+            org-confirm-babel-evaluate nil
+            org-edit-src-content-indentation 0)
+      (require 'ox-md))
 
-  (with-eval-after-load 'org
-    (require 'ox-latex)
-    (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
+    (with-eval-after-load 'org
+      (require 'ox-latex)
+      (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
+      )
+
+    (with-eval-after-load "org"
+      (progn
+        (org-babel-do-load-languages
+         'org-babel-load-languages
+         '((python . t)
+           (perl . t)
+           (ruby . t)
+           (emacs-lisp . t)))
+
+        '(require 'ox-md nil t)))
+
+    (if EMACS27+ (with-eval-after-load "org"
+                   (progn
+                     (org-babel-do-load-languages
+                      'org-babel-load-languages
+                      '((shell . t))))))
+
+    (with-eval-after-load "org"
+      (require 'org-beautifyish)
+      (add-hook 'org-mode-hook 'org-beautifyish-mode t)
+      (require 'org-tocish)
+      (add-hook 'org-mode-hook 'org-tocish-mode t)
+      (require 'orgify)
+      (require 'presentation-mode))
     )
-
-  (with-eval-after-load "org"
-    (progn
-      (org-babel-do-load-languages
-       'org-babel-load-languages
-       '((python . t)
-         (perl . t)
-         (ruby . t)
-         (emacs-lisp . t)))
-
-      '(require 'ox-md nil t)))
-
-  (if EMACS27+ (with-eval-after-load "org"
-                 (progn
-                   (org-babel-do-load-languages
-                    'org-babel-load-languages
-                    '((shell . t))))))
-
-  (require 'org-beautifyish)
-  (add-hook 'org-mode-hook 'org-beautifyish-mode t)
-  (require 'org-tocish)
-  (add-hook 'org-mode-hook 'org-tocish-mode t)
-  (require 'orgify)
-  (require 'presentation-mode)
-
-  )
 
 #+end_src
 
@@ -1843,8 +1843,9 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 #+begin_src emacs-lisp
 
+(add-hook 'after-init-hook (lambda () (progn
   (require 'asciidoc-dumb-mode)
-  (require 'markdown-dumb-mode)
+  (require 'markdown-dumb-mode))))
 
 #+end_src
 
