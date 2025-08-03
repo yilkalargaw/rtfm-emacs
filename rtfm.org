@@ -24,6 +24,7 @@
 #+OPTIONS: _:nil
 #+EXCLUDE_TAGS: noexport
 #+PROPERTY: header-args :tangle (expand-file-name "compiled/rtfm.el" user-emacs-directory)
+#+beautified: 2 2
 
 * beginning commentary
 #+begin_src emacs-lisp
@@ -1636,6 +1637,214 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
                                          (tempo-use-tag-list 'html-tempo-tags)
                                          (setq tempo-match-finder "\\(?:<!?\\)\\([^\b]+\\)\\=")
                                          )))
+
+#+end_src
+
+
+** more emacs-packages but those that are too big to need a special section special consideration and rewrite
+  Emacs-packages that are too big to need a special section special
+  consideration and rewrite because they have gotten to complicated.
+
+*** tramp
+
+#+begin_src emacs-lisp
+
+(require 'tramp)  ; Ensure tramp is loaded
+
+(with-eval-after-load 'tramp
+  (customize-set-variable 'remote-file-name-inhibit-cache nil)
+  (customize-set-variable 'vc-ignore-dir-regexp
+        (format "%s\\|%s"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp))
+  (setq tramp-verbose 1))
+
+#+end_src
+
+*** dired
+
+#+begin_src emacs-lisp
+
+(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
+
+(with-eval-after-load 'dired
+  (require 'dired-aux)
+  (require 'dired-x)
+  
+  ;; Declare the variable first
+  (defvar dired-dotfiles-show-p nil
+    "Non-nil if dotfiles should be shown in dired.")
+  
+  ;; Rest of your configuration...
+  (setq dired-listing-switches "--group-directories-first -lah")
+  (put 'dired-find-alternate-file 'disabled nil)
+  (define-key dired-mode-map (kbd "C-<return>") 'dired-find-file)
+  (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+  (define-key dired-mode-map (kbd "M-<return>") 'dired-find-file-other-window)
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'top)
+  (setq dired-dwim-target t)
+
+  (defun dired-dotfiles-toggle ()
+    "Show/hide dot-files"
+    (interactive)
+    (when (equal major-mode 'dired-mode)
+      (if (or (not (boundp 'dired-dotfiles-show-p)) dired-dotfiles-show-p)
+          (progn
+            (set (make-local-variable 'dired-dotfiles-show-p) nil)
+            (message "Hide dotfiles")
+            (dired-mark-files-regexp "^\\.")
+            (dired-do-kill-lines))
+        (progn 
+          (revert-buffer)
+          (set (make-local-variable 'dired-dotfiles-show-p) t)
+          (message "Show dotfiles")))))
+
+  (define-key dired-mode-map (kbd "H-l") 'dired-dotfiles-toggle)
+  (define-key dired-mode-map (kbd "^") 
+    (lambda () (interactive) (find-alternate-file "..")))
+
+  ;; (setq wdired-allow-to-change-permissions t)
+  )
+
+
+
+#+end_src
+
+*** outline
+**** folding
+#+begin_src emacs-lisp
+
+(add-hook 'prog-mode-hook 'outline-minor-mode t)
+(add-hook 'makdown-mode-hook 'outline-minor-mode t)
+(add-hook 'Man-mode-hook 'outline-minor-mode t)
+(add-hook 'outline-minor-mode-hook
+          (lambda ()
+            (setq outline-minor-mode-use-buttons 'in-margins ;;you can use 'in-margins for buttons on margin
+                  outline-minor-mode-cycle 't
+                  outline-minor-mode-cycle-filter 'bolp)
+            (define-key outline-minor-mode-map (kbd "<f6>") 'outline-cycle)
+            (define-key outline-minor-mode-map (kbd "<S-f6>") 'outline-cycle-buffer)))
+
+
+;; Define a custom list for major modes and their corresponding outline regexps
+(defvar my-outline-mode-regexps
+  '((shell-mode "^dove@zsh.*[#%\$] ")
+    (sh-mode "^\\(?:###[ \t]*\\).*\n\\|function .*[{(]")
+    (perl-mode "sub ")
+    (eshell-mode "^[^#$\n]* [#$] ")
+    (ruby-mode "^\\(?:###[ \t]*\\).*\\|^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def ")
+    (lua-mode "function \\|[ ]+function ")
+    (Man-mode "^[A-Z]+")
+    (woman-mode "^[A-Z]+"))
+  "A list of major modes and their corresponding outline regexps.")
+
+;; Define a function to set the outline-regexp based on the major mode
+(defun set-outline-minor-mode-regexp ()
+  "Set outline-regexp based on current major mode from `my-outline-mode-regexps`."
+  (outline-minor-mode 1)
+  (let ((regexp-list my-outline-mode-regexps)
+        (found nil))
+    (dolist (entry regexp-list)
+      (when (eq (car entry) major-mode)
+        (setq found (cadr entry))))
+    (when found
+      (make-local-variable 'outline-regexp)
+      (setq outline-regexp found))))
+
+(mapc (lambda (hook) 
+        (add-hook hook 'set-outline-minor-mode-regexp t))
+      '(shell-mode-hook
+        sh-mode-hook
+        ;; emacs-lisp-mode-hook
+        eshell-mode-hook
+        ruby-mode-hook
+        ;; crystal-mode-hook
+        lua-mode-hook
+        Man-mode-hook
+        woman-mode
+        ))
+;; (mapc (lambda (mode-name) 
+;;         (add-hook mode-name  'set-outline-minor-mode-regexp t))
+;;       '(shell-mode-hook
+;;         sh-mode-hook
+;;         ;; emacs-lisp-mode-hook
+;;         eshell-mode-hook
+;;         ruby-mode-hook
+;;         ;; crystal-mode-hook
+;;         lua-mode-hook
+;;         Man-mode-hook
+;;         woman-mode
+;;         ))
+
+;; ;; (setq outline-regexp "^\\([ \t]*\\)class \\|^\\([ \t]*\\)module \\|^\\([ \t]*\\)def \\|^\\([ \t]*\\)begin ")
+;; ;; (setq-local outline-heading-end-regexp "\\_<end\\_>")
+;; ;; (setq-local outline-level
+;; ;;             (lambda ()
+;; ;;               "`outline-level' function for Python mode."
+;; ;;               (1+ (/ (current-indentation) python-indent-offset))))
+
+;; ;; (setq outline-regexp ruby-indent-beg-re)
+;; ;; (setq outline-regexp "^[[:upper]]+")
+
+#+end_src
+
+*** org
+
+#+begin_src emacs-lisp
+
+;; :mode (("\\.org\\'" . org-mode)
+;;        ("\\.org$" . org-mode))
+
+(with-no-warnings
+  (with-eval-after-load 'org
+    (setq org-src-fontify-natively t
+          org-src-tab-acts-natively t
+          org-confirm-babel-evaluate nil
+          org-edit-src-content-indentation 0)
+    (require 'ox-md))
+
+  (with-eval-after-load 'org
+    (require 'ox-latex)
+    (setq org-latex-pdf-process '("latexmk -pdf -xelatex %f"))  ; Use latexmk with xelatex
+    )
+
+  (with-eval-after-load "org"
+    (progn
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((python . t)
+         (perl . t)
+         (ruby . t)
+         (emacs-lisp . t)))
+
+      '(require 'ox-md nil t)))
+
+  (if EMACS27+ (with-eval-after-load "org"
+                 (progn
+                   (org-babel-do-load-languages
+                    'org-babel-load-languages
+                    '((shell . t))))))
+
+  (require 'org-beautifyish)
+  (add-hook 'org-mode-hook 'org-beautifyish-mode t)
+  (require 'org-tocish)
+  (add-hook 'org-mode-hook 'org-tocish-mode t)
+  (require 'orgify)
+  (require 'presentation-mode)
+
+  )
+
+#+end_src
+
+
+* my additional site-lisp tools
+** markdown and asciidoc support
+
+#+begin_src emacs-lisp
+
+  (require 'asciidoc-dumb-mode)
+  (require 'markdown-dumb-mode)
 
 #+end_src
 
