@@ -84,7 +84,17 @@
   (setq-local comment-end-skip nil)
   (setq-local comment-use-syntax nil)
 
-  (setq-local comment-line-function #'asciidoc-dumb-comment-dwim))
+  (setq-local comment-line-function #'asciidoc-dumb-comment-dwim)
+
+  ;;set whitespace settings
+  (setq-local whitespace-style
+             '(face                 ;; enable highlighting
+               trailing             ;; highlight trailing spaces
+               tabs                 ;; highlight tabs
+               spaces               ;; highlight spaces
+               lines-tail           ;; highlight long lines
+               indentation))        ;; highlight mixed indentation
+  )
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.adoc\\'" . asciidoc-dumb-mode))

@@ -97,7 +97,17 @@ Uses <!-- --> for block comments."
   (setq-local comment-use-syntax nil)
 
   ;; Set the comment command
-  (setq-local comment-line-function #'markdown-dumb-comment-dwim))
+  (setq-local comment-line-function #'markdown-dumb-comment-dwim)
+
+  ;;set whitespace settings
+  (setq-local whitespace-style
+             '(face                 ;; enable highlighting
+               trailing             ;; highlight trailing spaces
+               tabs                 ;; highlight tabs
+               spaces               ;; highlight spaces
+               lines-tail           ;; highlight long lines
+               indentation))        ;; highlight mixed indentation
+  )
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-dumb-mode))
