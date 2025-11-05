@@ -416,21 +416,38 @@ necessary for the rest of the config.
 
 #+begin_src emacs-lisp
 
-  (defun add-subdirs-to-load-path (dir)
-    "Add all directories under DIR to `load-path` if not already present."
-    (dolist (subdir (directory-files dir t "^[^.]"))  ; Iterate over non-hidden files
-      (when (file-directory-p subdir)                 ; Check if it's a directory
-        (unless (member subdir load-path)              ; If not already in load-path
-          (add-to-list 'load-path subdir))             ; Add it to load-path
-        (add-subdirs-to-load-path subdir))))            ; Recursively call for subdirectories
+;; (defun add-subdirs-to-load-path (dir)
+;;   "Add all directories under DIR to `load-path` if not already present."
+;;   (dolist (subdir (directory-files dir t "^[^.]"))  ; Iterate over non-hidden files
+;;     (when (file-directory-p subdir)                 ; Check if it's a directory
+;;       (unless (member subdir load-path)              ; If not already in load-path
+;;         (add-to-list 'load-path subdir))             ; Add it to load-path
+;;       (add-subdirs-to-load-path subdir))))            ; Recursively call for subdirectories
 
-  ;; Example usage: Add all subdirectories of the site-lisp directory to load-path
-  (let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
-    (unless (file-directory-p lisp-dir)
-      (make-directory lisp-dir))  ; Ensure the site-lisp directory exists
-    (unless (member lisp-dir load-path)
-      (add-to-list 'load-path lisp-dir))  ; Add the site-lisp directory to load-path
-    (add-subdirs-to-load-path lisp-dir))  ; Add all subdirectories recursively
+;; ;; Example usage: Add all subdirectories of the site-lisp directory to load-path
+;; (let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
+;;   (unless (file-directory-p lisp-dir)
+;;     (make-directory lisp-dir))  ; Ensure the site-lisp directory exists
+;;   (unless (member lisp-dir load-path)
+;;     (add-to-list 'load-path lisp-dir))  ; Add the site-lisp directory to load-path
+;;   (add-subdirs-to-load-path lisp-dir))  ; Add all subdirectories recursively
+
+(defun add-subdirs-to-load-path (dir)
+  "Recursively add all subdirectories of DIR to `load-path`.
+Skips hidden directories and symbolic links to avoid loops."
+  (dolist (subdir (directory-files dir t nil t))
+    (when (and (file-directory-p subdir)
+               (not (member (file-name-nondirectory subdir) '("." "..")))
+               (not (file-symlink-p subdir)))
+      (add-to-list 'load-path subdir)
+      (add-subdirs-to-load-path subdir))))
+
+;; Example usage: Add all subdirectories of site-lisp to load-path
+(let ((lisp-dir (expand-file-name "site-lisp" user-emacs-directory)))
+  (unless (file-directory-p lisp-dir)
+    (make-directory lisp-dir))
+  (add-to-list 'load-path lisp-dir)
+  (add-subdirs-to-load-path lisp-dir))
 
 #+end_src
 
@@ -969,6 +986,13 @@ necessary for the rest of the config.
 #+begin_src emacs-lisp
 
 (add-hook 'eww-mode-hook (lambda () (when EMACS26+ (display-line-numbers-mode -1))))
+(with-eval-after-load 'eww
+  (progn
+    (when EMACS30+
+      (setq eww-readable-urls '("wikipedia\\.org")))
+    (require 'orgify nil 'noerror))
+    )
+
 
 #+end_src
 
@@ -1831,6 +1855,7 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
       (add-hook 'org-mode-hook 'org-beautifyish-mode t)
       (require 'org-tocish)
       (add-hook 'org-mode-hook 'org-tocish-mode t)
+      (require 'orgify)
       (require 'presentation-mode))
     )
 
@@ -1844,8 +1869,7 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 
 (add-hook 'after-init-hook (lambda () (progn
   (require 'asciidoc-dumb-mode)
-  (require 'markdown-dumb-mode)
-  (require 'orgify))))
+  (require 'markdown-dumb-mode))))
 
 #+end_src
 
