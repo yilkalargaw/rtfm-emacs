@@ -464,6 +464,21 @@ Skips hidden directories and symbolic links to avoid loops."
   (prefer-coding-system 'utf-8)
 #+end_src
 
+*** input method
+#+begin_src emacs-lisp
+
+(require 'ethiopic)
+;; Tell the compiler about these symbols
+;; (defvar ethio-primary-language)
+;; (declare-function ethio-select-a-translation "ethiopic")
+
+;; (ethio-select-a-translation)
+(set-language-environment "Ethiopic")
+(setq ethio-primary-language 'amharic)
+(set-input-method "ethiopic")
+(ethio-select-a-translation)
+
+#+end_src
 *** autorevert
 
 #+begin_src emacs-lisp
