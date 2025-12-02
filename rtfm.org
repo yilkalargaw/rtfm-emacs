@@ -1450,7 +1450,21 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
                                                              "src"
                                                              "Insert a defun expression"
                                                              'org-tempo-tags)
-
+                                      
+                                      (tempo-define-template "amharic"
+                                                             '((concat
+                                                                "LATEX_COMPILER: lualatex \n"
+                                                                "#+LATEX_HEADER: \\usepackage{fontspec}\n"
+                                                                "#+LATEX_HEADER: \\setmainfont{Times New Roman} % English font\n"
+                                                                "#+LATEX_HEADER: \\newfontfamily\\amharicfont{Nyala} % Amharic font\n"
+                                                                "#+LATEX_HEADER: \\usepackage{ucharclasses}\n"
+                                                                "#+LATEX_HEADER: \\setTransitionsFor{Ethiopic}{\\begingroup\\amharicfont}{\\endgroup}\n"
+                                                                "#+LATEX_CLASS_OPTIONS: [12pt]\n"
+                                                                "#+LATEX_HEADER: \\renewcommand{\\contentsname}{ማውጫ}\n"
+                                                                ))
+                                                             "amh"
+                                                             "insert the necessary snippet for Amharic LaTeX export"
+                                                             'org-tempo-tags)
 
                                       (set-tempo)
                                       (defvar html-tempo-tags nil)
