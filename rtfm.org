@@ -1712,10 +1712,51 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
 (with-eval-after-load 'tramp
   (customize-set-variable 'remote-file-name-inhibit-cache nil)
   (customize-set-variable 'vc-ignore-dir-regexp
-        (format "%s\\|%s"
-                vc-ignore-dir-regexp
-                tramp-file-name-regexp))
+                          (format "%s\\|%s"
+                                  vc-ignore-dir-regexp
+                                  tramp-file-name-regexp))
   (setq tramp-verbose 1))
+
+
+(with-eval-after-load 'tramp
+  ;; 1. Define the Incus method
+  (add-to-list 'tramp-methods
+               `("incus"
+                 (tramp-login-program "incus")
+                 (tramp-login-args (("exec") ("%h") ("--") ("/bin/sh" "-l")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c"))))
+
+  ;; 2. Setup container name completion
+  (defun my/tramp-incus-completion (&rest _args)
+    "Return a list of running incus containers for Tramp completion."
+    (when (executable-find "incus")
+      (let ((names (process-lines "incus" "list" "status=running" "--columns=n" "--format=csv")))
+        (mapcar (lambda (name) (list nil name)) names))))
+
+  (tramp-set-completion-function "incus" '((my/tramp-incus-completion ""))))
+
+
+(with-eval-after-load 'tramp
+  ;; 1. Define the LXC method
+  (add-to-list 'tramp-methods
+               `("lxc"
+                 (tramp-login-program "lxc-attach")
+                 (tramp-login-args (("--clear-env")
+                                    ("-v" "HOME=/root")
+                                    ("-n") ("%h")
+                                    ("--" "/bin/sh" "-l")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c"))))
+
+  ;; 2. Setup container name completion
+  (defun my/tramp-lxc-completion (&rest _args)
+    "Return a list of running LXC containers for Tramp completion."
+    (when (executable-find "lxc-ls")
+      (let ((names (process-lines "lxc-ls" "--running" "-1")))
+        (mapcar (lambda (name) (list nil name)) names))))
+
+  (tramp-set-completion-function "lxc" '((my/tramp-lxc-completion ""))))
 
 #+end_src
 
