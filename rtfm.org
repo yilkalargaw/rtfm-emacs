@@ -1717,24 +1717,36 @@ sourced from https://www.lysator.liu.se/~davidk/elisp/tempo-examples.html
                                   tramp-file-name-regexp))
   (setq tramp-verbose 1))
 
-
 (with-eval-after-load 'tramp
   ;; 1. Define the Incus method
   (add-to-list 'tramp-methods
-               `("incus"
+               '("incus"
                  (tramp-login-program "incus")
-                 (tramp-login-args (("exec") ("%h") ("--") ("/bin/sh" "-l")))
-                 (tramp-remote-shell "/bin/sh")
-                 (tramp-remote-shell-args ("-c"))))
+                 (tramp-login-args (("exec") ("%h") ("--") ("su") ("-l") ("%u")))
+                 ;; (tramp-remote-shell "/bin/sh")
+                 ;; (tramp-remote-shell-args ("-c"))
+                 (tramp-default-user "root")))
 
   ;; 2. Setup container name completion
   (defun my/tramp-incus-completion (&rest _args)
-    "Return a list of running incus containers for Tramp completion."
+    "Return a list of currently running Incus containers for TRAMP."
     (when (executable-find "incus")
-      (let ((names (process-lines "incus" "list" "status=running" "--columns=n" "--format=csv")))
-        (mapcar (lambda (name) (list nil name)) names))))
+      (let ((names (condition-case _ 
+                       (process-lines "incus"
+                                      "list"
+                                      "status=running"
+                                      "--columns=n"
+                                      "--format=csv")
+                     (error nil))))
+        ;; map to TRAMP completion format, skip empty names
+        (delq nil (mapcar
+                   (lambda (name) (and (not (string= name ""))
+                                       (list nil name)))
+                   names)))))
 
+  ;; 3. Tell TRAMP to use this completion function
   (tramp-set-completion-function "incus" '((my/tramp-incus-completion ""))))
+
 
 
 (with-eval-after-load 'tramp
